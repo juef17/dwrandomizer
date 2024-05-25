@@ -318,8 +318,8 @@ typedef struct {
     uint8_t *header;
     uint8_t *content;
     uint8_t *expansion;
-    unsigned char flags_encoded[25];
-    uint8_t flags[15];
+    unsigned char flags_encoded[33];
+    uint8_t flags[20];
     uint8_t chest_access[31];
     uint64_t seed;
     dw_map map;
@@ -339,6 +339,16 @@ typedef struct {
     uint8_t *music;
     uint8_t *title_text;
 } dw_rom;
+
+#define BYTE_TO_BINARY(byte)  \
+  ((byte) & 0x80 ? '1' : '0'), \
+  ((byte) & 0x40 ? '1' : '0'), \
+  ((byte) & 0x20 ? '1' : '0'), \
+  ((byte) & 0x10 ? '1' : '0'), \
+  ((byte) & 0x08 ? '1' : '0'), \
+  ((byte) & 0x04 ? '1' : '0'), \
+  ((byte) & 0x02 ? '1' : '0'), \
+  ((byte) & 0x01 ? '1' : '0')
 
 #endif
 

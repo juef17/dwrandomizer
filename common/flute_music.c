@@ -254,6 +254,8 @@ void speed_up_flute_song(dw_rom *rom)
     uint8_t i;
     uint8_t skip = 2;
 
+    printf("SPEEDING UP FLUTE SONG\n");
+
     vpatch(rom, FLUTE_MUSIC_ADDRESS+3, 1, 0x78); // tempo
     while(!song_ended && address < FLUTE_MUSIC_ADDRESS+71)
     {

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -32,7 +33,7 @@ const char title_alphabet[] = "0123456789__________________________"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ__________________________________!.c-     ";
 
 /**
- * Returns the version number. Mostly for use with emscripten.
+ * Returns the version number. Mosltly for use with emscripten.
  *
  * @return The version number
  */
@@ -73,6 +74,43 @@ static void update_flags(dw_rom *rom)
         rom->flags[13] &= 0x3f;
         rom->flags[13] |= mt_rand(0, 2) << 6;
     }
+
+    //                                no du groupe de 5     same         bitmask  nbOptions-1   ramené au bitmask   --   toute sauf le bitmask
+    if(INN_IN_CHARLOCK(rom) == 2)       rom->flags[15] = (rom->flags[15] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
+    if(ONLY_HEALMORE(rom) == 2)         rom->flags[15] = (rom->flags[15] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
+    if(SHUFFLE_INN_PRICES(rom) == 3)    rom->flags[15] = (rom->flags[15] | 0x0c) & ((mt_rand(0, 2) << 2) | 0xf3);
+    if(SHUFFLE_KEY_PRICES(rom) == 3)    rom->flags[15] = (rom->flags[15] | 0x03) & ((mt_rand(0, 2)     ) | 0xfc);
+    if(SHUFFLE_VENDORS(rom) == 2)       rom->flags[16] = (rom->flags[16] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
+    if(RANDOMIZE_FLUTE_MUSIC(rom) == 2) rom->flags[16] = (rom->flags[16] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
+    if(DISGUISED_DRAGONLORD(rom) == 2)  rom->flags[16] = (rom->flags[16] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
+    if(MAGIC_HERBS(rom) == 2)           rom->flags[16] = (rom->flags[16] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
+    if(CRIT_DL1(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
+    if(CRIT_DL2(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
+    if(CRIT_CHANCE(rom) == 4)           rom->flags[17] = (rom->flags[17] | 0x70) & ((mt_rand(0, 3) << 4) | 0x8f);
+    if(DAMAGE_BONKS(rom) == 6)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 5) << 5) | 0x1f);
+    if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
+    if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
+
+    printf("----------- NEW FLAGS -----------\n");
+    printf("Inn in Charlock: %d\n", INN_IN_CHARLOCK(rom));
+    printf("Only healmore: %d\n", ONLY_HEALMORE(rom));
+    printf("Inn prices: %d\n", SHUFFLE_INN_PRICES(rom));
+    printf("Key prices: %d\n", SHUFFLE_KEY_PRICES(rom));
+    printf("Shuffle vendors: %d\n", SHUFFLE_VENDORS(rom));
+    printf("Flute music: %d\n", RANDOMIZE_FLUTE_MUSIC(rom));
+    printf("Disguised DL: %d\n", DISGUISED_DRAGONLORD(rom));
+    printf("Magic herbs: %d\n", MAGIC_HERBS(rom));
+    printf("No red flash: %d\n", NO_RED_FLASH(rom));
+    printf("Crit DL1: %d\n", CRIT_DL1(rom));
+    printf("Crit DL2: %d\n", CRIT_DL2(rom));
+    printf("Crit chance: %d\n", CRIT_CHANCE(rom));
+    printf("Damage bonks: %d\n", DAMAGE_BONKS(rom));
+    printf("Discardable flute: %d\n", DISCARDABLE_FLUTE(rom));
+    printf("Formidable flute: %d\n", FORMIDABLE_FLUTE(rom));
+    printf("Level 1 Radiant: %d\n", LEVEL_1_RADIANT(rom));
+    printf("Return escapes: %d\n", RETURN_ESCAPES(rom));
+    printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
+    printf("Warp whistle: %d\n", WARP_WHISTLE(rom));
 }
 
 /**
@@ -108,12 +146,16 @@ static BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags)
     fclose(input);
 
     rom->content = &rom->header[0x10];
-    strncpy((char *)rom->flags_encoded, flags, 24);
-    rom->flags_encoded[24] = '\0'; /* Make sure it's null terminated */
+    strncpy((char *)rom->flags_encoded, flags, 32);
+    rom->flags_encoded[32] = '\0'; /* Make sure it's null terminated */
     rom->map.flags = rom->flags;
-    memset(rom->flags, 0, 15);
+    memset(rom->flags, 0, 20);
     base32_decode(rom->flags_encoded, rom->flags);
+
+    //for(int i = 15; i<20; i++) printf("Byte %d: %c%c%c%c%c%c%c%c\n", i, BYTE_TO_BINARY(rom->flags[i]));
     update_flags(rom);
+
+    //for(int i = 15; i<20; i++) printf("Byte %d: %c%c%c%c%c%c%c%c\n", i, BYTE_TO_BINARY(rom->flags[i]));
 
     rom->map.chest_access = rom->chest_access;
     /* subtract 0x9d5d from these pointers */
@@ -263,17 +305,17 @@ uint16_t set_text(dw_rom *rom, const size_t address, char *text)
 //     int len;
 //     uint8_t *start, *end;
 //     char dw_text[256], dw_repl[256];
-//
+// 
 //     len = strlen(text);
 //     if (!len)
 //         return NULL;
 //     end = &rom->content[ROM_SIZE - len - 0x10];
-//
+// 
 //     strncpy(dw_text, text, 256);
 //     strncpy(dw_repl, replacement, 256);
 //     ascii2dw((unsigned char *)dw_text);
 //     ascii2dw((unsigned char *)dw_repl);
-//
+// 
 //     for (start = rom->content; start < end; start++) {
 //         if (!memcmp(start, dw_text, len)) {
 //             memcpy(start, dw_repl, len);
@@ -282,7 +324,7 @@ uint16_t set_text(dw_rom *rom, const size_t address, char *text)
 //     }
 //     return NULL;
 // }
-//
+// 
 /**
  * Patches the game to allow the use of torches and fairy water in battle
  *
@@ -647,12 +689,16 @@ static void randomize_spells(dw_rom *rom)
     /* choose levels for each spell */
     for (i=HEAL; i <= HURTMORE; i++) {
         spell_levels[i] = mt_rand(1, 16);
+        if(ONLY_HEALMORE(rom) && i!=HEALMORE)
+            spell_levels[i] = 255;
     }
 
     if (PERMANENT_REPEL(rom))
         spell_levels[REPEL] = 255;
     if (NO_HURTMORE(rom))
         spell_levels[HURTMORE] = 255;
+    if (LEVEL_1_RADIANT(rom))
+        spell_levels[RADIANT] = 1;
 
     if (HEAL_HURT_B4_MORE(rom)) {
         if (spell_levels[HEAL] > spell_levels[HEALMORE]) {
@@ -910,7 +956,7 @@ static void update_title_screen(dw_rom *rom)
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
     pos = center_title_text(pos, "RANDOMIZER");  /* RANDOMIZER text */
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
-    pos = center_title_text(pos, VERSION);       /* version number */
+    pos = center_title_text(pos, "JUEF VERSION");/* version number */
 
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
@@ -1197,7 +1243,7 @@ static void death_counter(dw_rom *rom)
 }
 
 /**
- * Modifies the level up routine to display the spells learned rather than
+ * Modifies the level up routine to display the spells learned rather than 
  * just indicating that you have learned a spell
  *
  * @param rom The rom struct
@@ -1418,7 +1464,7 @@ static void dwr_menu_wrap(dw_rom *rom)
 }
 
 /**
- * Rewrites the forced encounter routines to read from a table rather than
+ * Rewrites the forced encounter routines to read from a table rather than 
  * being hard-coded. This clears enough space to allow for 8 "spikes" rather
  * than the normal 3.
  *
@@ -1747,9 +1793,9 @@ static void no_keys(dw_rom *rom)
     }
 
     /* remove the key shopkeepers */
-    vpatch(rom, 0x1783, 3, 0, 0, 0);
+    /*vpatch(rom, 0x1783, 3, 0, 0, 0);
     vpatch(rom, 0x185c, 3, 0, 0, 0);
-    vpatch(rom, 0x181b, 3, 0, 0, 0);
+    vpatch(rom, 0x181b, 3, 0, 0, 0);*/
 }
 
 /**
@@ -1893,8 +1939,8 @@ static void begin_quest_checksum(dw_rom *rom, uint64_t crc)
     vpatch(rom, 0x6f8e, 2, 0xec, 0xc7);
 
     //our brand new "begin new quest" window
-    vpatch(rom, 0xc7ec, 7,
-        0x81, //Window Options.  Selection window.
+    vpatch(rom, 0xc7ec, 7,  
+        0x81, //Window Options.  Selection window. 
         0x02, //Window Height.   2 blocks.
         0x18, //Window Width.    24 tiles.
         0x12, //Window Position. Y = 1 blocks, X = 2 blocks.
@@ -1958,7 +2004,8 @@ void setup_expansion(dw_rom *rom)
     rom->header[4] = 8; /* set to 8 PRG banks */
 
     /* patching various routines to keep track of statistics */
-    add_hook(rom, JSR, 0x31eb, INC_BONK_CTR);
+    if(!DAMAGE_BONKS(rom))
+        add_hook(rom, JSR, 0x31eb, INC_BONK_CTR);
     add_hook(rom, JMP, 0xccf0, START_DWR_CREDITS);
     add_hook(rom, JSR, 0xdbb2, COUNT_SPELL_USE);
     add_hook(rom, JSR, 0xccb8, SNAPSHOT_TIMER);
@@ -2017,6 +2064,861 @@ static BOOL dwr_write(dw_rom *rom, const char *output_file)
 static void check_structs()
 {
     assert(sizeof(dw_enemy) == 16);
+}
+
+static void magic_herbs(dw_rom *rom)
+{
+    if(!MAGIC_HERBS(rom))
+        return;
+
+    vpatch(rom, 0xdd09, 1, 0xc6);
+    vpatch(rom, 0xdd0b, 1, 0xcb);
+    vpatch(rom, 0xdd0f, 1, 0xcb);
+    vpatch(rom, 0xdd11, 1, 0xc6);
+}
+
+static void no_red_flash(dw_rom *rom)
+{
+    int i;
+    if(!NO_RED_FLASH(rom))
+        return;
+
+    // NOP the whole red flash routine
+    for(i = 0; i<17; i++)
+        vpatch(rom, 0xee17 + i, 1, 0xea);
+}
+
+static void crit_changes(dw_rom *rom)
+{
+    if(CRIT_DL1(rom))
+        vpatch(rom, 0xe61a, 1, 0x00);
+    if(CRIT_DL2(rom))
+        vpatch(rom, 0xe61e, 1, 0x00);
+    if(CRIT_CHANCE(rom) == 1)
+        vpatch(rom, 0xe625, 1, 0x0f);
+    if(CRIT_CHANCE(rom) == 2)
+        vpatch(rom, 0xe625, 1, 0x00);
+    if(CRIT_CHANCE(rom) == 3)
+        vpatch(rom, 0xe625, 1, mt_rand(0, 0x1f));
+}
+
+/**
+ * Shuffles prices from all inns
+ *
+ * @param rom The rom struct
+ */
+static void shuffle_inn_prices(dw_rom *rom)
+{
+    uint8_t prices[5] = {6, 20, 25, 100, 55};
+    int i;
+
+    if (!SHUFFLE_INN_PRICES(rom))
+        return;
+
+    mt_shuffle(prices, sizeof(prices), sizeof(uint8_t));
+    for(i = 0; i < sizeof(prices) / sizeof(uint8_t); i++)
+    {
+        vpatch(rom, 0x198c + i, 1, prices[i]);
+        if(SHUFFLE_INN_PRICES(rom) == 2)
+            vpatch(rom, 0x198c + i, 1, mt_rand(1, 0xff));
+    }
+}
+
+/**
+ * Shuffles prices from all key vendors (affects key resale value as well)
+ *
+ * @param rom The rom struct
+ */
+static void shuffle_key_prices(dw_rom *rom)
+{
+    uint8_t prices[3] = {53, 85, 98};
+    int i;
+
+    if (!SHUFFLE_KEY_PRICES(rom))
+        return;
+
+    mt_shuffle(prices, sizeof(prices), sizeof(uint8_t));
+    for(i = 0; i < sizeof(prices) / sizeof(uint8_t); i++)
+    {
+        vpatch(rom, 0x1989 + i, 1, prices[i]);
+        if(SHUFFLE_KEY_PRICES(rom) == 2)
+            vpatch(rom, 0x1989 + i, 1, mt_rand(1, 0xff));
+    }
+    vpatch(rom, 0x196b, 1, prices[1]);
+}static int compareLocation(const void *a, const void *b)
+{
+    return *(uint8_t*)(a+4) - *(uint8_t*)(b+4);
+}
+
+static void discardable_flute(dw_rom *rom)
+{
+    if (!DISCARDABLE_FLUTE(rom))
+        return;
+
+    printf("Making dk9146 happy...\n");
+
+    vpatch(rom, 0xe0fc, 1, 0x01);
+}
+
+static void formidable_flute(dw_rom *rom)
+{
+    if (!FORMIDABLE_FLUTE(rom))
+        return;
+
+    printf("Making dk9146 sad...\n");
+
+    // Flute everything but DL2
+    if(FORMIDABLE_FLUTE(rom) == 1)
+        vpatch(rom, 0xe809, 2, 0x27, 0xf0);
+
+    // Flute everything
+    if(FORMIDABLE_FLUTE(rom) == 2)
+        vpatch(rom, 0xe80b, 1, 0x00);
+
+    // Display the enemy's name when it gets put to sleep
+    vpatch(rom, 0xaec0, 5, 0x1d, 0x11, 0x0e, 0x5f, 0xf4);
+}
+
+/**
+ * Makes a random NPC the Dragonlord, inn in Charlock, vendor shuffle
+ * TODO: build NPC table from ROM; separate this function in three (one for each flag)
+ *
+ * @param rom The rom struct
+ */
+static void npc_shenanigans(dw_rom *rom)
+{
+    const uint16_t NPCPointerTableStart = 0x1734;
+    uint8_t chosen_NPC, u = 0;
+    uint8_t swappable_check;
+    int i, j = 0, k;
+    FILE *fichierSortie;
+
+    // Mobile NPC pointer table, then static NPC pointer table
+    uint16_t NPCsPointerTables[12][2] = {
+        {0x9764, 0x9783}, // Tantegel
+        {0x97a2, 0x97a6}, // Throne room
+        {0x97ea, 0x97eb}, // Charlock basement
+        {0x98b3, 0x98cf}, // Kol
+        {0x9875, 0x9894}, // Brecconary
+        {0x98e5, 0x98fb}, // Garinham
+        {0x97f9, 0x9818}, // Cantlin
+        {0x9837, 0x9856}, // Rimuldar
+        {0x97b3, 0x97b4}, // Stones of sunlight cave
+        {0x97ef, 0x97f0}, // Staff of rain cave
+        {0x97f4, 0x97f5}, // Rainbow drop cave
+        {0x97b8, 0x97ce}  // Post-win Tantegel
+    };
+
+    // NOTE: In the vanilla ROM, the pointer table areas are not in the same order as in the ROM, so to make things simpler, we're gonna reorder them according to the pointer table order of areas (but keep mobile first, then static)
+
+    // Number of NPCs of each type in each area. mobile, then static. will be populated later
+    uint8_t NPCsCountTables[12][2] = {0};
+
+    /*
+    The 3 bytes of original data + 1 byte (abcdefgh) for randomization possibilities + 1 byte for original location & mobile/static + index so we can refer to specific NPCs after sorting
+    a: Swappable with dragonlord
+    b: Swappable with dragonlord if open charlock
+    c: Weapon shop vendor
+    d: Item shop vendor
+    e: Fairy water vendor
+    f: Key vendor
+    g: Non-Rimuldar key vendor
+    h: Innkeeper
+    */
+    uint8_t NPCData[][6] = {
+        {0xc8, 0x4d, 0x62, 0xc0, 0x00,   0}, // Female villager at  8,13 // Tantegel mobile
+        {0x53, 0x42, 0x17, 0xc0, 0x00,   1}, // Guard at           19, 2
+        {0x0b, 0x4b, 0x1c, 0xc0, 0x00,   2}, // Male villager at   11,11
+        {0xb1, 0x4b, 0x1d, 0xc0, 0x00,   3}, // Wizard at          17,11
+        {0x64, 0x55, 0x1f, 0xc0, 0x00,   4}, // Shopkeeper at       4,21
+        {0x39, 0x4b, 0x16, 0xc0, 0x00,   5}, // Fighter at         25,11
+        {0x52, 0x52, 0x72, 0xc0, 0x00,   6}, // Guard at           18,18
+        {0x42, 0x4c, 0x1b, 0xc0, 0x00,   7}, // Guard at            2,12
+        {0x66, 0x59, 0x1f, 0xc0, 0x00,   8}, // Shopkeeper at       6,25 <-- hijacked his dialogue for hint, control byte used to be 0x20 but is now 0x1f like the other nearby shopkeeper
+        {0x38, 0x55, 0x22, 0xc0, 0x00,   9}, // Fighter at         24,21
+        {0x78, 0x41, 0x0e, 0xc6, 0x01,  10}, // Shopkeeper at      24, 1 // Tantegel static
+        {0xdb, 0x45, 0x1a, 0xc0, 0x01,  11}, // Female villager at 27, 5
+        {0x48, 0x46, 0x19, 0xc0, 0x01,  12}, // Guard at            8, 6
+        {0x02, 0x48, 0x18, 0xc0, 0x01,  13}, // Male villager at    2, 8
+        {0x48, 0x08, 0x71, 0xc0, 0x01,  14}, // Guard at            8, 8
+        {0x5a, 0x0f, 0x1e, 0xc0, 0x01,  15}, // Guard at           26,15
+        {0x4f, 0x34, 0x63, 0xc0, 0x01,  16}, // Guard at           15,20
+        {0xb4, 0x7a, 0x6a, 0xc0, 0x01,  17}, // Wizard at          20,26
+        {0x49, 0x3b, 0x21, 0xc0, 0x01,  18}, // Guard at            9,27
+        {0x4c, 0x7b, 0x21, 0xc0, 0x01,  19}, // Guard at           12,27
+        {0x47, 0x45, 0x24, 0xc1, 0xff,  20}, // Guard at            7, 5 // Throne room mobile — control byte is usually 0x65 but that is now used for cursed princess. that guard is removed (0xff never gets put anywhere), but may eventually become Charlock innkeeper
+        {0x83, 0x43, 0x6e, 0x00, 0x03,  21}, // King Lorik at       3, 3 // Throne room static
+        {0x43, 0x26, 0x23, 0xc0, 0x03,  22}, // Guard at            3, 6
+        {0x45, 0x66, 0x24, 0xc0, 0x03,  23}, // Guard at            5, 6
+        {0xc6, 0x43, 0x6f, 0xc0, 0x03,  24}, // Princess Gwaelin at 6, 3
+        {0xb0, 0x58, 0x70, 0xc0, 0x05,  25}, // Dragonlord at      16,24 // Charlock basement, no mobile there, would be location 0x04
+        {0x0e, 0x4d, 0x36, 0xc0, 0x06,  26}, // Male villager at   14,13 // Kol mobile
+        {0x05, 0x4c, 0x30, 0xc0, 0x06,  27}, // Male villager at    5,12
+        {0x4c, 0x4a, 0x37, 0xc0, 0x06,  28}, // Guard at           12,10
+        {0xa2, 0x4c, 0x5e, 0xc0, 0x06,  29}, // Wizard at           2,12
+        {0xb4, 0x53, 0x38, 0xc0, 0x06,  30}, // Wizard at          20,19
+        {0x26, 0x47, 0x35, 0xc0, 0x06,  31}, // Fighter at          6, 7
+        {0xcb, 0x4e, 0x2e, 0xc0, 0x06,  32}, // Female villager    11,14
+        {0x67, 0x53, 0x5f, 0xc0, 0x06,  33}, // Shopkeeper at       7,19
+        {0xb4, 0x48, 0x39, 0xc0, 0x06,  34}, // Wizard at          20, 8
+        {0xa1, 0x41, 0x68, 0xc0, 0x07,  35}, // Wizard at           1, 1 // Kol static
+        {0xcc, 0x41, 0x32, 0xc0, 0x07,  36}, // Female villager    12, 1
+        {0x73, 0x04, 0x11, 0xc1, 0x07,  37}, // Shopkeeper at      19, 4
+        {0x76, 0x6c, 0x00, 0xe0, 0x07,  38}, // Shopkeeper at      22,12
+        {0x34, 0x4d, 0x33, 0xc0, 0x07,  39}, // Fighter at         20,13
+        {0x6e, 0x75, 0x07, 0xd0, 0x07,  40}, // Shopkeeper at      14,21
+        {0x41, 0x57, 0x34, 0xc0, 0x07,  41}, // Guard at            1,23
+        {0xa9, 0x44, 0x2b, 0xc0, 0x08,  42}, // Wizard at           9, 4 // Brecconary mobile
+        {0x2c, 0x53, 0x5d, 0xc0, 0x08,  43}, // Fighter at         12,19
+        {0x6f, 0x49, 0x2e, 0xc0, 0x08,  44}, // Shopkeeper at      15, 9
+        {0x19, 0x56, 0x31, 0xc0, 0x08,  45}, // Male villager at   25,22
+        {0x0a, 0x4e, 0x2c, 0xc0, 0x08,  46}, // Male villager at   10,14
+        {0xd8, 0x44, 0x0f, 0xc8, 0x08,  47}, // Female villager at 24, 4
+        {0x5a, 0x4f, 0x2f, 0xc0, 0x08,  48}, // Guard at           26,15
+        {0xcf, 0x58, 0x2d, 0xc0, 0x08,  49}, // Female villager at 15,24
+        {0x33, 0x52, 0x30, 0xc0, 0x08,  50}, // Fighter at         19,18
+        {0x23, 0x5a, 0x27, 0xc0, 0x08,  51}, // Fighter at          3,26
+        {0x65, 0x44, 0x01, 0xe0, 0x09,  52}, // Shopkeeper at       5, 4 // Brecconary static
+        {0x3c, 0x41, 0x25, 0xc0, 0x09,  53}, // Fighter at         28, 1
+        {0xc4, 0x47, 0x29, 0xc0, 0x09,  54}, // Female villager     4, 7
+        {0x14, 0x4a, 0x26, 0xc0, 0x09,  55}, // Male villager at   20,10
+        {0xb8, 0x4a, 0x67, 0x00, 0x09,  56}, // Wizard at          24,10
+        {0x01, 0x4d, 0x2a, 0xc0, 0x09,  57}, // Male villager at    1,13
+        {0x6a, 0x75, 0x12, 0xc1, 0x09,  58}, // Shopkeeper at      10,21
+        {0x14, 0x17, 0x28, 0xc0, 0x09,  59}, // Male villager at   20,23
+        {0x79, 0x79, 0x08, 0xd0, 0x09,  60}, // Shopkeeper at      25,25
+        {0x4a, 0x1a, 0x64, 0xc0, 0x09,  61}, // Guard at           10,26
+        {0xcc, 0x44, 0x3e, 0xc0, 0x0a,  62}, // Female villager at 12, 4 // Garinham mobile
+        {0xcc, 0x4c, 0x43, 0xc0, 0x0a,  63}, // Female villager at 12,12
+        {0xac, 0x48, 0x3f, 0xc0, 0x0a,  64}, // Wizard at          12, 8
+        {0xa7, 0x4a, 0x42, 0xc0, 0x0a,  65}, // Wizard at           2,10 (a7 was a2, mcgrew moved him)
+        {0x0b, 0x47, 0x3d, 0xc0, 0x0a,  66}, // Male villager at   11, 7
+        {0x12, 0x4c, 0x44, 0xc0, 0x0a,  67}, // Male villager at   18,12
+        {0x27, 0x51, 0x41, 0xc0, 0x0a,  68}, // Fighter at          7,17
+        {0xae, 0x41, 0x3a, 0xc0, 0x0b,  69}, // Wizard at          14, 1 // Garinham static
+        {0x43, 0x25, 0x3b, 0xc0, 0x0b,  70}, // Guard at            3, 5
+        {0x45, 0x65, 0x3b, 0xc0, 0x0b,  71}, // Guard at            5, 5
+        {0x69, 0x46, 0x3c, 0xc0, 0x0b,  72}, // Shopkeeper at       9, 6
+        {0x65, 0x6b, 0x09, 0xd0, 0x0b,  73}, // Shopkeeper at       5,11
+        {0x71, 0x6f, 0x13, 0xc1, 0x0b,  74}, // Shopkeeper at      17,15
+        {0xa2, 0x31, 0x40, 0xc0, 0x0b,  75}, // Wizard at           2,17
+        {0x6a, 0x12, 0x02, 0xe0, 0x0b,  76}, // Shopkeeper at      10,18
+        {0x14, 0x4f, 0x4b, 0xc0, 0x0c,  77}, // Male villager at   20,15 // Cantlin mobile
+        {0x45, 0x46, 0x60, 0xc0, 0x0c,  78}, // Guard at            5, 6
+        {0x79, 0x51, 0x4c, 0xc0, 0x0c,  79}, // Shopkeeper at      25,17
+        {0xc4, 0x4e, 0x49, 0xc0, 0x0c,  80}, // Female villager at  4,14
+        {0x76, 0x45, 0x03, 0xe0, 0x0c,  81}, // Shopkeeper at      22, 5
+        {0xc9, 0x50, 0x4a, 0xc0, 0x0c,  82}, // Female villager at  9,16
+        {0xae, 0x5c, 0x6b, 0x00, 0x0c,  83}, // Wizard at          14,28
+        {0x4f, 0x46, 0x48, 0xc0, 0x0c,  84}, // Guard at           15, 6
+        {0x63, 0x5a, 0x4e, 0xc0, 0x0c,  85}, // Shopkeeper at       3,26
+        {0x56, 0x49, 0x4d, 0xc0, 0x0c,  86}, // Guard at           22, 9
+        {0x68, 0x43, 0x14, 0xc1, 0x0d,  87}, // Shopkeeper at       8, 3 // Cantlin static
+        {0xbb, 0x46, 0x0c, 0xc6, 0x0d,  88}, // Wizard at          27, 6
+        {0x02, 0x27, 0x0a, 0xd0, 0x0d,  89}, // Male villager at    2, 7
+        {0x62, 0x2c, 0x45, 0xd0, 0x0d,  90}, // Shopkeeper at       2,12 <-- radish vendor considered an item seller so he can be shuffled
+        {0x67, 0x6c, 0x0b, 0xd0, 0x0d,  91}, // Shopkeeper at       7,12
+        {0x58, 0x2c, 0x05, 0xe0, 0x0d,  92}, // Guard at           24,12
+        {0xd6, 0x6d, 0x10, 0xc8, 0x0d,  93}, // Female villager at 22,13
+        {0xaf, 0x50, 0x46, 0xc0, 0x0d,  94}, // Wizard at          15,16
+        {0xb6, 0x56, 0x47, 0xc0, 0x0d,  95}, // Wizard at          22,22
+        {0x7b, 0x7a, 0x04, 0xe0, 0x0d,  96}, // Shopkeeper at      27,26
+        {0xc6, 0x55, 0x59, 0xc0, 0x0e,  97}, // Female villager at  6,21 // Rimuldar mobile
+        {0x0b, 0x48, 0x30, 0xc0, 0x0e,  98}, // Male villager at   11, 8
+        {0x06, 0x57, 0x5a, 0xc0, 0x0e,  99}, // Male villager at    6,23
+        {0xd6, 0x4e, 0x56, 0xc0, 0x0e, 100}, // Female villager at 22,14
+        {0x25, 0x59, 0x5b, 0xc0, 0x0e, 101}, // Fighter at          5,25
+        {0x37, 0x4b, 0x52, 0xc0, 0x0e, 102}, // Fighter at         23,11
+        {0x0e, 0x4b, 0x55, 0xc0, 0x0e, 103}, // Male villager at   14,11
+        {0x30, 0x5a, 0x69, 0xc0, 0x0e, 104}, // Fighter at         16,26
+        {0x48, 0x50, 0x54, 0xc0, 0x0e, 105}, // Guard at            8,16
+        {0x38, 0x53, 0x57, 0xc0, 0x0e, 106}, // Fighter at         24,19
+        {0x1b, 0x40, 0x51, 0xc0, 0x0f, 107}, // Male villager at   27, 0 // Rimuldar static
+        {0x62, 0x04, 0x4f, 0xc0, 0x0f, 108}, // Shopkeeper at       2, 4
+        {0xa4, 0x07, 0x0d, 0x04, 0x0f, 109}, // Wizard at           4, 7
+        {0x77, 0x47, 0x06, 0xe0, 0x0f, 110}, // Shopkeeper at      23, 7
+        {0xcf, 0x08, 0x50, 0xc0, 0x0f, 111}, // Female villager at 15, 8
+        {0xa6, 0x6d, 0x53, 0xc0, 0x0f, 112}, // Wizard at           6,13
+        {0x70, 0x32, 0x15, 0xc1, 0x0f, 113}, // Shopkeeper at      16,18
+        {0xa3, 0x37, 0x61, 0xc0, 0x0f, 114}, // Wizard at           3,23
+        {0xb4, 0x57, 0x58, 0xc0, 0x0f, 115}, // Wizard at          20,23
+        {0xc0, 0x5a, 0x5c, 0xc0, 0x0f, 116}, // Female villager at  0,26
+        {0xa4, 0x46, 0x66, 0xc0, 0x11, 117}, // Wizard at           4, 6 // Stones of sunlight static (no mobile there)
+        {0xa4, 0x24, 0x6c, 0x40, 0x13, 118}, // Wizard at           4, 4 // Staff of rain cave, no mobile there
+        {0xa4, 0x65, 0x6d, 0x40, 0x15, 119}, // Wizard at           4, 5 // Rainbow drop cave, no mobile there
+        {0x53, 0x42, 0x17, 0x00, 0x16, 120}, // Guard at           19, 2 // Post-win Tantegel mobile
+        {0x0e, 0x57, 0x1c, 0x00, 0x16, 121}, // Male villager at   14,23
+        {0x39, 0x4b, 0x16, 0x00, 0x16, 122}, // Fighter at         25,11
+        {0x52, 0x52, 0x72, 0x00, 0x16, 123}, // Guard at           18,18
+        {0x42, 0x4c, 0x1b, 0x00, 0x16, 124}, // Guard at            2,12
+        {0x66, 0x59, 0x20, 0x00, 0x16, 125}, // Shopkeeper at       6,25
+        {0x38, 0x55, 0x22, 0x00, 0x16, 126}, // Fighter at         24,21
+        {0x8b, 0x47, 0xfe, 0x00, 0x17, 127}, // King Lorik at      11, 7 // Post-win Tantegel static
+        {0xe9, 0x49, 0xfd, 0x00, 0x17, 128}, // Trumpet guard at    9, 9
+        {0xe9, 0x4b, 0xfd, 0x00, 0x17, 129}, // Trumpet guard at    9,11
+        {0xe9, 0x4d, 0xfd, 0x00, 0x17, 130}, // Trumpet guard at    9,13
+        {0xac, 0x49, 0xfd, 0x00, 0x17, 131}, // Trumpet guard at   12, 9
+        {0xac, 0x4b, 0xfd, 0x00, 0x17, 132}, // Trumpet guard at   12,11
+        {0xac, 0x4d, 0xfd, 0x00, 0x17, 133}, // Trumpet guard at   12,13
+        {0x49, 0x3b, 0xfd, 0x00, 0x17, 134}, // Guard at            9,11
+        {0x4c, 0x7b, 0xfd, 0x00, 0x17, 135}  // Guard at           12,11
+    };
+
+    char disguise[18], location[11], hint[83] = "                                                                                  ";
+
+    uint8_t vendorID[17], vendorBytes[17][2]; // id from above list. Seventeen vendors in total (including radish guy, excluding rim key vendor). 2 bytes are control byte and swap info
+
+    // Let's not make the key vendors swappable if there's no key vendor, shall we?
+    if(NO_KEYS(rom))
+    {
+        NPCData[10][3] &= 0x3f;
+        NPCData[88][3] &= 0x3f;
+        NPCData[109][3] &= 0x3f;
+    }
+
+    if(INN_IN_CHARLOCK(rom))
+    {
+        NPCData[20][0] = 0x75;
+        NPCData[20][1] = 0x68;
+        NPCData[20][2] = 0x14; // Cantlin Innkeeper dialogue
+		// Not changing Disguised DL availability
+        NPCData[20][4] = 0x05;
+    }
+
+    if(SHUFFLE_VENDORS(rom))
+    {
+        for(i=0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
+        {
+            if((NPCData[i][3] & 0x3a) && j < sizeof(vendorID)/sizeof(uint8_t)) // Weapon, item, fairy water or non-Rim key vendor
+            {
+                vendorID[j] = i;
+                vendorBytes[j][0] = NPCData[i][2];
+                vendorBytes[j++][1] = NPCData[i][3];
+            }
+        }
+
+        mt_shuffle(vendorID, sizeof(vendorID), sizeof(uint8_t));
+
+        for(i=0; i<sizeof(vendorID) / sizeof(uint8_t); i++)
+        {
+            NPCData[vendorID[i]][2] = vendorBytes[i][0];
+            NPCData[vendorID[i]][3] = vendorBytes[i][1];
+        }
+    }
+
+    if(DISGUISED_DRAGONLORD(rom))
+    {
+		// If Open Charlock, Staff of Rain guy and Jerk can be DL
+        if(OPEN_CHARLOCK(rom))
+            swappable_check = 0x40;
+        else
+            swappable_check = 0x80;
+
+        do
+        {
+            chosen_NPC = mt_rand(0, sizeof(NPCData) / (6*sizeof(uint8_t)));
+        } while(!(NPCData[chosen_NPC][3] & swappable_check));
+
+        switch((0xe0 & NPCData[chosen_NPC][0]) >> 5)
+        {
+            case 0:
+                strcpy(disguise, "a male villager");
+                break;
+            case 1:
+                // I know the source says 'fighter' but it shouldn't be confused with the fists guys from DW3
+                strcpy(disguise, "a soldier");
+                break;
+            case 2:
+            case 7: // stationnary/trumpet guard, whatever
+                strcpy(disguise, "a guard");
+                break;
+            case 3:
+                strcpy(disguise, "a shopkeeper");
+                break;
+            case 4:
+                strcpy(disguise, "King Lorik"); // Shouldn't happen
+                break;
+            case 5:
+                strcpy(disguise, "an old man"); // Could include DL but then there's no hint anyway
+                break;
+            case 6:
+                if(chosen_NPC == 24)
+                    strcpy(disguise, "princess Gwaelin");
+                else
+                    strcpy(disguise, "a female villager");
+                break;
+            default:
+                strcpy(disguise, "a bug");
+        }
+
+        // Vanilla Dragonlord, no need for hint shenanigans
+        if(chosen_NPC != 25)
+        {
+            // Make the NPC have the Dragonlord dialogue
+            NPCData[chosen_NPC][2] = 0x70;
+
+            // Have the vanilla dragonlord give an hint to the location of the actual dragonlord
+            // Hint is constructed below, after rebuilding the pointer tables
+            NPCData[25][2] = 0x20;
+        }
+    }
+
+    for(i = 0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
+    {
+        // Remove key vendors if NO_KEYS is on
+		// Hopefully this removes the invisible block in Rimuldar
+        if(NO_KEYS(rom) && (NPCData[i][3] & 0x04))
+        {
+            // TODO
+            // If there's one less NPC in the NPC tables before rescued Gwaelin, we need to change the "Gwaelin is not saved, hide her" code.
+            // Not sure how this works in the vanilla game, so this is a hack right now as we know there can only be one less NPC and that
+            // is if NO_KEYS is on. Compared to vanilla, we just shifted the values down by 9. This causes a guard to disappear for the scene
+            // where we bring Gwaelin back but I guess that doesn't matter much for now. We check this here because of vendor shuffle.
+            if(NPCData[i][4] == 0x01) {
+                vpatch(rom, 0x3029, 1, 0x6f);
+                vpatch(rom, 0x302b, 1, 0x70);
+                vpatch(rom, 0x302d, 1, 0x71);
+            }
+
+            NPCData[i][4] = 0xff;
+            //printf("Removing NPC id %d\n", NPCData[i][5]);
+        }
+
+        // Update number of NPCs of each type for each area
+        if(NPCData[i][4] < 0xff)
+            NPCsCountTables[NPCData[i][4]/2][NPCData[i][4]%2]++;
+    }
+
+	// After this sort, NPCData indexes are worthless references, so we use the last element of each row, which stores the original id
+    qsort(NPCData, sizeof(NPCData)/(6*sizeof(uint8_t)), 6*sizeof(uint8_t), &compareLocation);
+/*
+    for(i=0; i<=135; i++)
+        printf("BUG: %02X, %02X, %02X, %02X, %02X, %d\n", NPCData[i][0], NPCData[i][1], NPCData[i][2], NPCData[i][3], NPCData[i][4], NPCData[i][5]);*/
+
+    // For every area
+    for(i = 0; i<12; i++) {
+        // For every type of NPC
+        for(j = 0; j<2; j++) {
+            // For every NPC in that area
+            //printf("NPCsCountTables[%d][%d]: %u\n", i, j, NPCsCountTables[i][j]);
+            for(k = 0; k < NPCsCountTables[i][j]; k++) {
+                vpatch(rom, NPCsPointerTables[i][j] - 0x8000 + 3*k, 3, NPCData[u][0], NPCData[u][1], NPCData[u][2]);
+
+				// Add location to hint, as well as change the warp after the final battle, for consistency and softlock avoidance
+                if(DISGUISED_DRAGONLORD(rom) && NPCData[u][5] == chosen_NPC && chosen_NPC != 25)
+                {
+                    if(i < 2 || i == 11) {
+                        strcpy(location, "Tantegel"); // 0 is main floor, 1 is throne room, 11 is post-win tantegel (which shouldn't happen)
+                        vpatch(rom, 0xea04, 1, 0x0c);
+                    }
+                    else if(i == 2) {
+                        strcpy(location, "Charlock"); // leave the warp alone then
+                    }
+                    else if(i == 3) {
+                        strcpy(location, "Kol");
+                        vpatch(rom, 0xea04, 1, 0x06);
+                    }
+                    else if(i == 4) {
+                        strcpy(location, "Brecconary");
+                        vpatch(rom, 0xea04, 1, 0x09);
+                    }
+                    else if(i == 5) {
+                        strcpy(location, "Garinham");
+                        vpatch(rom, 0xea04, 1, 0x00);
+                    }
+                    else if(i == 6) {
+                        strcpy(location, "Cantlin");
+                        vpatch(rom, 0xea04, 1, 0x21);
+                    }
+                    else if(i == 7) {
+                        strcpy(location, "Rimuldar");
+                        vpatch(rom, 0xea04, 1, 0x1b);
+                    }
+                    else if(i == 8) {
+                        strcpy(location, "a cave");
+                        vpatch(rom, 0xea04, 1, 0x33);
+                    }
+                    else if(i == 9) {
+                        strcpy(location, "a cave");
+                        vpatch(rom, 0xea04, 1, 0x03);
+                    }
+                    else if(i == 10) {
+                        strcpy(location, "a cave");
+                        vpatch(rom, 0xea04, 1, 0x24);
+                    }
+                    else strcpy(location, "this ROM");
+                    /* Other places:
+                        0f = Swamp cave north
+                        15 = Swamp cave south
+                        18 = Mountain cave
+                        1e = Hawksness
+                        27 = Tablet cave
+                        39 = Grave
+                    */
+                }
+                u++;
+            }
+            vpatch(rom, NPCsPointerTables[i][j] - 0x8000 + 3*k, 1, 0xff);
+
+            // Update the NPC pointer tables. NPCsPointerTables[0][0] always stays the same (0x9764)
+            if(!j) // mobile
+                NPCsPointerTables[i][1] = NPCsPointerTables[i][0] + (uint16_t)(3*NPCsCountTables[i][0] + 1);
+            else if(i+1 < 12) // static
+                NPCsPointerTables[i+1][0] = NPCsPointerTables[i][1] + (uint16_t)(3*NPCsCountTables[i][1] + 1);
+        }
+    }
+
+    // In the pointer table, all mobile tables come first; then, static
+    for(j = 0; j<2; j++) {
+        for(i = 0; i<12; i++) {
+            vpatch(rom, NPCPointerTableStart + 2*(12*j + i), 2, (uint8_t)(NPCsPointerTables[i][j] & 0x00ff), (uint8_t)((NPCsPointerTables[i][j] & 0xff00) >> 8));
+        }
+    }
+
+    if(DISGUISED_DRAGONLORD(rom) && chosen_NPC != 25)
+    {
+        strcpy(hint, "`The Dragonlord is rumored to be in ");
+        strcat(hint, location);
+        strcat(hint, " disguised as ");
+        strcat(hint, disguise);
+        strcat(hint, ".'\xfc");
+        set_text(rom, 0x8cc0, hint);
+
+        // If Gwaelin was the Dragonlord...
+        if(chosen_NPC == 24)
+        {
+            // Let's not have her come down the stairs at the end by NOPing that section
+            for(i = 0; i<142; i++)
+                vpatch(rom, 0xcc2a + i, 1, 0xea);
+
+            // Make the king react a bit differently
+            set_text(rom, 0xb8c8, "`Well, that was unfortunate...'");
+        }
+    }
+}
+
+/**
+ * Makes return escape from battle
+ *
+ * @param rom The rom struct
+ */
+void return_escapes(dw_rom *rom)
+{
+    uint8_t damage;
+
+    if (!RETURN_ESCAPES(rom))
+        return;
+
+    // Skip checking for return as a spell that can't be used in battle
+    vpatch(rom, 0xe6fa, 1, 0x07);
+
+    // Hook into original Heal code:
+    //  JMP c950 (new code)
+    vpatch(rom, 0xe722, 3, 0x4c, 0x50, 0xc9);
+
+    // New code
+    vpatch(rom, 0xc950, 22,
+        0xc9, 0x00,         // CMP #SPL_HEAL
+        0xd0, 0x03,         // BNE 3 (jumping to Return)
+        0x4c, 0x26, 0xe7,   // JMP e726 (go to heal - the actual code for the spell is still in its original location)
+        0xc9, 0x06,         // CMP #SPL_RETURN
+        0xd0, 0x08,         // BNE 8 (skip over the new code, there's a jmp waiting for us there to lead us to the rest of the original code)
+        0xa9, 0x83,         // LDA #SFX_RUN
+        0x00,               // BRK
+        0x04, 0x17,         // InitMusicSFX, bank 1
+        0x4c, 0xa4, 0xe8,   // JMP e8a4 (there's the actual escaping part)
+        0x4c, 0x2c, 0xe7    // JMP e72c (go back to the rest of the original code)
+    );
+}
+
+/**
+ * Determines whether or not an overworld tile can be walked on.
+ *
+ * @param tile The tile type to check
+ * @return A boolean indicating whether the tile can be walked on
+ */
+static BOOL tile_is_walkable(dw_tile tile)
+{
+    switch(tile) {
+        case TILE_WATER:
+        case TILE_MOUNTAIN:
+        case TILE_BLOCK:
+            return FALSE;
+        default:
+            return TRUE;
+    }
+}
+
+void find_zoom_tile(dw_rom *rom, uint8_t town, uint8_t zoom_data[][3], uint8_t i)
+{
+    // town is warp index in map.h
+    uint8_t x, y;
+
+    x = rom->map.warps_from[town].x;
+    y = rom->map.warps_from[town].y;
+    zoom_data[i][1] = x;
+    zoom_data[i][2] = y;
+
+    if(y < 119 && tile_is_walkable(rom->map.tiles[x][y+1]))
+        zoom_data[i][2] = y+1;
+    else if(y > 0 && tile_is_walkable(rom->map.tiles[x][y-1]))
+        zoom_data[i][2] = y-1;
+    else if(x > 0 && tile_is_walkable(rom->map.tiles[x-1][y]))
+        zoom_data[i][1] = x-1;
+    else if(x < 119 && tile_is_walkable(rom->map.tiles[x+1][y]))
+        zoom_data[i][1] = x+1;
+/*    if(i == 0)
+    {
+        printf("Tantegel is at %u, %u\n", x, y);
+        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
+    }
+    if(i == 1)
+    {
+        printf("Brecconary is at %u, %u\n", x, y);
+        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
+    }
+    if(i == 2)
+    {
+        printf("Kol is at %u, %u\n", x, y);
+        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
+    }
+    if(i == 3)
+    {
+        printf("Garinhamis at %u, %u\n", x, y);
+        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
+    }
+    if(i == 4)
+    {
+        printf("Cantlin is at %u, %u\n", x, y);
+        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
+    }
+    if(i == 5)
+    {
+        printf("Rimuldar is at %u, %u\n", x, y);
+        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
+    }*/
+}
+
+/**
+ * Makes Return send you to the last place you saved or used an inn at
+ * and/or
+ * Makes the Fairy Flute work as a warp whistle outside of battle. It will cycle between visited towns and Tantegel.
+ * 
+ *
+ * @param rom The rom struct
+ */
+void zoom_and_whistle(dw_rom *rom)
+{
+    uint8_t zoom_data[6][3]; // i is town in the below order, j is map, zoom_x, zoom_y
+	
+	// Just random RAM addresses I thought might be unused
+    uint16_t ram_i = 0x6730; // Index of town to warp to with Return
+    uint16_t ram_j = 0x6731; // Index of town to warp-whistle to
+	uint16_t ram_v = 0x6732; // List of visited towns (00RC GKBT)
+
+    if (!RETURN_TO_ZOOM(rom) && !WARP_WHISTLE(rom))
+        return;
+
+    zoom_data[0][0] = 0x05; // Tantegel throne room
+    find_zoom_tile(rom, 4, zoom_data, 0);
+
+    zoom_data[1][0] = 0x08; // Brecconary
+    find_zoom_tile(rom, 3, zoom_data, 1);
+
+    zoom_data[2][0] = 0x07; // Kol
+    find_zoom_tile(rom, 2, zoom_data, 2);
+
+    zoom_data[3][0] = 0x09; // Garinham
+    find_zoom_tile(rom, 0, zoom_data, 3);
+
+    zoom_data[4][0] = 0x0a; // Cantlin
+    find_zoom_tile(rom, 11, zoom_data, 4);
+
+    zoom_data[5][0] = 0x0b; // Rimuldar
+    find_zoom_tile(rom, 9, zoom_data, 5);
+
+/*    zoom_data[6][0] = 0x03; // Hawksness
+    find_zoom_tile(rom, 10, zoom_data, 6);*/
+
+    // Hooking into the spell casting code
+    vpatch(rom, 0xdb04, 16,
+		0xad, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // LDA absolute zoom_i
+        0x20, 0x66, 0xc9, // JSR new code to load zoom coords (0xc966)
+        0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea // NOP because we're gonna RTS later on and that stuff will have been done in the new code
+        //TODO We could use those bytes for something
+    );
+	
+	// But wait, if we just want the warp whistle, let the Zoom index always be Tantegel's
+	if (!RETURN_TO_ZOOM(rom))
+		vpatch(rom, 0xdb04, 3, 0xea, 0xa9, 0x00); // NOP, LDA 0 (Tantegel's index)
+
+    // New code to set zoom coords from RAM index when casting Return. This is shared by Return-Zoom and Warp-Whistle so index has to be loaded before
+    vpatch(rom, 0xc966, 57,
+        // TODO: the following can be inside a loop, I guess
+        0xa2, zoom_data[0][1],  // ldx zoom_x
+        0xa0, zoom_data[0][2],  // ldy zoom_y
+        0xc9, 0,                // cmp 0 (is warp index Tantegel?)
+        0xf0, 4*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
+
+        0xa2, zoom_data[1][1],  // ldx zoom_x
+        0xa0, zoom_data[1][2],  // ldy zoom_y
+        0xc9, 1,                // cmp 0 (is warp index Brecconary?)
+        0xf0, 3*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
+
+        0xa2, zoom_data[2][1],  // ldx zoom_x
+        0xa0, zoom_data[2][2],  // ldy zoom_y
+        0xc9, 2,                // cmp 0 (is warp index Kol?)
+        0xf0, 2*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
+
+        0xa2, zoom_data[3][1],  // ldx zoom_x
+        0xa0, zoom_data[3][2],  // ldy zoom_y
+        0xc9, 3,                // cmp 0 (is warp index Garinham?)
+        0xf0, 1*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
+
+        0xa2, zoom_data[4][1],  // ldx zoom_x
+        0xa0, zoom_data[4][2],  // ldy zoom_y
+        0xc9, 4,                // cmp 0 (is warp index Cantlin?)
+        0xf0, 4,                // beq block below (it was! Otherwise, the comparisons will just continue.)
+
+        // No checks here, index has to be Rimuldar at this point
+        0xa2, zoom_data[5][1],  // ldx zoom_x
+        0xa0, zoom_data[5][2],  // ldy zoom_y
+
+        // Put the coords in the right places. This is original code, but with new registers
+        0x86, 0x3A, // LDB06:  STX CharXPos
+        0x86, 0x8E, // LDB08:  STX _CharXPos
+        0x86, 0x90, // LDB0A:  STX CharXPixelsLB
+        0x84, 0x3B, // LDB0E:  STY CharYPos
+        0x84, 0x8F, // LDB10:  STY _CharYPos
+        0x84, 0x92, // LDB12:  STY CharYPixelsLB
+
+        0x60 // RTS
+    );
+
+    // Hook to new code to update zoom index in RAM when staying at an inn
+    vpatch(rom, 0xd8df, 5, 0x20, 0x15, 0xc8, 0xea, 0xea); // JSR new code (0xc815)
+
+    // New code to update zoom index and visited towns in RAM when staying at an inn
+    vpatch(rom, 0xc815, 69,
+        0xa6, 0x45,             // LDX zeropage map number
+		0xad, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // LDA absolute zoom_v
+
+        // TODO: this can be inside a loop, I guess
+
+        0xe0, zoom_data[1][0],  // CPX Brecconary
+        0xd0, 7,                // BNE next
+        0xa2, 1,                // LDX (town index in zoom_data)
+        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+		0x09, 0x02,														   // ORA 0x02 (Brecconary's visited bit)
+
+        0xe0, zoom_data[2][0],  // CPX Kol
+        0xd0, 7,                // BNE next
+        0xa2, 2,                // LDX (town index in zoom_data)
+        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+		0x09, 0x04,														   // ORA 0x04 (Kol's visited bit)
+
+        0xe0, zoom_data[3][0],  // CPX Garinham
+        0xd0, 7,                // BNE next
+        0xa2, 3,                // LDX (town index in zoom_data)
+        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+		0x09, 0x08,														   // ORA 0x08 (Garinham's visited bit)
+
+        0xe0, zoom_data[4][0],  // CPX Cantlin
+        0xd0, 7,                // BNE next
+        0xa2, 4,                // LDX (town index in zoom_data)
+        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+		0x09, 0x10,														   // ORA 0x10 (Cantlin's visited bit)
+
+        0xe0, zoom_data[5][0],  // CPX Rimuldar
+        0xd0, 7,                // BNE next
+        0xa2, 5,                // LDX (town index in zoom_data)
+        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+		0x09, 0x20,														   // ORA 0x20 (Rimuldar's visited bit)
+
+		0x8d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // STA ram_v
+		
+        0xa9, 0x15, // LD8DF:  LDA #MSC_INN
+        0x00,       // LD8E1:  BRK
+        0x04, 0x17,
+        0x60        // RTS
+    );
+
+    // Hook start of the game to set initial zoom index
+    vpatch(rom, 0xca1a, 3, 0x20, 0x5a, 0xc8); // JSR new code (0xc85a)
+
+    // New code to set initial zoom index
+    vpatch(rom, 0xc85a, 17,
+        0xa9, 0,	// LDA Tantegel index
+        0x8d, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STA ram_i
+		0x8d, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // STA ram_j
+		0xa9, 1,	// LDA only Tantegel has been visited
+		0x8d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // STA ram_v
+        0x20, 0x47, 0xcb,   // Go to vanilla subroutine
+        0x60                // RTS
+    );
+
+    // Hook at saving to set zoom index to Tantegel
+    vpatch(rom, 0xd43f, 3, 0x20, 0x6b, 0xc8); // JSR new code (0xc86b)
+
+    // New code to set zoom index to Tantegel when saving
+    vpatch(rom, 0xc86b, 9,
+        0xa9, 0,            // LDA Tantegel index
+        0x8d, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STA ram_i
+        0x20, 0x48, 0xf1,   // Go to vanilla subroutine
+        0x60                // RTS
+    );
+
+    // TODO: Add check to see if DL is defeated, then set ram_i to Tantegel. Maybe? It could be fun as it is
+
+	if(!WARP_WHISTLE(rom))
+		return;
+	
+    // Hook to replace "doesn't work" text with JSR to new functionnality
+    vpatch(rom, 0xddbf, 4, 0x20, 0x74, 0xc8, 0xea); // JSR new code for flute functionality
+
+    // New code for flute functionality
+    vpatch(rom, 0xc874, 60,
+        0xa5, 0x16,         // LDAF1:  LDA MapType             ;Is the player in a dungeon?
+        0xc9, 0x20,         // LDAF3:  CMP #MAP_DUNGEON        ;
+        0xf0, 0x06,         // LDAF5:  BEQ ReturnFail          ;If so, branch. Spell fails.
+        0xa5, 0x45,         // LDAF7:  LDA MapNumber           ;Is the player in the bottom of the Dragon Lord's castle?
+        0xc9, 0x06,         // LDAF9:  CMP #MAP_DLCSTL_BF      ;
+        0xd0, 0x03,         // LDAFB:  BNE DoReturn            ;If not, skip the JMP and go do flute stuff
+        0x4c, 0x55, 0xda,   // LDAFD:  JMP SpellFizzle         ;($DA55)Print text indicating spell did not work.
+
+		0xad, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // LDA absolute zoom_j
+        0x20, 0x66, 0xc9,   // JSR new zoom code (0xc966)
+        0xa8,               // TAY, for later restoration
+
+        // Update whistle index
+
+        // Start
+        0x98,               // TYA (initially A is fine, but after looping it won't be, so let's restore the index backup)
+        0x18, 0x69, 0x01,   // CLC, ADC 1 (increment A)
+        0xc9, 0x06,         // CMP 6 (index should be 0-5)
+        0x90, 0x03,         // BCC to incrementing the index
+        0x38, 0xe9, 0x06,   // SEC, SBC 6 (make index back into 0-5 range)
+        0xaa, 0xa8,         // TAX, TAY. A, X and Y now contain the possible new index. A will be left-shifted to AND with ram_v (visited towns), X will act as counter, Y as the original index value
+        0xa9, 0x01,         // LDA 1 → A is now 1, preparing for the shifts
+
+        // Shifting
+        0xe0, 0x00,         // CPX 0. Are we done shifting?
+        0xf0, 4,            // BEQ Visited-check. Yup, we are done shifting.
+        0x0a, 0xca,         // ASL A, DEX (Nope, we're not done shifting, so left-shift A, decrement X)
+        0xd0, 0xf8,         // BNE Shifting (-8), keep looping the left-shifting
+
+        // Visited-check
+        0x2d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8),  // AND ram_v (did we visit the town's inn?)
+        0xf0, 0xe4,          // BEQ Start (-28) (No, we haven't visited it. Go back to incrementing)
+        0x8c, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8),  // STY RAM_j. We're done, here's the new index!
+
+        0xa9, 0x01,         // LDA #MAP_OVERWORLD      ;Set player's current map as the overworld map.
+        0x85, 0x45,         // STA MapNumber
+        0x4c, 0x14, 0xdb    // JMP rest of original return code
+    );
+
+    // Save RAM pour villes visitées
+    // Load RAM pour villes visitées
 }
 
 /**
@@ -2088,6 +2990,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     chaos_mode(&rom);
     no_keys(&rom);
     cursed_princess(&rom);
+    npc_shenanigans(&rom);
     threes_company(&rom);
     scared_metal_slimes(&rom);
     support_2_byte_xp_gold(&rom);
@@ -2100,6 +3003,11 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     summer_sale(&rom);
     modify_run_rate(&rom);
     dwr_token_dialogue(&rom);
+    discardable_flute(&rom);
+    formidable_flute(&rom);
+    magic_herbs(&rom);
+    shuffle_inn_prices(&rom);
+    shuffle_key_prices(&rom);
 
     modern_spell_names(&rom);
     randomize_music(&rom);
@@ -2108,7 +3016,10 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     no_numbers(&rom);
     invisible_hero(&rom);
     invisible_npcs(&rom);
+    damage_bonks(&rom);
     death_counter(&rom);
+    return_escapes(&rom);
+    zoom_and_whistle(&rom);
 
     crc = crc64(0, rom.content, 0x10000);
 
@@ -2116,6 +3027,8 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
 
     update_title_screen(&rom);
     no_screen_flash(&rom);
+    no_red_flash(&rom);
+    crit_changes(&rom);
 
     /* reseed the RNG so the rest isn't deterministic */
     mt_init(time(NULL));

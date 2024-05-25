@@ -4,6 +4,7 @@
 #include "dwr_types.h"
 #include "dwr.h"
 #include "patch.h"
+#include "mt64.h"
 
 /**
  * Makes the hero invisible
@@ -109,4 +110,45 @@ void no_numbers(dw_rom *rom)
     vpatch(rom, 0x11080,    7,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00);
     vpatch(rom, 0x11090,    7,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00);
 
+}
+
+/**
+ * Makes bonking deal damage
+ *
+ * @param rom The rom struct
+ */
+void damage_bonks(dw_rom *rom)
+{
+    uint8_t damage;
+
+    if (!DAMAGE_BONKS(rom))
+        return;
+
+    if(DAMAGE_BONKS(rom) <= 2)
+        damage = DAMAGE_BONKS(rom);
+    if(DAMAGE_BONKS(rom) == 3)
+        damage = 20;
+    if(DAMAGE_BONKS(rom) == 4)
+        damage = 255;
+    if(DAMAGE_BONKS(rom) == 5)
+        damage = mt_rand(0, 0x50);
+    if(!damage)
+        return;
+
+    printf("DAMAGE: %u\n", damage);
+
+    // Don't load the bonk sound for now, jsr at 0xc928 instead
+    vpatch(rom, 0x31e9, 5, 0xea, 0xea, 0x20, 0x28, 0xc9);
+
+    // This is basically a copy of the swamp damage routine, with a rts at the end
+    vpatch(rom, 0xc928, 40,
+        0xa9, 0x8f, 0x00, 0x04, 0x17, 0x20, 0x14, 0xee,
+        0x20, 0x74, 0xff, 0xa5, 0xc5, 0x38, 0xe9, damage,
+        0xb0, 0x02, 0xa9, 0x00, 0x85, 0xc5, 0x20, 0x74,
+        0xff, 0x20, 0x28, 0xee, 0xa5, 0xc5, 0xd0, 0x07,
+        0x20, 0xf0, 0xc6, 0x00, 0x4c, 0xa7, 0xed, 0x60);
+
+    // Make the swamp damage sound if no flashing is on so we know we get damaged
+    if(NO_RED_FLASH(rom))
+        vpatch(rom, 0xc929, 1, 0x84);
 }

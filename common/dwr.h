@@ -9,7 +9,7 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "3.0.3"
+#define DWR_VERSION "UNOFFICIAL JUEF 3.0.3.4"
 
 #ifdef  DWR_RELEASE
 #define VERSION DWR_VERSION
@@ -19,7 +19,7 @@
 #define VERSION DWR_VERSION " beta " BUILD
 #endif
 
-#define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAA"
+#define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA"
 #define CHEST_COUNT 31
 
 #define SHUFFLE_CHESTS(x)         (x->flags[ 0] & 0xc0)
@@ -77,12 +77,33 @@
 #define MODERN_SPELLS(x)          (x->flags[11] & 0xc0)
 #define NOIR_MODE(x)              (x->flags[11] & 0x30)
 #define RANDOMIZE_MUSIC(x)        (x->flags[14] & 0x80)
-#define RANDOMIZE_FLUTE_MUSIC(x)  (1 > 0)
 #define DISABLE_MUSIC(x)          (x->flags[14] & 0x40)
 #define NO_SCREEN_FLASH(x)        (x->flags[14] & 0x20)
 #define DEATH_COUNTER(x)          (x->flags[14] & 0x10)
 #define CUSTOM_SPELLS(x)          (x->flags[14] & 0x08)
 #define SKIP_VANILLA_CREDITS(x)   (x->flags[14] & 0x04)
+
+#define INN_IN_CHARLOCK(x)        ((x->flags[15] & 0xc0) >> 6) // 2-
+#define ONLY_HEALMORE(x)          ((x->flags[15] & 0x30) >> 4) // 2-
+#define SHUFFLE_INN_PRICES(x)     ((x->flags[15] & 0x0c) >> 2) // 2-
+#define SHUFFLE_KEY_PRICES(x)     ((x->flags[15] & 0x03)     ) // 2-
+#define SHUFFLE_VENDORS(x)        ((x->flags[16] & 0xc0) >> 6) // 2-
+#define RANDOMIZE_FLUTE_MUSIC(x)  ((x->flags[16] & 0x30) >> 4) // 2-
+#define DISGUISED_DRAGONLORD(x)   ((x->flags[16] & 0x0c) >> 2) // 2-
+#define MAGIC_HERBS(x)            ((x->flags[16] & 0x03)     ) // 2-
+#define NO_RED_FLASH(x)           ((x->flags[17] & 0x80) >> 7) // 1-
+#define CRIT_DL1(x)               ((x->flags[17] & 0x0c) >> 2) // 2-
+#define CRIT_DL2(x)               ((x->flags[17] & 0x03)     ) // 2-
+#define CRIT_CHANCE(x)            ((x->flags[17] & 0x70) >> 4) // 3-
+#define DAMAGE_BONKS(x)           ((x->flags[18] & 0xe0) >> 5) // 3-
+#define DISCARDABLE_FLUTE(x)      ((x->flags[18] & 0x18) >> 3) // 2-
+#define FORMIDABLE_FLUTE(x)       ((x->flags[18] & 0x06) >> 1) // 2-
+#define LEVEL_1_RADIANT(x)        ((x->flags[18] & 0x01)     ) // 1-
+#define RETURN_ESCAPES(x)         ((x->flags[19] & 0x80) >> 7) // 1-
+#define RETURN_TO_ZOOM(x)         ((x->flags[19] & 0x40) >> 6) // 1-
+#define WARP_WHISTLE(x)           ((x->flags[19] & 0x20) >> 5) // 1-
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,3 +127,4 @@ uint16_t set_text(dw_rom *rom, const size_t address, char *text);
 }
 #endif
 #endif
+
