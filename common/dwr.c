@@ -2877,7 +2877,7 @@ void zoom_and_whistle(dw_rom *rom)
     vpatch(rom, 0xddbf, 4, 0x20, 0x74, 0xc8, 0xea); // JSR new code for flute functionality
 
     // New code for flute functionality
-    vpatch(rom, 0xc874, 66,
+    vpatch(rom, 0xc874, 60,
         0xa5, 0x16,         // LDAF1:  LDA MapType             ;Is the player in a dungeon?
         0xc9, 0x20,         // LDAF3:  CMP #MAP_DUNGEON        ;
         0xf0, 0x06,         // LDAF5:  BEQ ReturnFail          ;If so, branch. Spell fails.
