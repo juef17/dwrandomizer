@@ -305,17 +305,17 @@ uint16_t set_text(dw_rom *rom, const size_t address, char *text)
 //     int len;
 //     uint8_t *start, *end;
 //     char dw_text[256], dw_repl[256];
-// 
+//
 //     len = strlen(text);
 //     if (!len)
 //         return NULL;
 //     end = &rom->content[ROM_SIZE - len - 0x10];
-// 
+//
 //     strncpy(dw_text, text, 256);
 //     strncpy(dw_repl, replacement, 256);
 //     ascii2dw((unsigned char *)dw_text);
 //     ascii2dw((unsigned char *)dw_repl);
-// 
+//
 //     for (start = rom->content; start < end; start++) {
 //         if (!memcmp(start, dw_text, len)) {
 //             memcpy(start, dw_repl, len);
@@ -324,7 +324,7 @@ uint16_t set_text(dw_rom *rom, const size_t address, char *text)
 //     }
 //     return NULL;
 // }
-// 
+//
 /**
  * Patches the game to allow the use of torches and fairy water in battle
  *
@@ -1243,7 +1243,7 @@ static void death_counter(dw_rom *rom)
 }
 
 /**
- * Modifies the level up routine to display the spells learned rather than 
+ * Modifies the level up routine to display the spells learned rather than
  * just indicating that you have learned a spell
  *
  * @param rom The rom struct
@@ -1464,7 +1464,7 @@ static void dwr_menu_wrap(dw_rom *rom)
 }
 
 /**
- * Rewrites the forced encounter routines to read from a table rather than 
+ * Rewrites the forced encounter routines to read from a table rather than
  * being hard-coded. This clears enough space to allow for 8 "spikes" rather
  * than the normal 3.
  *
@@ -1939,8 +1939,8 @@ static void begin_quest_checksum(dw_rom *rom, uint64_t crc)
     vpatch(rom, 0x6f8e, 2, 0xec, 0xc7);
 
     //our brand new "begin new quest" window
-    vpatch(rom, 0xc7ec, 7,  
-        0x81, //Window Options.  Selection window. 
+    vpatch(rom, 0xc7ec, 7,
+        0x81, //Window Options.  Selection window.
         0x02, //Window Height.   2 blocks.
         0x18, //Window Width.    24 tiles.
         0x12, //Window Position. Y = 1 blocks, X = 2 blocks.
@@ -2703,14 +2703,14 @@ void find_zoom_tile(dw_rom *rom, uint8_t town, uint8_t zoom_data[][3], uint8_t i
  * Makes Return send you to the last place you saved or used an inn at
  * and/or
  * Makes the Fairy Flute work as a warp whistle outside of battle. It will cycle between visited towns and Tantegel.
- * 
+ *
  *
  * @param rom The rom struct
  */
 void zoom_and_whistle(dw_rom *rom)
 {
     uint8_t zoom_data[6][3]; // i is town in the below order, j is map, zoom_x, zoom_y
-	
+
 	// Just random RAM addresses I thought might be unused
     uint16_t ram_i = 0x6730; // Index of town to warp to with Return
     uint16_t ram_j = 0x6731; // Index of town to warp-whistle to
@@ -2747,7 +2747,7 @@ void zoom_and_whistle(dw_rom *rom)
         0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea // NOP because we're gonna RTS later on and that stuff will have been done in the new code
         //TODO We could use those bytes for something
     );
-	
+
 	// But wait, if we just want the warp whistle, let the Zoom index always be Tantegel's
 	if (!RETURN_TO_ZOOM(rom))
 		vpatch(rom, 0xdb04, 3, 0xea, 0xa9, 0x00); // NOP, LDA 0 (Tantegel's index)
@@ -2836,7 +2836,7 @@ void zoom_and_whistle(dw_rom *rom)
 		0x09, 0x20,														   // ORA 0x20 (Rimuldar's visited bit)
 
 		0x8d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // STA ram_v
-		
+
         0xa9, 0x15, // LD8DF:  LDA #MSC_INN
         0x00,       // LD8E1:  BRK
         0x04, 0x17,
@@ -2872,12 +2872,12 @@ void zoom_and_whistle(dw_rom *rom)
 
 	if(!WARP_WHISTLE(rom))
 		return;
-	
+
     // Hook to replace "doesn't work" text with JSR to new functionnality
     vpatch(rom, 0xddbf, 4, 0x20, 0x74, 0xc8, 0xea); // JSR new code for flute functionality
 
     // New code for flute functionality
-    vpatch(rom, 0xc874, 60,
+    vpatch(rom, 0xc874, 66,
         0xa5, 0x16,         // LDAF1:  LDA MapType             ;Is the player in a dungeon?
         0xc9, 0x20,         // LDAF3:  CMP #MAP_DUNGEON        ;
         0xf0, 0x06,         // LDAF5:  BEQ ReturnFail          ;If so, branch. Spell fails.
@@ -2917,8 +2917,9 @@ void zoom_and_whistle(dw_rom *rom)
         0x4c, 0x14, 0xdb    // JMP rest of original return code
     );
 
-    // Save RAM pour villes visitées
-    // Load RAM pour villes visitées
+    // TODO:
+    // 1) Player is frozen unless they not press any button. Can't figure out why this happens!
+    // 2) Save and load byte with visited inns in SRAM
 }
 
 /**
