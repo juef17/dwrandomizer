@@ -2716,6 +2716,10 @@ void zoom_and_whistle(dw_rom *rom)
     uint16_t ram_j = 0x6731; // Index of town to warp-whistle to
 	uint16_t ram_v = 0x6732; // List of visited towns (00RC GKBT)
 
+	uint8_t i;
+
+    int code_size = 0;
+
     if (!RETURN_TO_ZOOM(rom) && !WARP_WHISTLE(rom))
         return;
 
@@ -2753,36 +2757,12 @@ void zoom_and_whistle(dw_rom *rom)
 		vpatch(rom, 0xdb04, 3, 0xea, 0xa9, 0x00); // NOP, LDA 0 (Tantegel's index)
 
     // New code to set zoom coords from RAM index when casting Return. This is shared by Return-Zoom and Warp-Whistle so index has to be loaded before
-    vpatch(rom, 0xc966, 57,
-        // TODO: the following can be inside a loop, I guess
-        0xa2, zoom_data[0][1],  // ldx zoom_x
-        0xa0, zoom_data[0][2],  // ldy zoom_y
-        0xc9, 0,                // cmp 0 (is warp index Tantegel?)
-        0xf0, 4*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
-
-        0xa2, zoom_data[1][1],  // ldx zoom_x
-        0xa0, zoom_data[1][2],  // ldy zoom_y
-        0xc9, 1,                // cmp 0 (is warp index Brecconary?)
-        0xf0, 3*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
-
-        0xa2, zoom_data[2][1],  // ldx zoom_x
-        0xa0, zoom_data[2][2],  // ldy zoom_y
-        0xc9, 2,                // cmp 0 (is warp index Kol?)
-        0xf0, 2*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
-
-        0xa2, zoom_data[3][1],  // ldx zoom_x
-        0xa0, zoom_data[3][2],  // ldy zoom_y
-        0xc9, 3,                // cmp 0 (is warp index Garinham?)
-        0xf0, 1*8+4,            // beq block below (it was! Otherwise, the comparisons will just continue.)
-
-        0xa2, zoom_data[4][1],  // ldx zoom_x
-        0xa0, zoom_data[4][2],  // ldy zoom_y
-        0xc9, 4,                // cmp 0 (is warp index Cantlin?)
-        0xf0, 4,                // beq block below (it was! Otherwise, the comparisons will just continue.)
-
-        // No checks here, index has to be Rimuldar at this point
-        0xa2, zoom_data[5][1],  // ldx zoom_x
-        0xa0, zoom_data[5][2],  // ldy zoom_y
+    code_size = 25;
+    vpatch(rom, 0xc966, code_size,
+        0x48,       // PHA cause we need the index afterwards
+        0xaa, 0xa8, // TAX, TAY (have the index be in both X and Y)
+        0xbd, (uint8_t)((0xc966 + code_size) & 0x00ff), (uint8_t)(((0xc966 + code_size) & 0xff00) >> 8), 0xaa, // LDA,X , TAX --> load the X coord and put it into X
+        0xb9, (uint8_t)((0xc966 + code_size + 6) & 0x00ff), (uint8_t)(((0xc966 + code_size + 6) & 0xff00) >> 8), 0xa8, // LDA,Y , TAY --> load the Y coord and put it into Y
 
         // Put the coords in the right places. This is original code, but with new registers
         0x86, 0x3A, // LDB06:  STX CharXPos
@@ -2792,8 +2772,15 @@ void zoom_and_whistle(dw_rom *rom)
         0x84, 0x8F, // LDB10:  STY _CharYPos
         0x84, 0x92, // LDB12:  STY CharYPixelsLB
 
-        0x60 // RTS
+        0x68,   // PLA to restore the index into A
+        0x60    // RTS
     );
+
+    for(i=0; i<6; i++)
+    {
+        vpatch(rom, 0xc966 + code_size + i, 1, zoom_data[i][1]);
+        vpatch(rom, 0xc966 + code_size + 6 + i, 1, zoom_data[i][2]);
+    }
 
     // Hook to new code to update zoom index in RAM when staying at an inn
     vpatch(rom, 0xd8df, 5, 0x20, 0x15, 0xc8, 0xea, 0xea); // JSR new code (0xc815)
@@ -2877,7 +2864,7 @@ void zoom_and_whistle(dw_rom *rom)
     vpatch(rom, 0xddbf, 4, 0x20, 0x74, 0xc8, 0xea); // JSR new code for flute functionality
 
     // New code for flute functionality
-    vpatch(rom, 0xc874, 60,
+    vpatch(rom, 0xc874, 66,
         0xa5, 0x16,         // LDAF1:  LDA MapType             ;Is the player in a dungeon?
         0xc9, 0x20,         // LDAF3:  CMP #MAP_DUNGEON        ;
         0xf0, 0x06,         // LDAF5:  BEQ ReturnFail          ;If so, branch. Spell fails.
