@@ -9,15 +9,8 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL JUEF 3.0.3.4"
-
-#ifdef  DWR_RELEASE
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.5"
 #define VERSION DWR_VERSION
-#elif DWR_ALPHA
-#define VERSION DWR_VERSION " alpha " BUILD
-#else
-#define VERSION DWR_VERSION " beta " BUILD
-#endif
 
 #define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA"
 #define CHEST_COUNT 31

@@ -956,7 +956,7 @@ static void update_title_screen(dw_rom *rom)
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
     pos = center_title_text(pos, "RANDOMIZER");  /* RANDOMIZER text */
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
-    pos = center_title_text(pos, "JUEF VERSION");/* version number */
+    pos = center_title_text(pos, DWR_VERSION);   /* version number */
 
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
@@ -2614,10 +2614,10 @@ void return_escapes(dw_rom *rom)
 
     // Hook into original Heal code:
     //  JMP c950 (new code)
-    vpatch(rom, 0xe722, 3, 0x4c, 0x50, 0xc9);
+    vpatch(rom, 0xe722, 3, 0x4c, 0x15, 0xc8);
 
     // New code
-    vpatch(rom, 0xc950, 22,
+    vpatch(rom, 0xc815, 22,
         0xc9, 0x00,         // CMP #SPL_HEAL
         0xd0, 0x03,         // BNE 3 (jumping to Return)
         0x4c, 0x26, 0xe7,   // JMP e726 (go to heal - the actual code for the spell is still in its original location)
@@ -2715,6 +2715,8 @@ void zoom_and_whistle(dw_rom *rom)
     uint16_t ram_i = 0x6730; // Index of town to warp to with Return
     uint16_t ram_j = 0x6731; // Index of town to warp-whistle to
 	uint16_t ram_v = 0x6732; // List of visited towns (00RC GKBT)
+	uint16_t address = 0xc82b; // Starting address for new code
+	uint16_t address_orig = address; // Starting address for new code
 
 	uint8_t i;
 
@@ -2747,7 +2749,7 @@ void zoom_and_whistle(dw_rom *rom)
     // Hooking into the spell casting code
     vpatch(rom, 0xdb04, 16,
 		0xad, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // LDA absolute zoom_i
-        0x20, 0x66, 0xc9, // JSR new code to load zoom coords (0xc966)
+        0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), // JSR new code to load zoom coords (0xc966)
         0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea // NOP because we're gonna RTS later on and that stuff will have been done in the new code
         //TODO We could use those bytes for something
     );
@@ -2758,11 +2760,11 @@ void zoom_and_whistle(dw_rom *rom)
 
     // New code to set zoom coords from RAM index when casting Return. This is shared by Return-Zoom and Warp-Whistle so index has to be loaded before
     code_size = 25;
-    vpatch(rom, 0xc966, code_size,
+    vpatch(rom, address, code_size,
         0x48,       // PHA cause we need the index afterwards
         0xaa, 0xa8, // TAX, TAY (have the index be in both X and Y)
-        0xbd, (uint8_t)((0xc966 + code_size) & 0x00ff), (uint8_t)(((0xc966 + code_size) & 0xff00) >> 8), 0xaa, // LDA,X , TAX --> load the X coord and put it into X
-        0xb9, (uint8_t)((0xc966 + code_size + 6) & 0x00ff), (uint8_t)(((0xc966 + code_size + 6) & 0xff00) >> 8), 0xa8, // LDA,Y , TAY --> load the Y coord and put it into Y
+        0xbd, (uint8_t)((address + code_size) & 0x00ff), (uint8_t)(((address + code_size) & 0xff00) >> 8), 0xaa, // LDA,X , TAX --> load the X coord and put it into X
+        0xb9, (uint8_t)((address + code_size + 6) & 0x00ff), (uint8_t)(((address + code_size + 6) & 0xff00) >> 8), 0xa8, // LDA,Y , TAY --> load the Y coord and put it into Y
 
         // Put the coords in the right places. This is original code, but with new registers
         0x86, 0x3A, // LDB06:  STX CharXPos
@@ -2778,15 +2780,17 @@ void zoom_and_whistle(dw_rom *rom)
 
     for(i=0; i<6; i++)
     {
-        vpatch(rom, 0xc966 + code_size + i, 1, zoom_data[i][1]);
-        vpatch(rom, 0xc966 + code_size + 6 + i, 1, zoom_data[i][2]);
+        vpatch(rom, address + code_size + i, 1, zoom_data[i][1]);
+        vpatch(rom, address + code_size + 6 + i, 1, zoom_data[i][2]);
     }
+    address += code_size + 2*6;
 
     // Hook to new code to update zoom index in RAM when staying at an inn
-    vpatch(rom, 0xd8df, 5, 0x20, 0x15, 0xc8, 0xea, 0xea); // JSR new code (0xc815)
+    vpatch(rom, 0xd8df, 5, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea, 0xea); // JSR new code (0xc815)
 
     // New code to update zoom index and visited towns in RAM when staying at an inn
-    vpatch(rom, 0xc815, 69,
+    code_size = 69;
+    vpatch(rom, address, code_size,
         0xa6, 0x45,             // LDX zeropage map number
 		0xad, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // LDA absolute zoom_v
 
@@ -2829,12 +2833,14 @@ void zoom_and_whistle(dw_rom *rom)
         0x04, 0x17,
         0x60        // RTS
     );
+    address += code_size;
 
     // Hook start of the game to set initial zoom index
-    vpatch(rom, 0xca1a, 3, 0x20, 0x5a, 0xc8); // JSR new code (0xc85a)
+    vpatch(rom, 0xca1a, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code (0xc85a)
 
     // New code to set initial zoom index
-    vpatch(rom, 0xc85a, 17,
+    code_size = 17;
+    vpatch(rom, address, code_size,
         0xa9, 0,	// LDA Tantegel index
         0x8d, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STA ram_i
 		0x8d, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // STA ram_j
@@ -2843,17 +2849,20 @@ void zoom_and_whistle(dw_rom *rom)
         0x20, 0x47, 0xcb,   // Go to vanilla subroutine
         0x60                // RTS
     );
+    address += code_size;
 
     // Hook at saving to set zoom index to Tantegel
-    vpatch(rom, 0xd43f, 3, 0x20, 0x6b, 0xc8); // JSR new code (0xc86b)
+    vpatch(rom, 0xd43f, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code (0xc86b)
 
     // New code to set zoom index to Tantegel when saving
-    vpatch(rom, 0xc86b, 9,
+    code_size = 9;
+    vpatch(rom, address, code_size,
         0xa9, 0,            // LDA Tantegel index
         0x8d, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STA ram_i
         0x20, 0x48, 0xf1,   // Go to vanilla subroutine
         0x60                // RTS
     );
+    address += code_size;
 
     // TODO: Add check to see if DL is defeated, then set ram_i to Tantegel. Maybe? It could be fun as it is
 
@@ -2861,10 +2870,11 @@ void zoom_and_whistle(dw_rom *rom)
 		return;
 
     // Hook to replace "doesn't work" text with JSR to new functionnality
-    vpatch(rom, 0xddbf, 4, 0x20, 0x74, 0xc8, 0xea); // JSR new code for flute functionality
+    vpatch(rom, 0xddbf, 4, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea); // JSR new code for flute functionality
 
     // New code for flute functionality
-    vpatch(rom, 0xc874, 60,
+    code_size = 60;
+    vpatch(rom, address, code_size,
         0xa5, 0x16,         // LDAF1:  LDA MapType             ;Is the player in a dungeon?
         0xc9, 0x20,         // LDAF3:  CMP #MAP_DUNGEON        ;
         0xf0, 0x06,         // LDAF5:  BEQ ReturnFail          ;If so, branch. Spell fails.
@@ -2874,7 +2884,7 @@ void zoom_and_whistle(dw_rom *rom)
         0x4c, 0x55, 0xda,   // LDAFD:  JMP SpellFizzle         ;($DA55)Print text indicating spell did not work.
 
 		0xad, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // LDA absolute zoom_j
-        0x20, 0x66, 0xc9,   // JSR new zoom code (0xc966)
+        0x20, (uint8_t)(address_orig & 0x00ff), (uint8_t)((address_orig & 0xff00) >> 8),   // JSR new zoom code (0xc966)
         0xa8,               // TAY, for later restoration
 
         // Update whistle index
@@ -2903,6 +2913,7 @@ void zoom_and_whistle(dw_rom *rom)
         0x85, 0x45,         // STA MapNumber
         0x4c, 0x14, 0xdb    // JMP rest of original return code
     );
+    address += code_size;
 
     // TODO:
     // 1) Player is frozen unless they not press any button. Can't figure out why this happens!
