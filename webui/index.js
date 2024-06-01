@@ -311,6 +311,8 @@ function setup_ui() {
         'Wings and Return send you to the last place you saved or used an inn at.');
     ui.addOption   ('New 2',  6, 19, 5, 'Warp Whistle',
         'The Fairy Flute will work as a warp whistle outside of battle, cycling between places you saved or used an inn at.');
+    ui.addOption   ('New 2',  7, 19, 4, 'Hurtmore Doors',
+        'Blast doors open with a cast of Hurtmore.');
 
     // player sprite
     let spriteBox;

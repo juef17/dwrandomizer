@@ -214,12 +214,12 @@ class Interface {
 
          let flagsSeed = this.create('div', null, {
             'display': 'grid',
-            'grid-template-columns': '50% 50%',
+            'grid-template-columns': '55% 45%',
             'padding': '0.2em'
         });
         let flagsDiv = this.create('div', 'Flags: ');
         this.flagsEl = this.create('input', null, {
-            'width':  '240px'
+            'width':  '296px'
         });
         this.flagsEl.id = 'flags';
         this.flagsEl.value = localStorage.flags
@@ -696,8 +696,7 @@ class Interface {
      *
      *  @return The newly created HTML INPUT element.
      */
-    addOption(tab, position, bytepos, shift, title, description, retain,
-            skipFlags) {
+    addOption(tab, position, bytepos, shift, title, description, retain, skipFlags) {
         let input = this.create('input')
         input.type = 'checkbox';
         input.name = tab + position;
