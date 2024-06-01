@@ -2273,6 +2273,7 @@ static void npc_shenanigans(dw_rom *rom)
 
     if(INN_IN_CHARLOCK(rom))
     {
+        printf("Making Charlock comfier...\n");
         NPCData[20][0] = 0x75;
         NPCData[20][1] = 0x68;
         NPCData[20][2] = 0x14; // Cantlin Innkeeper dialogue
@@ -2283,6 +2284,7 @@ static void npc_shenanigans(dw_rom *rom)
     j = 0;
     if(SHUFFLE_VENDORS(rom))
     {
+        printf("Shuffling vendors...\n");
         for(i=0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
         {
             if((NPCData[i][3] & 0x3a) && j < sizeof(vendorID)/sizeof(uint8_t)) // Weapon, item, fairy water or non-Rim key vendor
@@ -2304,6 +2306,7 @@ static void npc_shenanigans(dw_rom *rom)
 
     if(DISGUISED_DRAGONLORD(rom))
     {
+        printf("Setting up a game of 'Guess Who'...\n");
 		// If Open Charlock, Staff of Rain guy and Jerk can be DL
         if(OPEN_CHARLOCK(rom))
             swappable_check = 0x40;
@@ -2321,7 +2324,7 @@ static void npc_shenanigans(dw_rom *rom)
                 strcpy(disguise, "a male villager");
                 break;
             case 1:
-                // I know the source says 'fighter' but it shouldn't be confused with the fists guys from DW3
+                // I know the diassembly says 'fighter' but it shouldn't be confused with the fists guys from DW3
                 strcpy(disguise, "a soldier");
                 break;
             case 2:
@@ -2362,7 +2365,7 @@ static void npc_shenanigans(dw_rom *rom)
     for(i = 0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
     {
         // Remove key vendors if NO_KEYS is on
-		// Hopefully this removes the invisible block in Rimuldar
+		// Hopefully this removes the invisible block in Rimuldar. TODO: it doesn't :(
         if(NO_KEYS(rom) && (NPCData[i][3] & 0x04))
         {
             // TODO
@@ -2377,7 +2380,6 @@ static void npc_shenanigans(dw_rom *rom)
             }
 
             NPCData[i][4] = 0xff;
-            //printf("Removing NPC id %d\n", NPCData[i][5]);
         }
 
         // Update number of NPCs of each type for each area
@@ -2387,16 +2389,13 @@ static void npc_shenanigans(dw_rom *rom)
 
 	// After this sort, NPCData indexes are worthless references, so we use the last element of each row, which stores the original id
     qsort(NPCData, sizeof(NPCData)/(6*sizeof(uint8_t)), 6*sizeof(uint8_t), &compareLocation);
-/*
-    for(i=0; i<=135; i++)
-        printf("BUG: %02X, %02X, %02X, %02X, %02X, %d\n", NPCData[i][0], NPCData[i][1], NPCData[i][2], NPCData[i][3], NPCData[i][4], NPCData[i][5]);*/
+
 
     // For every area
     for(i = 0; i<12; i++) {
         // For every type of NPC
         for(j = 0; j<2; j++) {
             // For every NPC in that area
-            //printf("NPCsCountTables[%d][%d]: %u\n", i, j, NPCsCountTables[i][j]);
             for(k = 0; k < NPCsCountTables[i][j]; k++) {
                 vpatch(rom, NPCsPointerTables[i][j] - 0x8000 + 3*k, 3, NPCData[u][0], NPCData[u][1], NPCData[u][2]);
 
@@ -2407,9 +2406,8 @@ static void npc_shenanigans(dw_rom *rom)
                         strcpy(location, "Tantegel"); // 0 is main floor, 1 is throne room, 11 is post-win tantegel (which shouldn't happen)
                         vpatch(rom, 0xea04, 1, 0x0c);
                     }
-                    else if(i == 2) {
+                    else if(i == 2)
                         strcpy(location, "Charlock"); // leave the warp alone then
-                    }
                     else if(i == 3) {
                         strcpy(location, "Kol");
                         vpatch(rom, 0xea04, 1, 0x06);
@@ -2504,6 +2502,7 @@ void return_escapes(dw_rom *rom)
 
     if (!RETURN_ESCAPES(rom))
         return;
+    printf("Allowing Zooming out of battle...\n");
 
     // Skip checking for return as a spell that can't be used in battle
     vpatch(rom, 0xe6fa, 1, 0x07);
@@ -2563,36 +2562,6 @@ void find_zoom_tile(dw_rom *rom, uint8_t town, uint8_t zoom_data[][3], uint8_t i
         zoom_data[i][1] = x-1;
     else if(x < 119 && tile_is_walkable(rom->map.tiles[x+1][y]))
         zoom_data[i][1] = x+1;
-/*    if(i == 0)
-    {
-        printf("Tantegel is at %u, %u\n", x, y);
-        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
-    }
-    if(i == 1)
-    {
-        printf("Brecconary is at %u, %u\n", x, y);
-        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
-    }
-    if(i == 2)
-    {
-        printf("Kol is at %u, %u\n", x, y);
-        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
-    }
-    if(i == 3)
-    {
-        printf("Garinhamis at %u, %u\n", x, y);
-        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
-    }
-    if(i == 4)
-    {
-        printf("Cantlin is at %u, %u\n", x, y);
-        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
-    }
-    if(i == 5)
-    {
-        printf("Rimuldar is at %u, %u\n", x, y);
-        printf("Warp is at %u, %u\n", zoom_data[i][1], zoom_data[i][2]);
-    }*/
 }
 
 /**
@@ -2653,6 +2622,8 @@ void zoom_and_whistle(dw_rom *rom)
 	// But wait, if we just want the warp whistle, let the Zoom index always be Tantegel's
 	if (!RETURN_TO_ZOOM(rom))
 		vpatch(rom, 0xdb04, 3, 0xea, 0xa9, 0x00); // NOP, LDA 0 (Tantegel's index)
+    else
+        printf("Sprinkling some DW2 Return action into the seed...\n");
 
     // New code to set zoom coords from RAM index when casting Return. This is shared by Return-Zoom and Warp-Whistle so index has to be loaded before
     code_size = 25;
@@ -2764,6 +2735,7 @@ void zoom_and_whistle(dw_rom *rom)
 
 	if(!WARP_WHISTLE(rom))
 		return;
+    printf("I can't believe it's not a recorder...\n");
 
     // Hook to replace "doesn't work" text with JSR to new functionnality
     vpatch(rom, 0xddbf, 4, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea); // JSR new code for flute functionality
