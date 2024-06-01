@@ -2580,8 +2580,8 @@ void zoom_and_whistle(dw_rom *rom)
     uint16_t ram_i = 0x6730; // Index of town to warp to with Return
     uint16_t ram_j = 0x6731; // Index of town to warp-whistle to
 	uint16_t ram_v = 0x6732; // List of visited towns (00RC GKBT)
-	uint16_t address = 0xc82b; // Starting address for new code
-	uint16_t address_orig = address; // Starting address for new code
+	uint16_t address_orig = 0xc82b; // Starting address for new code
+	uint16_t address = address_orig; // Starting address for new code
 
 	uint8_t i;
 
@@ -2738,7 +2738,7 @@ void zoom_and_whistle(dw_rom *rom)
     printf("I can't believe it's not a recorder...\n");
 
     // Hook to replace "doesn't work" text with JSR to new functionnality
-    vpatch(rom, 0xddbf, 4, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea); // JSR new code for flute functionality
+    vpatch(rom, 0xddbf, 3, 0x4c, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JMP new code for flute functionality
 
     // New code for flute functionality
     code_size = 60;
@@ -2752,7 +2752,7 @@ void zoom_and_whistle(dw_rom *rom)
         0x4c, 0x55, 0xda,   // LDAFD:  JMP SpellFizzle         ;($DA55)Print text indicating spell did not work.
 
 		0xad, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // LDA absolute zoom_j
-        0x20, (uint8_t)(address_orig & 0x00ff), (uint8_t)((address_orig & 0xff00) >> 8),   // JSR new zoom code
+        0x20, (uint8_t)(address_orig & 0x00ff), (uint8_t)((address_orig & 0xff00) >> 8),   // JSR to code that loads zoom coords from index
         0xa8,               // TAY, for later restoration
 
         // Update whistle index
@@ -2783,9 +2783,7 @@ void zoom_and_whistle(dw_rom *rom)
     );
     address += code_size;
 
-    // TODO:
-    // 1) Player is frozen unless they not press any button. Can't figure out why this happens!
-    // 2) Save and load byte with visited inns in SRAM. I've attempted this but the byte is... shared between files? 🤔
+    // TODO: Save and load byte with visited inns in SRAM. I've attempted this but the byte is... shared between files? 🤔
 }
 
 /**
