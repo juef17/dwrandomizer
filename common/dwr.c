@@ -2283,7 +2283,6 @@ static void npc_shenanigans(dw_rom *rom)
     j = 0;
     if(SHUFFLE_VENDORS(rom))
     {
-        printf("We're actually shuffling vendors, I think\n");
         for(i=0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
         {
             if((NPCData[i][3] & 0x3a) && j < sizeof(vendorID)/sizeof(uint8_t)) // Weapon, item, fairy water or non-Rim key vendor
