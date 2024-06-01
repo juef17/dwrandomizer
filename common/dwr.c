@@ -2614,7 +2614,7 @@ void zoom_and_whistle(dw_rom *rom)
     // Hooking into the spell casting code
     vpatch(rom, 0xdb04, 16,
 		0xad, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // LDA absolute zoom_i
-        0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), // JSR new code to load zoom coords (0xc966)
+        0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), // JSR new code to load zoom coords
         0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea // NOP because we're gonna RTS later on and that stuff will have been done in the new code
         //TODO We could use those bytes for something
     );
@@ -2653,7 +2653,7 @@ void zoom_and_whistle(dw_rom *rom)
     address += code_size + 2*6;
 
     // Hook to new code to update zoom index in RAM when staying at an inn
-    vpatch(rom, 0xd8df, 5, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea, 0xea); // JSR new code (0xc815)
+    vpatch(rom, 0xd8df, 5, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea, 0xea); // JSR new code
 
     // New code to update zoom index and visited towns in RAM when staying at an inn
     code_size = 69;
@@ -2703,7 +2703,7 @@ void zoom_and_whistle(dw_rom *rom)
     address += code_size;
 
     // Hook start of the game to set initial zoom index
-    vpatch(rom, 0xca1a, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code (0xc85a)
+    vpatch(rom, 0xca1a, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code
 
     // New code to set initial zoom index
     code_size = 17;
@@ -2719,7 +2719,7 @@ void zoom_and_whistle(dw_rom *rom)
     address += code_size;
 
     // Hook at saving to set zoom index to Tantegel
-    vpatch(rom, 0xd43f, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code (0xc86b)
+    vpatch(rom, 0xd43f, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code
 
     // New code to set zoom index to Tantegel when saving
     code_size = 9;
@@ -2752,7 +2752,7 @@ void zoom_and_whistle(dw_rom *rom)
         0x4c, 0x55, 0xda,   // LDAFD:  JMP SpellFizzle         ;($DA55)Print text indicating spell did not work.
 
 		0xad, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // LDA absolute zoom_j
-        0x20, (uint8_t)(address_orig & 0x00ff), (uint8_t)((address_orig & 0xff00) >> 8),   // JSR new zoom code (0xc966)
+        0x20, (uint8_t)(address_orig & 0x00ff), (uint8_t)((address_orig & 0xff00) >> 8),   // JSR new zoom code
         0xa8,               // TAY, for later restoration
 
         // Update whistle index
@@ -2785,7 +2785,7 @@ void zoom_and_whistle(dw_rom *rom)
 
     // TODO:
     // 1) Player is frozen unless they not press any button. Can't figure out why this happens!
-    // 2) Save and load byte with visited inns in SRAM
+    // 2) Save and load byte with visited inns in SRAM. I've attempted this but the byte is... shared between files? 🤔
 }
 
 /**
