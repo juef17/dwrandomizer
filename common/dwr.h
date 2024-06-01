@@ -95,6 +95,7 @@
 #define RETURN_ESCAPES(x)         ((x->flags[19] & 0x80) >> 7) // 1-
 #define RETURN_TO_ZOOM(x)         ((x->flags[19] & 0x40) >> 6) // 1-
 #define WARP_WHISTLE(x)           ((x->flags[19] & 0x20) >> 5) // 1-
+#define HURTMORE_DOORS(x)         ((x->flags[19] & 0x10) >> 4) // 1-
 
 
 
