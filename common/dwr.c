@@ -2815,6 +2815,30 @@ void hurtmore_doors(dw_rom *rom)
 }
 
 /**
+ * Refills HP and MP upon leveling up
+ *
+ * @param rom The rom struct
+ */
+void levelup_refill(dw_rom *rom)
+{
+    if (!LEVELUP_REFILL(rom))
+        return;
+    printf("Making levelups refreshing....\n");
+
+    // Hook into ChkNewSpell
+    vpatch(rom, 0xeb0f, 3, 0x20, 0x98, 0xc9); // JSR C998
+
+    // New code
+    vpatch(rom, 0xc998, 9,
+        0xa5, 0xca,         // LDA Max HP
+        0x85, 0xc5,         // STA HP
+        0xa5, 0xcb,         // LDA Max MP
+        0x85, 0xc6,         // STA MP
+        0x60                // RTS
+    );
+}
+
+/**
  * Randomizes a Dragon Warrior rom file
  *
  * @param input_file The name of the input file
@@ -2914,6 +2938,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     return_escapes(&rom);
     zoom_and_whistle(&rom);
     hurtmore_doors(&rom);
+    levelup_refill(&rom);
 
     crc = crc64(0, rom.content, 0x10000);
 
