@@ -313,6 +313,8 @@ function setup_ui() {
         'The Fairy Flute will work as a warp whistle outside of battle, cycling between places you saved or used an inn at.');
     ui.addOption   ('New 2',  7, 19, 4, 'Hurtmore Doors',
         'Blast doors open with a cast of Hurtmore.');
+    ui.addOption   ('New 2',  8, 19, 3, 'Levelup Refill',
+        'Have HP and MP refilled after leveling up.');
 
     // player sprite
     let spriteBox;
@@ -344,7 +346,7 @@ function setup_ui() {
             if (sprite_choices.includes(this.value)) {
                 this.classList.remove('invalid');
                 localStorage.setItem('sprite', this.value);
-                spritePreview.setAttribute('src', 'sprites/' + this.getValue() 
+                spritePreview.setAttribute('src', 'sprites/' + this.getValue()
                     + '.png');
             } else {
                 this.classList.add('invalid');
@@ -359,7 +361,7 @@ function setup_ui() {
         'width': '32px'
     })
     spritePreview.id = 'sprite-preview';
-    spritePreview.setAttribute('src', 'sprites/' 
+    spritePreview.setAttribute('src', 'sprites/'
         + (localStorage.getItem('sprite') || 'Random') + '.png');
     spriteBox.parentElement.append(spritePreview);
     ui.updateSummary();
