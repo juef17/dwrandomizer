@@ -9,7 +9,7 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.6"
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.7"
 #define VERSION DWR_VERSION
 
 #define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA"
@@ -97,6 +97,8 @@
 #define WARP_WHISTLE(x)           ((x->flags[19] & 0x20) >> 5) // 1-
 #define HURTMORE_DOORS(x)         ((x->flags[19] & 0x10) >> 4) // 1-
 #define LEVELUP_REFILL(x)         ((x->flags[19] & 0x08) >> 3) // 1-
+#define MAX_HERBS(x)              ((x->flags[19] & 0x04) >> 2) // 1-
+#define MAX_KEYS(x)               ((x->flags[19] & 0x02) >> 1) // 1-
 
 
 

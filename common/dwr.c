@@ -91,6 +91,7 @@ static void update_flags(dw_rom *rom)
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
 
+    /*
     printf("----------- NEW FLAGS -----------\n");
     printf("Inn in Charlock: %d\n", INN_IN_CHARLOCK(rom));
     printf("Only healmore: %d\n", ONLY_HEALMORE(rom));
@@ -110,7 +111,7 @@ static void update_flags(dw_rom *rom)
     printf("Level 1 Radiant: %d\n", LEVEL_1_RADIANT(rom));
     printf("Return escapes: %d\n", RETURN_ESCAPES(rom));
     printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
-    printf("Warp whistle: %d\n", WARP_WHISTLE(rom));
+    printf("Warp whistle: %d\n", WARP_WHISTLE(rom));*/
 }
 
 /**
@@ -2498,8 +2499,6 @@ static void npc_shenanigans(dw_rom *rom)
  */
 void return_escapes(dw_rom *rom)
 {
-    uint8_t damage;
-
     if (!RETURN_ESCAPES(rom))
         return;
     printf("Allowing Zooming out of battle...\n");
@@ -2823,7 +2822,7 @@ void levelup_refill(dw_rom *rom)
 {
     if (!LEVELUP_REFILL(rom))
         return;
-    printf("Making levelups refreshing....\n");
+    printf("Making levelups refreshing...\n");
 
     // Hook into ChkNewSpell
     vpatch(rom, 0xeb0f, 3, 0x20, 0x98, 0xc9); // JSR C998
@@ -2836,6 +2835,49 @@ void levelup_refill(dw_rom *rom)
         0x85, 0xc6,         // STA MP
         0x60                // RTS
     );
+}
+
+/**
+ * Changes the maximum amount of herbs you can carry
+ *
+ * @param rom The rom struct
+ */
+void max_herbs(dw_rom *rom)
+{
+    int n;
+
+    if (!MAX_HERBS(rom))
+        return;
+    printf("6 herbs? How about something else...\n");
+
+    n = mt_rand(0, 9);
+    // Ideally I'd offer these possibilities: 0, 2, 4, 6, 9, random 0-9, one of the above. But the flags string is already long as it is and I'm lazy
+
+    vpatch(rom, 0xd6fa, 1, n);
+    vpatch(rom, 0xe249, 1, n);
+}
+
+/**
+ * Changes the maximum amount of keys you can carry
+ *
+ * @param rom The rom struct
+ */
+void max_keys(dw_rom *rom)
+{
+    int n;
+
+    if (!MAX_KEYS(rom))
+        return;
+    printf("6 keys? How about something else...\n");
+
+    if(RANDOM_CHEST_LOCATIONS(rom) || STAIR_SHUFFLE(rom))
+        n = mt_rand(4, 9);
+    else
+        n = mt_rand(2, 9);
+    // Ideally I'd offer these possibilities: 2, 3, 4, 6, 9, random 2-9, one of the above. But the flags string is already long as it is and I'm lazy
+
+    vpatch(rom, 0xd80e, 1, n);
+    vpatch(rom, 0xe22d, 1, n);
 }
 
 /**
@@ -2939,6 +2981,8 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     zoom_and_whistle(&rom);
     hurtmore_doors(&rom);
     levelup_refill(&rom);
+    max_herbs(&rom);
+    max_keys(&rom);
 
     crc = crc64(0, rom.content, 0x10000);
 
