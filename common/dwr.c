@@ -2240,13 +2240,21 @@ static void npc_shenanigans(dw_rom *rom)
             else if(NPCData[k][2] == 0x0f || NPCData[k][2] == 0x10)
                 NPCData[k][3] = 0xc8; // Fairy Water vendors
             else if(NPCData[k][2] == 0x0c || NPCData[k][2] == 0x0e)
+            {
                 NPCData[k][3] = 0xc6; // Non-Rimuldar Key vendors
+                if(NO_KEYS(rom))      // Let's not make the key vendors cannot be the Dragonlord if there's no key vendor, shall we?
+                    NPCData[k][3] &= 0x3f;
+            }
             else if((NPCData[k][2] >= 0x10 && NPCData[k][2] < 0x16))
                 NPCData[k][3] = 0xc1; // Innkeepers
             else if(NPCData[k][2] == 0x6c || NPCData[k][2] == 0x6d)
                 NPCData[k][3] = 0x40; // Staff of Rain & Rainbow Drop guys
             else if(NPCData[k][2] == 0x0d)
+            {
                 NPCData[k][3] = 0x04; // Rimuldar key vendor
+                if(NO_KEYS(rom))
+                    NPCData[k][3] = 0xc6 & 0x3f;  // Keys don't matter in logic now so let's treat this guy as a non-Rimuldar Key vendor for vendor shuffle purposes. Also, can't be the Dragonlord.
+            }
             else if(NPCData[k][2] == 0x67 || NPCData[k][2] == 0x6b || NPCData[k][2] == 0x6e)
                 NPCData[k][3] = 0x00; // King, coords guy, uncurse guy
             else if(NPCData[k][2] == 0x20)
@@ -2262,14 +2270,6 @@ static void npc_shenanigans(dw_rom *rom)
             k++;
             j += 3;
         }
-    }
-
-    // Let's not make the key vendors swappable if there's no key vendor, shall we?
-    if(NO_KEYS(rom))
-    {
-        NPCData[10][3] &= 0x3f;
-        NPCData[88][3] &= 0x3f;
-        NPCData[109][3] &= 0x3f;
     }
 
     if(INN_IN_CHARLOCK(rom))
