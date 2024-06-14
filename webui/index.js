@@ -315,6 +315,10 @@ function setup_ui() {
         'Blast doors open with a cast of Hurtmore.');
     ui.addOption   ('New 2',  8, 19, 3, 'Levelup Refill',
         'Have HP and MP refilled after leveling up.');
+    ui.addOption   ('New 2',  9, 19, 2, 'Random Herb Carry',
+        'The maximum number of herbs you can carry is randomly chosen between 0 and 9.');
+    ui.addOption   ('New 2', 10, 19, 1, 'Random Key Carry',
+        'The maximum number of keys you can carry is randomly chosen between 2 and 9. Some flags will make 4 the minimum.');
 
     // player sprite
     let spriteBox;
