@@ -137,13 +137,13 @@ Makes sure the player starts with Radiant and some MP. Like the No Hurtmore flag
 Blast doors open with a cast of Hurtmore.
 
 
-## Known Issues I intend to fix) ##
+## Known Issues I intend to fix ##
 - The bonk counter will not be active if `Damage Bonks` is on.
 - When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in the official DWR version, where it usually doesn't matter. But since vendors can now be shuffled, it can be an important check, and Damage Bonks can ruin a player's day.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
 
 
-## Known Issues I do not intend to fix) ##
+## Known Issues I do not intend to fix ##
 
 - With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. None of these affect the ability to run or to complete the game.
 - The village music plays after spending the night at the inn, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, outside, …).
