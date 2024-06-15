@@ -1353,11 +1353,14 @@ static void other_patches(dw_rom *rom)
     vpatch(rom, 0xcebf, 3, 0x4c, 0x04, 0xcf);  /* skip over the zone 0 code */
     vpatch(rom, 0xe74d, 1, 9);  /* buff the hurt spell */
     vpatch(rom, 0xdbc1, 1, 18);  /* buff the heal spell */
+
     /* fixing some annoying roaming npcs */
+    // This will be handled by npc_shenanigans
     //vpatch(rom, 0x18ee, 1, 0xa7); /* move the stupid old man from the item shop */
     //vpatch(rom, 0x90f,  1, 0x6f); /* quit ignoring the customers */
     //vpatch(rom, 0x93c,  1, 0x6f); /* quit ignoring the customers */
     //vpatch(rom, 0x17a2, 3, 0, 0, 0); /* delete roaming throne room guard */
+
     vpatch(rom, 0xf131, 2, 0x69, 0x03); /* Lock the stat build modifier at 3 */
 
     /* I always hated this wording */
@@ -1794,9 +1797,14 @@ static void no_keys(dw_rom *rom)
     }
 
     /* remove the key shopkeepers */
+    // This will be handled by npc_shenanigans
+
     /*vpatch(rom, 0x1783, 3, 0, 0, 0);
     vpatch(rom, 0x185c, 3, 0, 0, 0);
     vpatch(rom, 0x181b, 3, 0, 0, 0);*/
+
+    // The top-left tile in Rimuldar becomes an invisible block for some reason. Let's at least make it a visible block (of water)...
+    vpatch(rom, 0x0b62, 1, 0x20);
 }
 
 /**
