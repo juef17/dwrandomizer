@@ -138,7 +138,6 @@ Blast doors open with a cast of Hurtmore.
 
 
 ## Known Issues I intend to fix) ##
-- The original credits will sometimes play a bit and then skip to the post-credits stats screens. For the time being, it is recommended to turn `Skip Original Credits` on. Fix incoming.
 - The bonk counter will not be active if `Damage Bonks` is on.
 - When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in the official DWR version, where it usually doesn't matter. But since vendors can now be shuffled, it can be an important check, and Damage Bonks can ruin a player's day.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
@@ -150,3 +149,9 @@ Blast doors open with a cast of Hurtmore.
 - The village music plays after spending the night at the inn, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, outside, …).
 - The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only. I have attempted to fix this and it didn't work, so unless there is a popular demand for it, it's gonna stay that way.
 - When in critical HP and gaining a level with the `Levelup Refill` flag on, the text borders will stay red until the player's HP changes. I'd rather leave this as is because I estimate my chances of messing things up greater than the chances of fixing the problem 🙂
+
+
+## Issues I haven't been able to reproduce but you might run into ##
+
+- Once, the original credits played a bit and then skipped to the post-credits stats screens. I was using cheats to progress more quickly.
+- It was reported to me that a levelup in Charlock did not trigger the intended refill with the `Levelup Refill` flag on.
