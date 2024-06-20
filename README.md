@@ -145,6 +145,7 @@ Blast doors open with a cast of Hurtmore.
 - When in critical HP and gaining a level with the `Levelup Refill` flag on, the text borders will stay red until the player's HP changes. I'd rather leave this as is because I estimate my chances of messing things up greater than the chances of fixing the problem 🙂
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
 - In the official DWR version, when there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall (where it doesn't matter because you don't go there since there's nothing to buy). But since vendors can now be shuffled, it can be an important check, and Damage Bonks can ruin a player's day, so in this version, the tile was changed to a water tile so the player can walk around it.
+- The Return / Warp Whistle modifications use 3 RAM bytes which are shared by the post-credits stats for the Metal Slime and Specter, so don't be surprised if those stats are borked and/or killing or getting killed by these monsters affect your warping locations. I'd have to talk with mcgrew for proper RAM addresses to be used.
 
 
 ## Issues I haven't been able to reproduce but you might run into ##
