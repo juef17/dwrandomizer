@@ -278,11 +278,12 @@ function setup_ui() {
     ui.addTriOption('New 1',   7, 17, 0, 'DL2 Crits',
         'Allow excellent moves against the Dragonlord\'s 2nd form.');
     ui.addDropDown ('New 1',   9, 17, 4, 'Crit Chance', {
-        'Vanilla (1/32)' : 0,
-        'Double (1/16)' : 1,
-        'Always (100%)' : 2,
-        'Random (1-32)/32' : 3,
-        'One of the above': 4
+        'Never (0%)' : 0,
+        'Vanilla (1/32)' : 1,
+        'Double (1/16)' : 2,
+        'Always (100%)' : 3,
+        'Random (1-32)/32' : 4,
+        'One of the above': 5
     });
     ui.addDropDown ('New 1',  11, 18, 5, 'Bonk Dmg', {
         'None' : 0,

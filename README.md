@@ -137,17 +137,16 @@ Makes sure the player starts with Radiant and some MP. Like the No Hurtmore flag
 Blast doors open with a cast of Hurtmore.
 
 
-## Known Issues I do not intend to fix ##
+## Known Notable Issues ##
+- Sometimes, levelups will not refill your HP and MP even if the flag is on.
+- When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in the official DWR version, where it usually doesn't matter. But since vendors can now be shuffled, it can be an important check, and Damage Bonks can ruin a player's day.
+- When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
+
+
+## Known Minor Issues ##
 - The bonk counter will not be active if `Damage Bonks` is on.
 - With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. None of these affect the ability to run or to complete the game.
-- The village music plays after spending the night at the inn, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, outside, …).
-- The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only. I have attempted to fix this and it didn't work, so unless there is a popular demand for it, it's gonna stay that way.
+- The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, …).
 - When in critical HP and gaining a level with the `Levelup Refill` flag on, the text borders will stay red until the player's HP changes. I'd rather leave this as is because I estimate my chances of messing things up greater than the chances of fixing the problem 🙂
-- When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
-- In the official DWR version, when there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall (where it doesn't matter because you don't go there since there's nothing to buy). But since vendors can now be shuffled, it can be an important check, and Damage Bonks can ruin a player's day, so in this version, the tile was changed to a water tile so the player can walk around it.
-- The Return / Warp Whistle modifications use 3 RAM bytes which are shared by the post-credits stats for the Metal Slime and Specter, so don't be surprised if those stats are borked and/or killing or getting killed by these monsters affect your warping locations. I'd have to talk with mcgrew for proper RAM addresses to be used.
-
-
-## Issues I haven't been able to reproduce but you might run into ##
-- Once, the original credits played a bit and then skipped to the post-credits stats screens. I was using cheats to progress more quickly.
-- It was reported to me that a levelup in Charlock did not trigger the intended refill with the `Levelup Refill` flag on.
+- Once, the original credits played a bit and then skipped to the post-credits stats screens. I was using cheats to progress more quickly so this might have been just a fluke.
+- The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only. I have attempted to fix this and it didn't work, so unless there is a popular demand for it, it's gonna stay that way.

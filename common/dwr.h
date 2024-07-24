@@ -9,7 +9,7 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.7"
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.8"
 #define VERSION DWR_VERSION
 
 #define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA"

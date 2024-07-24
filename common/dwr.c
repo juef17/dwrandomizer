@@ -86,7 +86,7 @@ static void update_flags(dw_rom *rom)
     if(MAGIC_HERBS(rom) == 2)           rom->flags[16] = (rom->flags[16] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(CRIT_DL1(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(CRIT_DL2(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
-    if(CRIT_CHANCE(rom) == 4)           rom->flags[17] = (rom->flags[17] | 0x70) & ((mt_rand(0, 3) << 4) | 0x8f);
+    if(CRIT_CHANCE(rom) == 5)           rom->flags[17] = (rom->flags[17] | 0x70) & ((mt_rand(0, 4) << 4) | 0x8f);
     if(DAMAGE_BONKS(rom) == 6)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 5) << 5) | 0x1f);
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
@@ -1357,8 +1357,8 @@ static void other_patches(dw_rom *rom)
     /* fixing some annoying roaming npcs */
     // This will be handled by npc_shenanigans
     //vpatch(rom, 0x18ee, 1, 0xa7); /* move the stupid old man from the item shop */
-    //vpatch(rom, 0x90f,  1, 0x6f); /* quit ignoring the customers */
-    //vpatch(rom, 0x93c,  1, 0x6f); /* quit ignoring the customers */
+    vpatch(rom, 0x90f,  1, 0x6f); /* quit ignoring the customers */
+    vpatch(rom, 0x93c,  1, 0x6f); /* quit ignoring the customers */
     //vpatch(rom, 0x17a2, 3, 0, 0, 0); /* delete roaming throne room guard */
 
     vpatch(rom, 0xf131, 2, 0x69, 0x03); /* Lock the stat build modifier at 3 */
@@ -2103,11 +2103,14 @@ static void crit_changes(dw_rom *rom)
         vpatch(rom, 0xe61a, 1, 0x00);
     if(CRIT_DL2(rom))
         vpatch(rom, 0xe61e, 1, 0x00);
-    if(CRIT_CHANCE(rom) == 1)
-        vpatch(rom, 0xe625, 1, 0x0f);
+    if(CRIT_CHANCE(rom) == 0)
+        vpatch(rom, 0xe624, 1, 0x09);
+    // CRIT_CHANCE == 1 is vanilla so we don't do anything
     if(CRIT_CHANCE(rom) == 2)
-        vpatch(rom, 0xe625, 1, 0x00);
+        vpatch(rom, 0xe625, 1, 0x0f);
     if(CRIT_CHANCE(rom) == 3)
+        vpatch(rom, 0xe625, 1, 0x00);
+    if(CRIT_CHANCE(rom) == 4)
         vpatch(rom, 0xe625, 1, mt_rand(0, 0x1f));
 }
 
@@ -2584,9 +2587,9 @@ void zoom_and_whistle(dw_rom *rom)
     uint8_t zoom_data[6][3]; // i is town in the below order, j is map, zoom_x, zoom_y
 
 	// Just random RAM addresses I thought might be unused
-    uint16_t ram_i = 0x6730; // Index of town to warp to with Return
-    uint16_t ram_j = 0x6731; // Index of town to warp-whistle to
-	uint16_t ram_v = 0x6732; // List of visited towns (00RC GKBT)
+    uint16_t ram_i = 0x6800; // Index of town to warp to with Return
+    uint16_t ram_j = 0x6801; // Index of town to warp-whistle to
+	uint16_t ram_v = 0x6802; // List of visited towns (00RC GKBT)
 	uint16_t address_orig = 0xc82b; // Starting address for new code
 	uint16_t address = address_orig; // Starting address for new code
 
