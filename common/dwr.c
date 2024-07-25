@@ -1284,14 +1284,14 @@ static void show_spells_learned(dw_rom *rom)
             0x4a,               /*   lsr         ; shift right               */
             0xc8,               /*   iny         ; increment spell index     */
             0xc0,  0x1a,        /*   cpy #$1a    ; if Y is 26, we're done    */
-            0xf0,  0x11,        /*   beq +                                   */
+            0xf0,  0x0c,        /*   beq +                                   */
             0xc0,  0x18,        /*   cpy #$18    ; if Y is 18,               */
             0xd0,  0xe5,        /*   bne -       ;                           */
             0xa5,  0xdd,        /*   lda $dd     ; load second spell byte    */
             0x45,  0xcf,        /*   eor $cf     ; xor with new spells       */
             0x29,  0x03,        /*   and #$3     ; we only need 2 bits here  */
             0xd0,  0xdd,        /*   bne -       ; if it's not empty,        */
-            0xea,               /*   nop         ;    continue               */
+            0xea,               /*   +           ;    continue               */
             0xea,               /*   nop                                     */
             0xea,               /*   nop                                     */
             0xea,               /*   nop                                     */
@@ -2835,15 +2835,19 @@ void levelup_refill(dw_rom *rom)
         return;
     printf("Making levelups refreshing...\n");
 
-    // Hook into ChkNewSpell
+    // Hook into first 3 of 5 free bytes in mcgrew's ChkNewSpell
     vpatch(rom, 0xeb0f, 3, 0x20, 0x98, 0xc9); // JSR C998
 
     // New code
-    vpatch(rom, 0xc998, 9,
+    vpatch(rom, 0xc998, 9+15,
         0xa5, 0xca,         // LDA Max HP
         0x85, 0xc5,         // STA HP
         0xa5, 0xcb,         // LDA Max MP
         0x85, 0xc6,         // STA MP
+
+        // Original "we're not low HP anymore" code
+        0xA9, 0x01, 0x85, 0x0A, 0xA9, 0x3F, 0x85, 0x0B, 0xA9, 0x30, 0x85, 0x08, 0x20, 0x90, 0xC6,
+
         0x60                // RTS
     );
 }
