@@ -2130,9 +2130,9 @@ static void shuffle_inn_prices(dw_rom *rom)
     mt_shuffle(prices, sizeof(prices), sizeof(uint8_t));
     for(i = 0; i < sizeof(prices) / sizeof(uint8_t); i++)
     {
-        vpatch(rom, 0x198c + i, 1, prices[i]);
         if(SHUFFLE_INN_PRICES(rom) == 2)
-            vpatch(rom, 0x198c + i, 1, mt_rand(1, 0xff));
+            prices[i] = mt_rand(1, 0xff);
+        vpatch(rom, 0x198c + i, 1, prices[i]);
     }
 }
 
@@ -2152,12 +2152,14 @@ static void shuffle_key_prices(dw_rom *rom)
     mt_shuffle(prices, sizeof(prices), sizeof(uint8_t));
     for(i = 0; i < sizeof(prices) / sizeof(uint8_t); i++)
     {
-        vpatch(rom, 0x1989 + i, 1, prices[i]);
         if(SHUFFLE_KEY_PRICES(rom) == 2)
-            vpatch(rom, 0x1989 + i, 1, mt_rand(1, 0xff));
+            prices[i] = mt_rand(1, 0xff);
+        vpatch(rom, 0x1989 + i, 1, prices[i]);
     }
     vpatch(rom, 0x196b, 1, prices[1]);
-}static int compareLocation(const void *a, const void *b)
+}
+
+static int compareLocation(const void *a, const void *b)
 {
     return *(uint8_t*)(a+4) - *(uint8_t*)(b+4);
 }
