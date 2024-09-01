@@ -1929,6 +1929,40 @@ static void noir_mode(dw_rom *rom)
 }
 
 /**
+ * Cyberdark86's Winter Theme patch
+ *
+ * @param rom The rom struct.
+ */
+static void winter_theme(dw_rom *rom)
+{
+    if (!WINTER_THEME(rom))
+        return;
+
+    vpatch(rom, 0x1a58  - 0x0010, 1, 0x21);
+    vpatch(rom, 0x1a5b  - 0x0010, 3, 0x30, 0x30, 0x10);
+    vpatch(rom, 0x1a5f  - 0x0010, 1, 0x30);
+    vpatch(rom, 0x1a61  - 0x0010, 1, 0x21);
+    vpatch(rom, 0x1a68  - 0x0010, 1, 0x21);
+    vpatch(rom, 0x1a6c  - 0x0010, 2, 0x30, 0x10);
+    vpatch(rom, 0x1a6f  - 0x0010, 1, 0x30);
+    vpatch(rom, 0x1a78  - 0x0010, 1, 0x11);
+    vpatch(rom, 0x1a85  - 0x0010, 1, 0x21);
+    vpatch(rom, 0x1a9d  - 0x0010, 1, 0x11);
+    vpatch(rom, 0x3fae  - 0x0010, 2, 0x37, 0x32);
+    vpatch(rom, 0x11628 - 0x0010, 8, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60);
+    vpatch(rom, 0x11639 - 0x0010, 2, 0xff, 0xff);
+    vpatch(rom, 0x11649 - 0x0010, 2, 0xfe, 0xfe);
+    vpatch(rom, 0x11659 - 0x0010, 7, 0x37, 0x7f, 0x70, 0x60, 0x60, 0x60, 0x60);
+    vpatch(rom, 0x11668 - 0x0010, 7, 0x60, 0x60, 0x60, 0x60, 0x70, 0x7f, 0x3f);
+    vpatch(rom, 0x11678 - 0x0010, 8, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06);
+    vpatch(rom, 0x11689 - 0x0010, 7, 0xfc, 0xfe, 0x0e, 0x06, 0x06, 0x06, 0x06);
+    vpatch(rom, 0x1169d - 0x0010, 2, 0xff, 0xff);
+    vpatch(rom, 0x116a8 - 0x0010, 7, 0x06, 0x06, 0x06, 0x06, 0x0e, 0xfe, 0xfc);
+    vpatch(rom, 0x11a98 - 0x0010, 8, 0xef, 0xdf, 0xbf, 0x7f, 0xfe, 0xfd, 0xfb, 0xf7);
+    vpatch(rom, 0x11f78 - 0x0010, 8, 0xee, 0xdd, 0xbb, 0x77, 0xee, 0xdd, 0xbb, 0x77);
+}
+
+/**
  * Creates a new "BEGIN A NEW QUEST" window which will contain the ROM
  * checksum
  *
@@ -3000,6 +3034,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     levelup_refill(&rom);
     max_herbs(&rom);
     max_keys(&rom);
+    crit_changes(&rom);
 
     crc = crc64(0, rom.content, 0x10000);
 
@@ -3008,7 +3043,6 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     update_title_screen(&rom);
     no_screen_flash(&rom);
     no_red_flash(&rom);
-    crit_changes(&rom);
 
     /* reseed the RNG so the rest isn't deterministic */
     mt_init(time(NULL));
@@ -3018,6 +3052,8 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     sprite(&rom, sprite_name);
     invisible_npcs(&rom); // in case the custom sprite also changed NPCS.
     noir_mode(&rom);
+    winter_theme(&rom);
+
 
     printf("Checksum: %016"PRIx64"\n", crc);
     if (!dwr_write(&rom, output_file)) {

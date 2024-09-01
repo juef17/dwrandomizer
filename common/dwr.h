@@ -9,7 +9,7 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.8"
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.9"
 #define VERSION DWR_VERSION
 
 #define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA"
@@ -99,6 +99,7 @@
 #define LEVELUP_REFILL(x)         ((x->flags[19] & 0x08) >> 3) // 1-
 #define MAX_HERBS(x)              ((x->flags[19] & 0x04) >> 2) // 1-
 #define MAX_KEYS(x)               ((x->flags[19] & 0x02) >> 1) // 1-
+#define WINTER_THEME(x)           ((x->flags[19] & 0x01)     ) // 1-
 
 
 
