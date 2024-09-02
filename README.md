@@ -137,6 +137,11 @@ Makes sure the player starts with Radiant and some MP. Like the No Hurtmore flag
 Blast doors open with a cast of Hurtmore.
 
 
+#### Winter Theme ####
+
+Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-looking Alefgard!
+
+
 ## Known Notable Issues ##
 - When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in mcgrew's official DWR version, where it doesn't matter because there is no point in going there then. But since vendors can now be shuffled, it can be an important check, and notably, coupling this with Damage Bonks could ruin a player's day.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
