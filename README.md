@@ -142,6 +142,11 @@ Blast doors open with a cast of Hurtmore.
 Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-looking Alefgard!
 
 
+#### Radish Finish ####
+
+A new way to win the game: talk to the radish vendor while carrying Gwaelin so you can share those sweet, sweet radishes with her.
+
+
 ## Known Notable Issues ##
 - When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in mcgrew's official DWR version, where it doesn't matter because there is no point in going there then. But since vendors can now be shuffled, it can be an important check, and notably, coupling this with Damage Bonks could ruin a player's day.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
