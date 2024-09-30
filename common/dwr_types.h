@@ -318,8 +318,8 @@ typedef struct {
     uint8_t *header;
     uint8_t *content;
     uint8_t *expansion;
-    unsigned char flags_encoded[33];
-    uint8_t flags[20];
+    unsigned char flags_encoded[41];
+    uint8_t flags[25];
     uint8_t chest_access[31];
     uint64_t seed;
     dw_map map;

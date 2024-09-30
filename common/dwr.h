@@ -9,10 +9,10 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.9"
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.10"
 #define VERSION DWR_VERSION
 
-#define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA"
+#define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAAAAAAAAAA"
 #define CHEST_COUNT 31
 
 #define SHUFFLE_CHESTS(x)         (x->flags[ 0] & 0xc0)
@@ -100,6 +100,7 @@
 #define MAX_HERBS(x)              ((x->flags[19] & 0x04) >> 2) // 1-
 #define MAX_KEYS(x)               ((x->flags[19] & 0x02) >> 1) // 1-
 #define WINTER_THEME(x)           ((x->flags[19] & 0x01)     ) // 1-
+#define RADISH_FINISH(x)          ((x->flags[20] & 0xc0) >> 6) // 2
 
 
 

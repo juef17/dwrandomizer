@@ -90,6 +90,7 @@ static void update_flags(dw_rom *rom)
     if(DAMAGE_BONKS(rom) == 6)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 5) << 5) | 0x1f);
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
+    if(RADISH_FINISH(rom) == 2)         rom->flags[20] = (rom->flags[20] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -111,7 +112,8 @@ static void update_flags(dw_rom *rom)
     printf("Level 1 Radiant: %d\n", LEVEL_1_RADIANT(rom));
     printf("Return escapes: %d\n", RETURN_ESCAPES(rom));
     printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
-    printf("Warp whistle: %d\n", WARP_WHISTLE(rom));*/
+    printf("Warp whistle: %d\n", WARP_WHISTLE(rom));
+    printf("Radish finish: %d\n", RADISH_FINISH(rom));*/
 }
 
 /**
@@ -147,10 +149,10 @@ static BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags)
     fclose(input);
 
     rom->content = &rom->header[0x10];
-    strncpy((char *)rom->flags_encoded, flags, 32);
-    rom->flags_encoded[32] = '\0'; /* Make sure it's null terminated */
+    strncpy((char *)rom->flags_encoded, flags, 40);
+    rom->flags_encoded[40] = '\0'; /* Make sure it's null terminated */
     rom->map.flags = rom->flags;
-    memset(rom->flags, 0, 20);
+    memset(rom->flags, 0, 25);
     base32_decode(rom->flags_encoded, rom->flags);
 
     //for(int i = 15; i<20; i++) printf("Byte %d: %c%c%c%c%c%c%c%c\n", i, BYTE_TO_BINARY(rom->flags[i]));
@@ -964,7 +966,8 @@ static void update_title_screen(dw_rom *rom)
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
     pos = pvpatch(pos, 4, 0xf7, 32, 0x5f, 0xfc); /* blank line */
 
-    pos = center_title_text(pos, (const char *)rom->flags_encoded); /* flags */
+    //pos = center_title_text(pos, (const char *)rom->flags_encoded); /* flags */
+    pos = center_title_text(pos, "Seed number:");
     snprintf((char *)text, 33, "%"PRIu64, rom->seed);
 
      /* blank line */
@@ -1172,6 +1175,40 @@ static void threes_company(dw_rom *rom)
             0xea                /* NOP                                       */
     );
     add_hook(rom, JSR, 0xd50d, THREES_COMPANY_CHECK);
+}
+
+/**
+ * Adds a new goal to bring the princess the radish vendor to finish the game
+ *
+ * @param rom The rom struct
+ */
+static void radish_finish(dw_rom *rom)
+{
+    uint16_t address = 0xe143; // Starting address for new code //TODO lower by 1
+
+    if (!RADISH_FINISH(rom))
+        return;
+
+    printf("The princess is craving radishes...\n");
+
+    // Hook into original dialogue processing code:
+    vpatch(rom, 0xd193, 3, 0x4c, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR free space
+
+    vpatch(rom, address, 23,
+        0x48,       // pha
+        0xc9, 0x45, // CMP 0x45 is radish dialog control byte
+        0xd0, 0x0d, // BNE NEXT
+        0xa5, 0xdf, // It is radish dialogue! Check if we rescued Gwaelin. lda zeropage status bits
+        0x29, 0x01, // and immediate Gwaelin bit
+        0xf0, 0x07, // bne NEXT, Player is not carrying Gwaelin, move ahead
+
+        0x20, 0xcb, 0xc7, 0x74, // Display radish
+        0x4c, 0xb8, 0xcc, // jmp to ending
+
+        // NEXT
+        0xa5, 0xdf,     // LDA PlayerFlags
+        0x4c, 0x96, 0xd1// JMP back to original code
+    );
 }
 
 /**
@@ -3000,6 +3037,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     chaos_mode(&rom);
     no_keys(&rom);
     cursed_princess(&rom);
+    radish_finish(&rom);
     npc_shenanigans(&rom);
     threes_company(&rom);
     scared_metal_slimes(&rom);

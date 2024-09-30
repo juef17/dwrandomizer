@@ -344,6 +344,8 @@ class Interface {
             let seed = BigInt(this.seedEl.value);
             let flags = this.flagsEl.value;
             let sprite = localStorage.sprite || 'Random';
+            if (!localStorage.getItem('rom_name') || localStorage.getItem('rom_name') == 'No file selected')
+                alert("Please load an original Dragon Warrior ROM first.");
             let checksum = rom.randomize(seed, flags, sprite);
             this.showChecksum(true, checksum.toString(16));
             this.checksumHolder.value = checksum.toString(16);

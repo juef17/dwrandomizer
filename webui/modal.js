@@ -98,10 +98,10 @@ class FlagsModal extends Modal {
     constructor() {
         super(400, 300, 'Presets', null, 'Cancel');
         let builtinPresets = {
-            'Standard': 'IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA',
-            'Fast Standard': 'IVIAAVCAKACFAAAAAAAAAIAAAAIAAAAA',
-            'Easy Standard': 'IVIAAVCFKACACQAAKAAAAZAAAAIAAAAA',
-            'Tiebreaker': 'IVKQAVCEKEAFKRIAAAAAAYAAAAIAAAAA',
+            'Standard': 'IVIAAVCAKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA',
+            'Fast Standard': 'IVIAAVCAKACFAAAAAAAAAIAUAAIBAAAAAAAAAAAA',
+            'Easy Standard': 'IVIAAVCFKACACQAAKAAAAZAUAAIBAAAAAAAAAAAA',
+            'Tiebreaker': 'IVKQAVCEKEAFKRIAAAAAAYAUAAIBAAAAAAAAAAAA',
         }
         this.dialog.append(this.create('div', 'Save', {
             'font-weight': 'normal',

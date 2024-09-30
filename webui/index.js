@@ -117,9 +117,9 @@ class Rom extends Uint8Array {
  */
 function setup_ui() {
     if (!localStorage.flags)
-        localStorage.flags = 'IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAA'
+        localStorage.flags = 'IVIAAVCAKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
     if (!localStorage.retainFlags)
-        localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
     ui = new Interface(20);
     ui.addTab('Gamepl.');
     ui.addTab('Feat.');
@@ -240,6 +240,8 @@ function setup_ui() {
         'This disables the game music in most situations.');
     ui.addOption   ('Cosm.',  9, 14, 5, 'Disable Spell Flashing',
         'Prevents the screen from flashing when you cast spells.', true);
+    ui.addOption   ('Cosm.',  11, 17, 7, 'Disable Red Flashes',
+        'Prevents the screen from flashing when walking on damage tiles.');
     ui.addOption   ('Cosm.',   6, 14, 4, 'Show Death Counter',
         'The stats window will also have a death counter.');
     ui.addOption   ('Cosm.',   3, 14, 3, 'Allow Custom Spell Names',
@@ -302,8 +304,8 @@ function setup_ui() {
         'All' : 2,
         'One of the above': 3
     });
-    ui.addOption   ('New 2',  2, 17, 7, 'Disable Red Flashes',
-        'Prevents the screen from flashing when walking on damage tiles.');
+    ui.addTriOption('New 2',  2, 20, 6, 'Radish Finish',
+        'Feed the princess some fresh and cheap radishes to win.');
     ui.addOption   ('New 2',  3, 18, 0, 'Level 1 Radiant',
         'If spells are randomized, makes sure the hero always knows Radiant.');
     ui.addOption   ('New 2',  4, 19, 7, 'Return Escapes',
