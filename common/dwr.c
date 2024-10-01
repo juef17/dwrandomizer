@@ -1184,7 +1184,7 @@ static void threes_company(dw_rom *rom)
  */
 static void radish_finish(dw_rom *rom)
 {
-    uint16_t address = 0xe142; // Starting address for new code //TODO lower by 1
+    uint16_t address = 0xe142; // Starting address for new code
 
     if (!RADISH_FINISH(rom))
         return;
