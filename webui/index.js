@@ -120,7 +120,7 @@ function setup_ui() {
         localStorage.flags = 'IVIAAVCAKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
     if (!localStorage.retainFlags)
         localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-    ui = new Interface(20);
+    ui = new Interface(25);
     ui.addTab('Gamepl.');
     ui.addTab('Feat.');
     ui.addTab('Monst.');
