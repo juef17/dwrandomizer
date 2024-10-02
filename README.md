@@ -39,7 +39,7 @@ Randomizes the Fairy Flute song that is played when using the flute in a battle 
 
 #### Vendor Shuffle ####
 
-This shuffles every weapon, tool, fairy water and key vendor (except for Rimuldar's key vendor), as well as the radish vendor. The locations, positions, sprites and prices are not modified. If `Don't Require Magic Keys` flag is on, then the Rimuldar key vendor and the two other key vendors, wherever they are, are removed as they would ordinarily be. Otherwise, the Rimuldar key vendor will stay in Rimuldar, so the key logic does not have to change.
+This shuffles every weapon, tool, fairy water and key vendor, as well as the radish vendor. The locations, positions, sprites and prices are not modified. If `Don't Require Magic Keys` flag is on, then the Rimuldar key vendor and the two other key vendors, wherever they are, are removed as they would ordinarily be. Otherwise, the Rimuldar key vendor will stay in Rimuldar, so the key logic does not have to change.
 
 
 #### Charlock Inn ####

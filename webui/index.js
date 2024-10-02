@@ -256,7 +256,7 @@ function setup_ui() {
     ui.addTriOption('New 1',   2, 16, 4, 'Randomize Flute Music',
         'Change the Fairy Flute sound to a new random tune.');
     ui.addTriOption('New 1',   4, 16, 6, 'Vendor Shuffle',
-        'Weapon, fairy water, item, radishes and key vendors (except the Rimuldar key vendor) are shuffled.');
+        'Weapon, fairy water, item, radishes and key vendors are shuffled.');
     ui.addTriOption('New 1',   6, 15, 6, 'Charlock Inn',
         'Make the final dive easier by having a comfy bed and breakfast at the Dragonlord\'s.');
     ui.addTriOption('New 1',   8, 15, 4, 'Only Healmore',
