@@ -27,7 +27,7 @@ Additionnally, if the `Open Charlock` flag is off, it cannot be:
 - the Staff of Rain old man;
 - the Rainbow Drop old man.
 
-Also, if the `No Keys` flag is on, it obviously cannot be a key vendor.
+Also, if the `No Keys` flag is on, it obviously cannot be a key vendor, and if the `Radish Finish` flag is on, it cannot be the radish vendor.
 
 This makes an approximate probability of 1/120 that a specific NPC is the Dragonlord.
 
@@ -156,4 +156,3 @@ A new way to win the game: talk to the radish vendor while carrying Gwaelin so y
 - With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. None of these affect the ability to run or to complete the game.
 - The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, …).
 - The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only. I have attempted to fix this and it didn't work, so unless there is a popular demand for it, it's gonna stay that way.
-- Once, the original credits played a bit and then skipped to the post-credits stats screens. I was using cheats to progress more quickly so this might have been just a fluke.
