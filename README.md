@@ -153,7 +153,6 @@ A new way to win the game: talk to the radish vendor while carrying Gwaelin so y
 
 
 ## Known Minor Issues ##
-- The bonk counter will not be active if `Damage Bonks` is on.
 - With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. None of these affect the ability to run or to complete the game.
 - The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, …).
 - The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only. I have attempted to fix this and it didn't work, so unless there is a popular demand for it, it's gonna stay that way.
