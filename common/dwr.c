@@ -2286,7 +2286,7 @@ static void npc_shenanigans(dw_rom *rom)
     a: Swappable with dragonlord
     b: Swappable with dragonlord if open charlock
     c: Weapon shop vendor
-    d: Item shop vendor
+    d: Item & radish shop vendor
     e: Fairy water vendor
     f: Key vendor
     g: Non-Rimuldar key vendor
@@ -2319,8 +2319,15 @@ static void npc_shenanigans(dw_rom *rom)
                 NPCData[k][3] = 0x00; // Post-win NPCs
             else if(NPCData[k][2] < 0x07)
                 NPCData[k][3] = 0xe0; // Weapon vendors
-            else if((NPCData[k][2] >= 0x07 && NPCData[k][2] < 0x0c) || NPCData[k][2] == 0x45)
-                NPCData[k][3] = 0xd0; // Item & radish vendors
+            else if((NPCData[k][2] >= 0x07 && NPCData[k][2] < 0x0c))
+                NPCData[k][3] = 0xd0; // Item vendors
+            else if(NPCData[k][2] == 0x45) // Radish vendor
+            {
+                if(RADISH_FINISH(rom)) // Don't overwrite him with the Dragonlord if we want a possible radish finish
+                    NPCData[k][3] = 0x10;
+                else
+                    NPCData[k][3] = 0xd0;
+            }
             else if(NPCData[k][2] == 0x0f || NPCData[k][2] == 0x10)
                 NPCData[k][3] = 0xc8; // Fairy Water vendors
             else if(NPCData[k][2] == 0x0c || NPCData[k][2] == 0x0e)
