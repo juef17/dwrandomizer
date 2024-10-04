@@ -116,11 +116,12 @@ class Rom extends Uint8Array {
  * Initializes the user interface
  */
 function setup_ui() {
-    if (!localStorage.flags)
+    let flagsize = 25;
+    if (!localStorage.flags || localStorage.flags.length < flagsize)
         localStorage.flags = 'IVIAAVCAKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
-    if (!localStorage.retainFlags)
+    if (!localStorage.retainFlags || localStorage.flags.length < flagsize)
         localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-    ui = new Interface(25);
+    ui = new Interface(flagsize);
     ui.addTab('Gamepl.');
     ui.addTab('Feat.');
     ui.addTab('Monst.');

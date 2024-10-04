@@ -219,7 +219,8 @@ class Interface {
         });
         let flagsDiv = this.create('div', 'Flags: ');
         this.flagsEl = this.create('input', null, {
-            'width':  '296px'
+            'width':  '296px',
+            'font-size': '10px'
         });
         this.flagsEl.id = 'flags';
         this.flagsEl.value = localStorage.flags
