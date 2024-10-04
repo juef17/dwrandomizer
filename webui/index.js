@@ -117,9 +117,9 @@ class Rom extends Uint8Array {
  */
 function setup_ui() {
     let flagsize = 25;
-    if (!localStorage.flags || localStorage.flags.length < flagsize)
+    if (!localStorage.flags || localStorage.flags.length < flagsize / 5 * 8)
         localStorage.flags = 'IVIAAVCAKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
-    if (!localStorage.retainFlags || localStorage.flags.length < flagsize)
+    if (!localStorage.retainFlags || localStorage.flags.length < flagsize / 5 * 8)
         localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
     ui = new Interface(flagsize);
     ui.addTab('Gamepl.');
