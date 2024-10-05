@@ -91,7 +91,7 @@ static void update_flags(dw_rom *rom)
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
     if(RADISH_FINISH(rom) == 2)         rom->flags[20] = (rom->flags[20] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
-    if(DW4_RUN_MECHANICS(rom) == 2)     rom->flags[20] = (rom->flags[20] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
+    if(DWX_RUN_MECHANICS(rom) == 3)     rom->flags[20] = (rom->flags[20] | 0x30) & ((mt_rand(0, 2) << 4) | 0xcf);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -115,7 +115,7 @@ static void update_flags(dw_rom *rom)
     printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
     printf("Warp whistle: %d\n", WARP_WHISTLE(rom));
     printf("Radish finish: %d\n", RADISH_FINISH(rom));
-    printf("DW4 run mechanics: %d\n", DW4_RUN_MECHANICS(rom));*/
+    printf("DWX run mechanics: %d\n", DWX_RUN_MECHANICS(rom));*/
 }
 
 /**
@@ -349,14 +349,16 @@ static void torch_in_battle(dw_rom *rom) {
 }
 
 /**
- * Implements the Dragon Warrior IV running away mechanics
+ * Implements the Dragon Warrior II & IV running away mechanics
+ * For DW2: 2/3 success rate every time
+ * For DW4:
  * 1st & 2nd attempts at running away: 50% success rate
  * 3rd attempt at running away: 75% success rate
  * 4th attempt at running away: 100% success rate
  *
  * @param rom The rom struct
  */
-void dw4_run_mechanics(dw_rom *rom)
+void dwx_run_mechanics(dw_rom *rom)
 {
 	const uint16_t ram_n = 0x6803; // Number of run attempts minus one. This just requires 2 bits so we could use a byte from the warp whistle if we really wanted to save a byte
 	const uint16_t ram_blocks = 0x663c;
@@ -364,69 +366,82 @@ void dw4_run_mechanics(dw_rom *rom)
     const uint16_t battle_start_newcode = 0xe163;
     const uint16_t tryrun_newcode = 0xee94;
 
-//	Hook at battle start to set byte to 0
-    vpatch(rom, battle_start_hook, 4, 0x20, battle_start_newcode & 0xff, (battle_start_newcode >> 8) & 0xff, 0xea); // JSR battle_start_newcode and NOP for operation alignment
-    vpatch(rom, battle_start_newcode, 8,
-        0xa9, 0x00, // LDA $00
-        0x8d, ram_n & 0xff, (ram_n >> 8) & 0xff,    // STA ram_n
-        0x85, 0x41, // STA 0x41 (original code)
-        0x60        // RTS
-    );
+    if(DWX_RUN_MECHANICS(rom) == 1) // DW2
+    {
+        vpatch(rom, tryrun_newcode, 5,
+            0xa5, 0x95,			// lda $95 (random)
+            0xc9, 0x55,			// cmp #$55 (1/3 of 0xff)
+            0x60	  			// rts
+        );
+    }
+    else if(DWX_RUN_MECHANICS(rom) == 2) // DW4
+    {
+        //	Hook at battle start to set ram_n to 0
+        vpatch(rom, battle_start_hook, 4, 0x20, battle_start_newcode & 0xff, (battle_start_newcode >> 8) & 0xff, 0xea); // JSR battle_start_newcode and NOP for operation alignment
+        vpatch(rom, battle_start_newcode, 8,
+            0xa9, 0x00, // LDA $00
+            0x8d, ram_n & 0xff, (ram_n >> 8) & 0xff,    // STA ram_n
+            0x85, 0x41, // STA 0x41 (original code)
+            0x60        // RTS
+        );
 
-//	Hook at run attempt:
-//      Check for success
-//          Yes:
-//              Leave battle
-//          No:
-//              Increment byte
-//              Increment block counter $663c (à changer l'endianness)
-//              Go back to battle
-/*
-    Does the following depending on the value of ram_n
-    For 0 or 1: set carry if zeropage $95 is >= 128 (otherwise clear the carry and increment both ram_n and ram_blocks) then RTS.
-    For 2: set carry if zeropage $95 is >= 64 (otherwise clear the carry and increment both ram_n and ram_blocks) then RTS.
-    For 3: set carry then RTS.
-*/
+        /*	Hook at run attempt:
+            Check for success
+                Yes:
+                    Leave battle
+                No:
+                    Increment byte
+                    Increment block counter $663c (à changer l'endianness)
+                    Go back to battle
 
-    vpatch(rom, tryrun_newcode, 41,
-        0xad, ram_n & 0xff, (ram_n >> 8) & 0xff,   // lda ram_n
-        0xc9, 0x03,			// cmp #$03
-        0xf0, 0x20,			// beq set_carry_rts
+            Does the following depending on the value of ram_n
+            For 0 or 1: set carry if zeropage $95 is >= 128 (otherwise clear the carry and increment both ram_n and ram_blocks) then RTS.
+            For 2: set carry if zeropage $95 is >= 64 (otherwise clear the carry and increment both ram_n and ram_blocks) then RTS.
+            For 3: set carry then RTS.
 
-        0xc9, 0x02,			// cmp #$02
-        0xf0, 0x0e,			// beq check_64
+            This is probably a bit inefficient but there's plenty of bytes to overwrite there anyway
+        */
 
-        0xa5, 0x95,			// lda $95
-        0xc9, 0x80,			// cmp #$80
-        0xb0, 0x16,			// bcs set_carry_rts
+        vpatch(rom, tryrun_newcode, 41,
+            0xad, ram_n & 0xff, (ram_n >> 8) & 0xff,   // lda ram_n
+            0xc9, 0x03,			// cmp #$03
+            0xf0, 0x20,			// beq set_carry_rts
 
-        0x18,	  			// clc
-        0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
-        0xee, ram_blocks & 0xff, (ram_blocks >> 8) & 0xff,   // inc ram_blocks
-        0x60,	  			// rts
+            0xc9, 0x02,			// cmp #$02
+            0xf0, 0x0e,			// beq check_64
 
-        // check_64
-        0xa5, 0x95,			// lda $95
-        0xc9, 0x40,			// cmp #$40
-        0xb0, 0x08,			// bcs set_carry_rts
+            0xa5, 0x95,			// lda $95 (random)
+            0xc9, 0x80,			// cmp #$80
+            0xb0, 0x16,			// bcs set_carry_rts
 
-        0x18,	  			// clc
-        0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
-        0xee, ram_blocks & 0xff, (ram_blocks >> 8) & 0xff,   // inc ram_blocks
-        0x60,	  			// rts
+            0x18,	  			// clc
+            0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
+            0xee, ram_blocks & 0xff, (ram_blocks >> 8) & 0xff,   // inc ram_blocks
+            0x60,	  			// rts
 
-        //set_carry_rts
-        0x38,	  			// sec
-        0x60	  			// rts
-    );
+            // check_64
+            0xa5, 0x95,			// lda $95
+            0xc9, 0x40,			// cmp #$40
+            0xb0, 0x08,			// bcs set_carry_rts
 
+            0x18,	  			// clc
+            0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
+            0xee, ram_blocks & 0xff, (ram_blocks >> 8) & 0xff,   // inc ram_blocks
+            0x60,	  			// rts
+
+            //set_carry_rts
+            0x38,	  			// sec
+            0x60	  			// rts
+        );
+    }
+    return;
 }
 
 static void modify_run_rate(dw_rom *rom) {
-    if(DW4_RUN_MECHANICS(rom))
+    if(DWX_RUN_MECHANICS(rom))
     {
         printf("Running away? More like, coin-flipping away...\n");
-        dw4_run_mechanics(rom);
+        dwx_run_mechanics(rom);
         return;
     }
 
@@ -2260,7 +2275,7 @@ void setup_expansion(dw_rom *rom)
     add_hook(rom, JSR, 0xe62a, INC_CRIT_CTR);
     add_hook(rom, JSR, 0xe65a, INC_MISS_CTR);
     add_hook(rom, JSR, 0xe68a, INC_DODGE_CTR);
-    if(!DW4_RUN_MECHANICS(rom))
+    if(!DWX_RUN_MECHANICS(rom))
         add_hook(rom, DIALOGUE, 0xe89d, BLOCKED_IN_FRONT);
     add_hook(rom, JSR, 0xe98c, COUNT_WIN);
     add_hook(rom, JSR, 0xed9e, INC_ENEMY_DEATH_CTR);

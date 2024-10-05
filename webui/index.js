@@ -321,8 +321,12 @@ function setup_ui() {
         'Blast doors open with a cast of Hurtmore.');
     ui.addOption   ('New 2',  8, 19, 3, 'Levelup Refill',
         'Have HP and MP refilled after leveling up.');
-    ui.addTriOption('New 2',  9, 20, 4, 'DW4 Running',
-        'Have the same running away mechanics as Dragon Warrior IV.');
+    ui.addDropDown ('New 2',  9, 20, 4, 'Run Mechanics', {
+        'Original' : 0,
+        'DW II' : 1,
+        'DW IV' : 2,
+        'Random': 3
+    });
     ui.addOption   ('New 2', 10, 19, 2, 'Random Herb Carry',
         'The maximum number of herbs you can carry is randomly chosen between 0 and 9.');
     ui.addOption   ('New 2', 11, 19, 1, 'Random Key Carry',

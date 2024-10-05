@@ -147,9 +147,9 @@ Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-loo
 A new way to win the game: talk to the radish vendor while carrying Gwaelin so you can share those sweet, sweet radishes with her.
 
 
-#### DW4 Running ####
+#### DWX Running Mechanics ####
 
-Make the game use the Dragon Warrior IV mechanics for running away from an enemy. It goes like this:
+Make the game use mechanics mechanics for running away from an enemy from another game in the series. For Dragon Warrior II, it's a flat 2/3 chance everytime. For Dragon Warrior IV, it goes like this:
 - On your first and second run attempt in a battle, you have a 50% chance to get away.
 - On your third run attempt in a battle, you have a 75% chance to get away.
 - On your fourth run attempt, or if the enemy's asleep, you're guaranteed to get away.
@@ -163,6 +163,6 @@ This flag overrides both `Easy Charlock` and `Alternate Running Algorithm`.
 
 
 ## Known Minor Issues ##
-- With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. None of these affect the ability to run or to complete the game.
+- With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. They are purely cosmetic and do not affect the ability to run away or to complete the game.
 - The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, …).
 - The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only. I have attempted to fix this and it didn't work, so unless there is a popular demand for it, it's gonna stay that way.

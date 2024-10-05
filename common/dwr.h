@@ -101,7 +101,7 @@
 #define MAX_KEYS(x)               ((x->flags[19] & 0x02) >> 1) // 1
 #define WINTER_THEME(x)           ((x->flags[19] & 0x01)     ) // 1
 #define RADISH_FINISH(x)          ((x->flags[20] & 0xc0) >> 6) // 2
-#define DW4_RUN_MECHANICS(x)      ((x->flags[20] & 0x30) >> 4) // 2
+#define DWX_RUN_MECHANICS(x)      ((x->flags[20] & 0x30) >> 4) // 2
 
 
 #ifdef __cplusplus
