@@ -147,7 +147,7 @@ Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-loo
 A new way to win the game: talk to the radish vendor while carrying Gwaelin so you can share those sweet, sweet radishes with her.
 
 
-#### DWX Running Mechanics ####
+#### DWII & DWIV Running Mechanics ####
 
 Make the game use mechanics mechanics for running away from an enemy from another game in the series. For Dragon Warrior II, it's a flat 2/3 chance everytime. For Dragon Warrior IV, it goes like this:
 - On your first and second run attempt in a battle, you have a 50% chance to get away.
