@@ -139,12 +139,22 @@ Blast doors open with a cast of Hurtmore.
 
 #### Winter Theme ####
 
-Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-looking Alefgard!
+Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-looking Alefgard! This will change a seed's checksum.
 
 
 #### Radish Finish ####
 
 A new way to win the game: talk to the radish vendor while carrying Gwaelin so you can share those sweet, sweet radishes with her.
+
+
+#### DW4 Running ####
+
+Make the game use the Dragon Warrior IV mechanics for running away from an enemy. It goes like this:
+- On your first and second run attempt in a battle, you have a 50% chance to get away.
+- On your third run attempt in a battle, you have a 75% chance to get away.
+- On your fourth run attempt, or if the enemy's asleep, you're guaranteed to get away.
+
+This flag overrides both `Easy Charlock` and `Alternate Running Algorithm`.
 
 
 ## Known Notable Issues ##

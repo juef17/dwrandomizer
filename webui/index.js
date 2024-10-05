@@ -235,13 +235,15 @@ function setup_ui() {
         'Use spell names from more recent DQ releases.');
     ui.addTriOption('Cosm.',  7, 11, 4, 'Noir Mode',
         "It's all black and white baby!");
+    ui.addOption   ('Cosm.',  9, 19, 0, 'Winter Theme',
+        'Sometimes, saving Alefgard cannot wait until summer.');
     ui.addOption   ('Cosm.',  0, 14, 7, 'Shuffle Music',
         'Music in each area will be randomized.');
     ui.addOption   ('Cosm.',  2, 14, 6, 'Disable Music',
         'This disables the game music in most situations.');
-    ui.addOption   ('Cosm.',  9, 14, 5, 'Disable Spell Flashing',
+    ui.addOption   ('Cosm.',  8, 14, 5, 'Disable Spell Flashing',
         'Prevents the screen from flashing when you cast spells.', true);
-    ui.addOption   ('Cosm.',  11, 17, 7, 'Disable Red Flashes',
+    ui.addOption   ('Cosm.',  10, 17, 7, 'Disable Red Flashes',
         'Prevents the screen from flashing when walking on damage tiles.');
     ui.addOption   ('Cosm.',   6, 14, 4, 'Show Death Counter',
         'The stats window will also have a death counter.');
@@ -319,8 +321,8 @@ function setup_ui() {
         'Blast doors open with a cast of Hurtmore.');
     ui.addOption   ('New 2',  8, 19, 3, 'Levelup Refill',
         'Have HP and MP refilled after leveling up.');
-    ui.addOption   ('New 2',  9, 19, 0, 'Winter Theme',
-        'Sometimes, saving Alefgard cannot wait until summer.');
+    ui.addTriOption('New 2',  9, 20, 4, 'DW4 Running',
+        'Have the same running away mechanics as Dragon Warrior IV.');
     ui.addOption   ('New 2', 10, 19, 2, 'Random Herb Carry',
         'The maximum number of herbs you can carry is randomly chosen between 0 and 9.');
     ui.addOption   ('New 2', 11, 19, 1, 'Random Key Carry',
