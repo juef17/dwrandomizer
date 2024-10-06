@@ -363,8 +363,10 @@ void dwx_run_mechanics(dw_rom *rom)
 	const uint16_t ram_n = 0x6803; // Number of run attempts minus one. This just requires 2 bits so we could use a byte from the warp whistle if we really wanted to save a byte
 	const uint16_t ram_blocks = 0x663c;
     const uint16_t battle_start_hook = 0xe4f0;
-    const uint16_t battle_start_newcode = 0xe163;
-    const uint16_t tryrun_newcode = 0xee94;
+    const uint16_t battle_start_newcode = find_free_space(rom->content, 0xc422, 8);
+    const uint16_t tryrun_newcode = 0xee94; // Overwrites original code
+
+    printf("The battle_start_newcode is at: %04x" PRIu16 "\n", battle_start_newcode);
 
     if(DWX_RUN_MECHANICS(rom) == 1) // DW2
     {
@@ -1282,7 +1284,9 @@ static void threes_company(dw_rom *rom)
  */
 static void radish_finish(dw_rom *rom)
 {
-    uint16_t newcode = 0xe142;
+    uint16_t newcode = find_free_space(rom->content, 0xc422, 33);
+
+    printf("The radish finish newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!RADISH_FINISH(rom))
         return;
@@ -2771,7 +2775,8 @@ static void npc_shenanigans(dw_rom *rom)
  */
 void return_escapes(dw_rom *rom)
 {
-    const uint16_t newcode = 0xc815;
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 22);
+    printf("The return_escapes newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!RETURN_ESCAPES(rom))
         return;
@@ -3066,7 +3071,8 @@ void zoom_and_whistle(dw_rom *rom)
  */
 void hurtmore_doors(dw_rom *rom)
 {
-    const uint16_t newcode = 0xc8eb;
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 173);
+    printf("The hurtmore_doors newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!HURTMORE_DOORS(rom))
         return;
@@ -3096,7 +3102,8 @@ void hurtmore_doors(dw_rom *rom)
  */
 void levelup_refill(dw_rom *rom)
 {
-    const uint16_t newcode = 0xc998;
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 24);
+    printf("The levelup_refill newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!LEVELUP_REFILL(rom))
         return;
@@ -3106,7 +3113,7 @@ void levelup_refill(dw_rom *rom)
     vpatch(rom, 0xeb0f, 3, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR newcode
 
     // New code
-    vpatch(rom, newcode, 9+15,
+    vpatch(rom, newcode, 24,
         0xa5, 0xca,         // LDA Max HP
         0x85, 0xc5,         // STA HP
         0xa5, 0xcb,         // LDA Max MP
@@ -3163,6 +3170,120 @@ void max_keys(dw_rom *rom)
 }
 
 /**
+ * Does most of the randomization. Put in a new function since it's now reused
+ *
+ * @param rom The rom struct
+ */
+void apply_stuff_to_rom(dw_rom *rom)
+{
+
+    /* Clear the unused code so we can make sure it's unused */
+#ifdef CLEAR_ALL_UNUSED_DATA
+    memset(&rom->content[0x1314], 0xff, 0x1332 - 0x1314);
+    memset(&rom->content[0x3bbe], 0xff, 0x3bdf - 0x3bbe);
+    memset(&rom->content[0x6181], 0xff, 0x6194 - 0x6181);
+    memset(&rom->content[0x6bc0], 0xff, 0x6bc4 - 0x6bc0);
+#endif
+    memset(&rom->content[0xc288], 0xff, 0xc529 - 0xc288);
+    memset(&rom->content[0xc6c9], 0xff, 0xc6f0 - 0xc6c9);
+    memset(&rom->content[0xc7ec], 0xff, 0xc9b5 - 0xc7ec);
+    memset(&rom->content[0xf232], 0xff, 0xf35b - 0xf232);
+
+    show_spells_learned(rom);
+    other_patches(rom);
+    short_charlock(rom);
+    do_chest_flags(rom);
+    stair_shuffle(rom);
+    check_quest_items(rom);
+    map_generate_terrain(rom);
+    spike_rewrite(rom);
+    randomize_attack_patterns(rom);
+    randomize_zone_layout(rom);
+    randomize_zones(rom);
+    randomize_shops(rom);
+    randomize_growth(rom);
+    randomize_spells(rom);
+    update_drops(rom);
+    update_mp_reqs(rom);
+    lower_xp_reqs(rom);
+    update_enemy_hp(rom);
+    dwr_fighters_ring(rom);
+    dwr_death_necklace(rom);
+    dwr_menu_wrap(rom);
+    randomize_flute_song(rom);
+    dwr_speed_hacks(rom);
+    open_charlock(rom);
+    chaos_mode(rom);
+    no_keys(rom);
+    cursed_princess(rom);
+    radish_finish(rom);
+    npc_shenanigans(rom);
+    threes_company(rom);
+    scared_metal_slimes(rom);
+    support_2_byte_xp_gold(rom);
+    torch_in_battle(rom);
+    repel_mods(rom);
+    permanent_torch(rom);
+    rotate_dungeons(rom);
+    treasure_guards(rom);
+    sorted_inventory(rom);
+    summer_sale(rom);
+    modify_run_rate(rom);
+    dwr_token_dialogue(rom);
+    discardable_flute(rom);
+    formidable_flute(rom);
+    magic_herbs(rom);
+    shuffle_inn_prices(rom);
+    shuffle_key_prices(rom);
+
+    modern_spell_names(rom);
+    randomize_music(rom);
+    disable_music(rom);
+
+    no_numbers(rom);
+    invisible_hero(rom);
+    invisible_npcs(rom);
+    damage_bonks(rom);
+    death_counter(rom);
+    return_escapes(rom);
+    zoom_and_whistle(rom);
+    hurtmore_doors(rom);
+    levelup_refill(rom);
+    max_herbs(rom);
+    max_keys(rom);
+    crit_changes(rom);
+}
+
+
+/**
+ * Randomizes a Dragon Warrior rom file
+ * This does everything without the Winter theme, and does not output a file.
+ * This only returns the CRC so it can be used by the original dwr_randomize
+ *
+ */
+uint64_t dwr_randomizeWithoutWinterTheme(const char* input_file, uint64_t seed, char *flags)
+{
+    uint64_t crc = 0;
+    dw_rom rom;
+
+    mt_init(seed);
+    if (!dwr_init(&rom, input_file, flags)) {
+        return 0;
+    }
+    rom.seed = seed;
+
+    apply_stuff_to_rom(&rom);
+
+    crc = crc64(0, rom.content, 0x10000);
+
+    // We don't care about the stuff that's done post-CRC
+
+    free(rom.header);
+    free(rom.expansion);
+    return crc;
+}
+
+/**
  * Randomizes a Dragon Warrior rom file
  *
  * @param input_file The name of the input file
@@ -3177,7 +3298,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
 {
     uint64_t crc = 0;
     char output_file[1025] = { 0 };
-    dw_rom rom;
+    dw_rom *rom = malloc(sizeof(dw_rom));
 
     check_structs();
 
@@ -3187,111 +3308,69 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     printf("Using flags %s\n", flags);
 
     mt_init(seed);
-    if (!dwr_init(&rom, input_file, flags)) {
+    if (!dwr_init(rom, input_file, flags)) {
         return 0;
     }
-    rom.seed = seed;
-    winter_theme(&rom);
+    rom->seed = seed;
+    winter_theme(rom);
 
-    /* Clear the unused code so we can make sure it's unused */
-#ifdef CLEAR_ALL_UNUSED_DATA
-    memset(&rom.content[0x1314], 0xff, 0x1332 - 0x1314);
-    memset(&rom.content[0x3bbe], 0xff, 0x3bdf - 0x3bbe);
-    memset(&rom.content[0x6181], 0xff, 0x6194 - 0x6181);
-    memset(&rom.content[0x6bc0], 0xff, 0x6bc4 - 0x6bc0);
-#endif
-    memset(&rom.content[0xc288], 0xff, 0xc529 - 0xc288);
-    memset(&rom.content[0xc6c9], 0xff, 0xc6f0 - 0xc6c9);
-    memset(&rom.content[0xc7ec], 0xff, 0xc9b5 - 0xc7ec);
-    memset(&rom.content[0xf232], 0xff, 0xf35b - 0xf232);
+    apply_stuff_to_rom(rom);
 
-    show_spells_learned(&rom);
-    other_patches(&rom);
-    short_charlock(&rom);
-    do_chest_flags(&rom);
-    stair_shuffle(&rom);
-    check_quest_items(&rom);
-    map_generate_terrain(&rom);
-    spike_rewrite(&rom);
-    randomize_attack_patterns(&rom);
-    randomize_zone_layout(&rom);
-    randomize_zones(&rom);
-    randomize_shops(&rom);
-    randomize_growth(&rom);
-    randomize_spells(&rom);
-    update_drops(&rom);
-    update_mp_reqs(&rom);
-    lower_xp_reqs(&rom);
-    update_enemy_hp(&rom);
-    dwr_fighters_ring(&rom);
-    dwr_death_necklace(&rom);
-    dwr_menu_wrap(&rom);
-    randomize_flute_song(&rom);
-    dwr_speed_hacks(&rom);
-    open_charlock(&rom);
-    chaos_mode(&rom);
-    no_keys(&rom);
-    cursed_princess(&rom);
-    radish_finish(&rom);
-    npc_shenanigans(&rom);
-    threes_company(&rom);
-    scared_metal_slimes(&rom);
-    support_2_byte_xp_gold(&rom);
-    torch_in_battle(&rom);
-    repel_mods(&rom);
-    permanent_torch(&rom);
-    rotate_dungeons(&rom);
-    treasure_guards(&rom);
-    sorted_inventory(&rom);
-    summer_sale(&rom);
-    modify_run_rate(&rom);
-    dwr_token_dialogue(&rom);
-    discardable_flute(&rom);
-    formidable_flute(&rom);
-    magic_herbs(&rom);
-    shuffle_inn_prices(&rom);
-    shuffle_key_prices(&rom);
+    crc = crc64(0, rom->content, 0x10000);
+    printf("Checksum: %016"PRIx64"\n", crc);
+    if(WINTER_THEME(rom))
+    {
+        crc = dwr_randomizeWithoutWinterTheme(input_file, seed, flags);
+        printf("Checksum without winter theme: %016"PRIx64"\n", crc);
+    }
 
-    modern_spell_names(&rom);
-    randomize_music(&rom);
-    disable_music(&rom);
+    begin_quest_checksum(rom, crc);
 
-    no_numbers(&rom);
-    invisible_hero(&rom);
-    invisible_npcs(&rom);
-    damage_bonks(&rom);
-    death_counter(&rom);
-    return_escapes(&rom);
-    zoom_and_whistle(&rom);
-    hurtmore_doors(&rom);
-    levelup_refill(&rom);
-    max_herbs(&rom);
-    max_keys(&rom);
-    crit_changes(&rom);
-
-    crc = crc64(0, rom.content, 0x10000);
-
-    begin_quest_checksum(&rom, crc);
-
-    update_title_screen(&rom);
-    no_screen_flash(&rom);
-    no_red_flash(&rom);
+    update_title_screen(rom);
+    no_screen_flash(rom);
+    no_red_flash(rom);
 
     /* reseed the RNG so the rest isn't deterministic */
     mt_init(time(NULL));
 
-    skip_vanilla_credits(&rom);
-    setup_expansion(&rom);
-    sprite(&rom, sprite_name);
-    invisible_npcs(&rom); // in case the custom sprite also changed NPCS.
-    noir_mode(&rom);
+    skip_vanilla_credits(rom);
+    setup_expansion(rom);
+    sprite(rom, sprite_name);
+    invisible_npcs(rom); // in case the custom sprite also changed NPCS.
+    noir_mode(rom);
 
 
-    printf("Checksum: %016"PRIx64"\n", crc);
-    if (!dwr_write(&rom, output_file)) {
+    if (!dwr_write(rom, output_file)) {
         return 0;
     }
-    free(rom.header);
-    free(rom.expansion);
+    free(rom->header);
+    free(rom->expansion);
+    free(rom);
     return crc;
+}
+
+// Looks through the ROM for free space
+uint16_t find_free_space(uint8_t *content, uint16_t start, uint8_t n)
+{
+    BOOL found;
+    uint16_t i;
+    uint8_t j;
+
+    for (i = start; i <= 0xffff - n; i++)
+    {
+        found = TRUE;
+        for (j = 0; j < n; j++)
+        {
+            //printf("%04x" PRIx16 ": %02x" PRIx8 "\n", i+j, content[i + j]);
+            if (content[i + j] != 0xff)
+            {
+                found = FALSE;
+                break;
+            }
+        }
+
+        if (found)
+            return i;
+    }
+    return -1;
 }

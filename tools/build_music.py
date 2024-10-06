@@ -13,15 +13,18 @@ class Music:
         self.filename = name
         self.name = name[:name.rfind('.')]
         print(f'Adding music {self.name}...')
-        self.asm6 = find_executable('asm6f') or find_executable('asm6')
-        self.famistudio = find_executable('famistudio')
+        self.asm6 = "/home/francois/Documents/Autres/2024.1 - Hiver/Dragon Warrior Randomizer/Programming/unofficial_juef_version/tools/asm6f"#find_executable('asm6f') or find_executable('asm6')
+        print(self.asm6)
+        self.famistudio = "/home/francois/Documents/Perm stuff/Software/FamiStudio/FamiStudio.dll"#find_executable('famistudio')
+        #self.famistudio = "/home/francois/Documents/Perm stuff/Software/FamiStudio413-LinuxAMD64/FamiStudio.dll"#find_executable('famistudio')
         self.music = self.dmc = b''
         self.addr = None
         self.assemble()
 
     def generate_asm(self):
         print('Generating assembly...')
-        run([self.famistudio, f'{self.filename}',  'famistudio-asm-export',
+        #run([self.famistudio, f'{self.filename}',  'famistudio-asm-export',
+        run(["dotnet", f'{self.famistudio}', f'{self.filename}',  'famistudio-asm-export',
             f'_{self.name}.asm', '-famistudio-asm-format:asm6'])
 
     def cleanup(self):

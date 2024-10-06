@@ -139,7 +139,7 @@ Blast doors open with a cast of Hurtmore.
 
 #### Winter Theme ####
 
-Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-looking Alefgard! This will change a seed's checksum.
+Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-looking Alefgard. Newly implemented: this will not change a seed's checksum!
 
 
 #### Radish Finish ####

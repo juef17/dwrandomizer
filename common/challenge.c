@@ -120,7 +120,8 @@ void no_numbers(dw_rom *rom)
 void damage_bonks(dw_rom *rom)
 {
     uint8_t damage, sound = 0x8f;
-    const uint16_t newcode = 0xc422;
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 43);
+    printf("The damage_bonks newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!DAMAGE_BONKS(rom))
         return;

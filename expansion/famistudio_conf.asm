@@ -6,7 +6,7 @@ FAMISTUDIO_CFG_EXTERNAL = 1
 
 FAMISTUDIO_ASM6_ZP_ENUM   = $00F0
 FAMISTUDIO_ASM6_BSS_ENUM  = $0400
-; FAMISTUDIO_ASM6_CODE_BASE = $8000
+FAMISTUDIO_ASM6_CODE_BASE = $8000
 
 ;======================================================================================================================
 ; 2) AUDIO EXPANSION CONFIGURATION
@@ -57,11 +57,10 @@ FAMISTUDIO_CFG_DPCM_SUPPORT   = 1
 ;======================================================================================================================
 ; FAMISTUDIO_USE_FAMITRACKER_TEMPO = 1
 
+FAMISTUDIO_USE_ARPEGGIO      = 1
 FAMISTUDIO_USE_PITCH_TRACK   = 1
 FAMISTUDIO_USE_RELEASE_NOTES = 1
 FAMISTUDIO_USE_SLIDE_NOTES   = 1
 FAMISTUDIO_USE_VIBRATO       = 1
 FAMISTUDIO_USE_VOLUME_TRACK  = 1
-FAMISTUDIO_USE_ARPEGGIO        = 1
-; FAMISTUDIO_DPCM_OFF = $c000
 

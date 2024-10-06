@@ -105,7 +105,7 @@ def generate_c_file(b3_patch:bytes, expansion:bytes):
 
 def main():
     chdir(join(dirname(realpath(__file__)), '..', 'expansion'))
-    asm6 = find_executable('asm6f') or find_executable('asm6')
+    asm6 = "/home/francois/Documents/Autres/2024.1 - Hiver/Dragon Warrior Randomizer/Programming/unofficial_juef_version/tools/asm6f"#find_executable('asm6f') or find_executable('asm6')
     if run([asm6, '-q', '-f', '-dDWR_BUILD', 'credits.asm', 'credits.nes']
             ).returncode:
         return -1
