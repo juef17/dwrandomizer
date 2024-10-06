@@ -203,10 +203,11 @@ class Interface {
         this.inputFile = this.create('input', null, {
             'position': 'absolute',
             'opacity': '0',
-            'cursor': 'pointer'
+            'cursor': 'pointer',
+            'width':  '320px'
         })
         this.filenameSpan = this.create('span',
-            localStorage.getItem('rom_name') || 'No file selected')
+            localStorage.getItem('rom_name') || 'Click here to load your uncompressed ROM.');
         this.inputFile.type = 'file';
         this.inputFileDiv.append(this.inputFile)
         this.inputFileDiv.append(this.filenameSpan);
@@ -345,11 +346,12 @@ class Interface {
             let seed = BigInt(this.seedEl.value);
             let flags = this.flagsEl.value;
             let sprite = localStorage.sprite || 'Random';
-            if (!localStorage.getItem('rom_name') || localStorage.getItem('rom_name') == 'No file selected')
-                alert("Please load an original Dragon Warrior ROM first.");
+            if (!localStorage.getItem('rom_name') || localStorage.getItem('rom_name') == 'Click here to load your uncompressed ROM.')
+                alert("Please load an uncompressed Dragon Warrior ROM first.");
             let checksum = rom.randomize(seed, flags, sprite);
-            this.showChecksum(true, checksum.toString(16));
-            this.checksumHolder.value = checksum.toString(16);
+            let paddedChecksum = String("0000000000000000" + checksum.toString(16)).slice(-16)
+            this.showChecksum(true, paddedChecksum);
+            this.checksumHolder.value = paddedChecksum;
             rom.save();
         });
         this.checksumButton.click(event => {
