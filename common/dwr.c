@@ -1282,7 +1282,7 @@ static void threes_company(dw_rom *rom)
  */
 static void radish_finish(dw_rom *rom)
 {
-    uint16_t address = 0xe142; // Starting address for new code
+    uint16_t newcode = 0xe142;
 
     if (!RADISH_FINISH(rom))
         return;
@@ -1290,15 +1290,15 @@ static void radish_finish(dw_rom *rom)
     printf("The princess is craving radishes...\n");
 
     // Hook into original dialogue processing code:
-    vpatch(rom, 0xd193, 3, 0x4c, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR free space
+    vpatch(rom, 0xd193, 3, 0x4c, newcode & 0xff, (newcode >> 8) & 0xff); // JSR newcode
 
-    vpatch(rom, address, 33,
+    vpatch(rom, newcode, 33,
         0x48,       // pha
         0xc9, 0x45, // CMP 0x45 is radish dialog control byte
-        0xd0, 0x0d, // BNE NEXT
+        0xd0, 0x17, // BNE NEXT
         0xa5, 0xdf, // It is radish dialogue! Check if we rescued Gwaelin. lda zeropage status bits
         0x29, 0x01, // and immediate Gwaelin bit
-        0xf0, 0x07, // bne NEXT, Player is not carrying Gwaelin, move ahead
+        0xf0, 0x11, // bne NEXT, Player is not carrying Gwaelin, move ahead
 
         0x20, 0xcb, 0xc7, 0x74, // Display radish
         0xa9, 0x03,             // lda window type (command)
@@ -2771,6 +2771,8 @@ static void npc_shenanigans(dw_rom *rom)
  */
 void return_escapes(dw_rom *rom)
 {
+    const uint16_t newcode = 0xc815;
+
     if (!RETURN_ESCAPES(rom))
         return;
     printf("Allowing Zooming out of battle...\n");
@@ -2778,12 +2780,11 @@ void return_escapes(dw_rom *rom)
     // Skip checking for return as a spell that can't be used in battle
     vpatch(rom, 0xe6fa, 1, 0x07);
 
-    // Hook into original Heal code:
-    //  JMP c950 (new code)
-    vpatch(rom, 0xe722, 3, 0x4c, 0x15, 0xc8);
+    // Hook into original Heal code
+    vpatch(rom, 0xe722, 3, 0x4c, newcode & 0xff, (newcode >> 8) & 0xff); //  JMP new code
 
     // New code
-    vpatch(rom, 0xc815, 22,
+    vpatch(rom, newcode, 22,
         0xc9, 0x00,         // CMP #SPL_HEAL
         0xd0, 0x03,         // BNE 3 (jumping to Return)
         0x4c, 0x26, 0xe7,   // JMP e726 (go to heal - the actual code for the spell is still in its original location)
@@ -2851,6 +2852,7 @@ void zoom_and_whistle(dw_rom *rom)
     const uint16_t ram_i = 0x6800; // Index of town to warp to with Return
     const uint16_t ram_j = 0x6801; // Index of town to warp-whistle to
 	const uint16_t ram_v = 0x6802; // List of visited towns (00RC GKBT)
+
 	const uint16_t address_orig = 0xc82b; // Starting address for new code
 	uint16_t address = address_orig; // Starting address for new code
 
@@ -2884,8 +2886,8 @@ void zoom_and_whistle(dw_rom *rom)
 
     // Hooking into the spell casting code
     vpatch(rom, 0xdb04, 16,
-		0xad, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // LDA absolute zoom_i
-        0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), // JSR new code to load zoom coords
+		0xad, ram_i & 0xff, (ram_i >> 8) & 0xff, // LDA absolute zoom_i
+        0x20, address & 0xff, (address >> 8) & 0xff, // JSR new code to load zoom coords
         0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea // NOP because we're gonna RTS later on and that stuff will have been done in the new code
         //TODO We could use those bytes for something
     );
@@ -2901,8 +2903,8 @@ void zoom_and_whistle(dw_rom *rom)
     vpatch(rom, address, code_size,
         0x48,       // PHA cause we need the index afterwards
         0xaa, 0xa8, // TAX, TAY (have the index be in both X and Y)
-        0xbd, (uint8_t)((address + code_size) & 0x00ff), (uint8_t)(((address + code_size) & 0xff00) >> 8), 0xaa, // LDA,X , TAX --> load the X coord and put it into X
-        0xb9, (uint8_t)((address + code_size + 6) & 0x00ff), (uint8_t)(((address + code_size + 6) & 0xff00) >> 8), 0xa8, // LDA,Y , TAY --> load the Y coord and put it into Y
+        0xbd, (address + code_size) & 0xff, ((address + code_size) >> 8) & 0xff, 0xaa, // LDA,X , TAX --> load the X coord and put it into X
+        0xb9, (address + code_size + 6) & 0xff, ((address + code_size + 6) >> 8) & 0xff, 0xa8, // LDA,Y , TAY --> load the Y coord and put it into Y
 
         // Put the coords in the right places. This is original code, but with new registers
         0x86, 0x3A, // LDB06:  STX CharXPos
@@ -2924,7 +2926,7 @@ void zoom_and_whistle(dw_rom *rom)
     address += code_size + 2*6;
 
     // Hook to new code to update zoom index in RAM when staying at an inn
-    vpatch(rom, 0xd8df, 5, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8), 0xea, 0xea); // JSR new code
+    vpatch(rom, 0xd8df, 5, 0x20, address & 0xff, (address >> 8) & 0xff, 0xea, 0xea); // JSR new code
 
     // New code to update zoom index and visited towns in RAM when staying at an inn
     code_size = 69;
@@ -2974,7 +2976,7 @@ void zoom_and_whistle(dw_rom *rom)
     address += code_size;
 
     // Hook start of the game to set initial zoom index
-    vpatch(rom, 0xca1a, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code
+    vpatch(rom, 0xca1a, 3, 0x20, address & 0xff, (address >> 8) & 0xff); // JSR new code
 
     // New code to set initial zoom index
     code_size = 17;
@@ -2990,7 +2992,7 @@ void zoom_and_whistle(dw_rom *rom)
     address += code_size;
 
     // Hook at saving to set zoom index to Tantegel
-    vpatch(rom, 0xd43f, 3, 0x20, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JSR new code
+    vpatch(rom, 0xd43f, 3, 0x20, address & 0xff, (address >> 8) & 0xff); // JSR new code
 
     // New code to set zoom index to Tantegel when saving
     code_size = 9;
@@ -3009,7 +3011,7 @@ void zoom_and_whistle(dw_rom *rom)
     printf("I can't believe it's not a recorder...\n");
 
     // Hook to replace "doesn't work" text with JSR to new functionnality
-    vpatch(rom, 0xddbf, 3, 0x4c, (uint8_t)(address & 0x00ff), (uint8_t)((address & 0xff00) >> 8)); // JMP new code for flute functionality
+    vpatch(rom, 0xddbf, 3, 0x4c, address & 0xff, (address >> 8) & 0xff); // JMP new code for flute functionality
 
     // New code for flute functionality
     code_size = 60;
@@ -3023,7 +3025,7 @@ void zoom_and_whistle(dw_rom *rom)
         0x4c, 0x55, 0xda,   // LDAFD:  JMP SpellFizzle         ;($DA55)Print text indicating spell did not work.
 
 		0xad, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // LDA absolute zoom_j
-        0x20, (uint8_t)(address_orig & 0x00ff), (uint8_t)((address_orig & 0xff00) >> 8),   // JSR to code that loads zoom coords from index
+        0x20, address_orig & 0xff, (address_orig >> 8) & 0xff,   // JSR to code that loads zoom coords from index
         0xa8,               // TAY, for later restoration
 
         // Update whistle index
@@ -3064,15 +3066,17 @@ void zoom_and_whistle(dw_rom *rom)
  */
 void hurtmore_doors(dw_rom *rom)
 {
+    const uint16_t newcode = 0xc8eb;
+
     if (!HURTMORE_DOORS(rom))
         return;
     printf("Allowing destruction of doors with Hurtmore...\n");
 
-    // Hook into original "UnknownSpell code:
-    vpatch(rom, 0xdb34, 3, 0x4c, 0xeb, 0xc8); //
+    // Hook into original UnknownSpell code:
+    vpatch(rom, 0xdb34, 3, 0x4c, newcode & 0xff, (newcode >> 8) & 0xff); //
 
     // New code
-    vpatch(rom, 0xc8eb, 173,
+    vpatch(rom, newcode, 173,
         0xc9, 0x09,         // CMP #SPL_HURTMORE
         0xf0, 0x03,         // BEQ to the new code
         0x4c, 0x55, 0xda,   // JMP SpellFizzle
@@ -3080,7 +3084,7 @@ void hurtmore_doors(dw_rom *rom)
         // clear windows
         0xA9, 0x02, 0x20, 0xA2, 0xA7, 0xA9, 0x03, 0x20, 0xA2, 0xA7, 0xA9, 0x00, 0x20, 0xA2, 0xA7,
 
-        // key stuff. Yeah, this is just lazy for now
+        // key stuff. Yeah, this is just lazy for now. This is mostly the original key routine, minus the key checking & decrementing parts
         0xA5, 0x3A, 0x85, 0x3C, 0xA5, 0x3B, 0x85, 0x3E, 0xC6, 0x3E, 0x20, 0x17, 0xAC, 0xA5, 0x3C, 0xC9, 0x11, 0xF0, 0x44, 0xA5, 0x3A, 0x85, 0x3C, 0xA5, 0x3B, 0x85, 0x3E, 0xE6, 0x3E, 0x20, 0x17, 0xAC, 0xA5, 0x3C, 0xC9, 0x11, 0xF0, 0x31, 0xA5, 0x3A, 0x85, 0x3C, 0xA5, 0x3B, 0x85, 0x3E, 0xC6, 0x3C, 0x20, 0x17, 0xAC, 0xA5, 0x3C, 0xC9, 0x11, 0xF0, 0x1E, 0xA5, 0x3A, 0x85, 0x3C, 0xA5, 0x3B, 0x85, 0x3E, 0xE6, 0x3C, 0x20, 0x17, 0xAC, 0xA5, 0x3C, 0xC9, 0x11, 0xF0, 0x0B, 0x20, 0xF0, 0xC6, 0x02, 0x20, 0xC5, 0xC7, 0x0B, 0x4C, 0xD9, 0xCF, 0xA2, 0x00, 0xBD, 0x0C, 0x60, 0xF0, 0x09, 0xE8, 0xE8, 0xE0, 0x10, 0xD0, 0xF5, 0x4C, 0xD9, 0xCF, 0xA5, 0x42, 0x9D, 0x0C, 0x60, 0xA5, 0x43, 0x9D, 0x0D, 0x60, 0xA5, 0x42, 0x38, 0xE5, 0x3A, 0x0A, 0x85, 0x0F, 0xA5, 0x43, 0x38, 0xE5, 0x3B, 0x0A, 0x85, 0x10, 0xA9, 0x00, 0x85, 0x4C, 0xA9, 0x94, 0x00, 0x04, 0x17, 0x20, 0x66, 0xAD, 0x20, 0x08, 0xC6, 0xA5, 0x47, 0xD0, 0xF9, 0x4C, 0x6A, 0xCF
     );
 }
@@ -3092,15 +3096,17 @@ void hurtmore_doors(dw_rom *rom)
  */
 void levelup_refill(dw_rom *rom)
 {
+    const uint16_t newcode = 0xc998;
+
     if (!LEVELUP_REFILL(rom))
         return;
     printf("Making levelups refreshing...\n");
 
     // Hook into first 3 of 5 free bytes in mcgrew's ChkNewSpell
-    vpatch(rom, 0xeb0f, 3, 0x20, 0x98, 0xc9); // JSR C998
+    vpatch(rom, 0xeb0f, 3, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR newcode
 
     // New code
-    vpatch(rom, 0xc998, 9+15,
+    vpatch(rom, newcode, 9+15,
         0xa5, 0xca,         // LDA Max HP
         0x85, 0xc5,         // STA HP
         0xa5, 0xcb,         // LDA Max MP
