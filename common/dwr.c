@@ -2859,12 +2859,14 @@ void zoom_and_whistle(dw_rom *rom)
     const uint16_t ram_j = 0x6801; // Index of town to warp-whistle to
 	const uint16_t ram_v = 0x6802; // List of visited towns (00RC GKBT)
 
-	const uint16_t address_orig = 0xc82b; // Starting address for new code
-	uint16_t address = address_orig; // Starting address for new code
+	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 192); // Starting address for new code
+	uint16_t address = newcode; // Starting address for new code
 
 	uint8_t i;
 
     int code_size = 0;
+
+    printf("The zoom_and_whistle newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!RETURN_TO_ZOOM(rom) && !WARP_WHISTLE(rom))
         return;
@@ -2890,7 +2892,7 @@ void zoom_and_whistle(dw_rom *rom)
 /*    zoom_data[6][0] = 0x03; // Hawksness
     find_zoom_tile(rom, 10, zoom_data, 6);*/
 
-    // Hooking into the spell casting code
+    // Hooking into return casting code
     vpatch(rom, 0xdb04, 16,
 		0xad, ram_i & 0xff, (ram_i >> 8) & 0xff, // LDA absolute zoom_i
         0x20, address & 0xff, (address >> 8) & 0xff, // JSR new code to load zoom coords
@@ -2938,41 +2940,41 @@ void zoom_and_whistle(dw_rom *rom)
     code_size = 69;
     vpatch(rom, address, code_size,
         0xa6, 0x45,             // LDX zeropage map number
-		0xad, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // LDA absolute zoom_v
+		0xad, ram_v & 0xff, (ram_v >> 8) & 0xff, // LDA absolute zoom_v
 
         // TODO: this can be inside a loop, I guess
 
         0xe0, zoom_data[1][0],  // CPX Brecconary
         0xd0, 7,                // BNE next
         0xa2, 1,                // LDX (town index in zoom_data)
-        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+        0x8e, ram_i & 0xff, (ram_i >> 8) & 0xff, // STX ram_i
 		0x09, 0x02,														   // ORA 0x02 (Brecconary's visited bit)
 
         0xe0, zoom_data[2][0],  // CPX Kol
         0xd0, 7,                // BNE next
         0xa2, 2,                // LDX (town index in zoom_data)
-        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+        0x8e, ram_i & 0xff, (ram_i >> 8) & 0xff, // STX ram_i
 		0x09, 0x04,														   // ORA 0x04 (Kol's visited bit)
 
         0xe0, zoom_data[3][0],  // CPX Garinham
         0xd0, 7,                // BNE next
         0xa2, 3,                // LDX (town index in zoom_data)
-        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+        0x8e, ram_i & 0xff, (ram_i >> 8) & 0xff, // STX ram_i
 		0x09, 0x08,														   // ORA 0x08 (Garinham's visited bit)
 
         0xe0, zoom_data[4][0],  // CPX Cantlin
         0xd0, 7,                // BNE next
         0xa2, 4,                // LDX (town index in zoom_data)
-        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+        0x8e, ram_i & 0xff, (ram_i >> 8) & 0xff, // STX ram_i
 		0x09, 0x10,														   // ORA 0x10 (Cantlin's visited bit)
 
         0xe0, zoom_data[5][0],  // CPX Rimuldar
         0xd0, 7,                // BNE next
         0xa2, 5,                // LDX (town index in zoom_data)
-        0x8e, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STX ram_i
+        0x8e, ram_i & 0xff, (ram_i >> 8) & 0xff, // STX ram_i
 		0x09, 0x20,														   // ORA 0x20 (Rimuldar's visited bit)
 
-		0x8d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // STA ram_v
+		0x8d, ram_v & 0xff, (ram_v >> 8) & 0xff, // STA ram_v
 
         0xa9, 0x15, // LD8DF:  LDA #MSC_INN
         0x00,       // LD8E1:  BRK
@@ -2988,10 +2990,10 @@ void zoom_and_whistle(dw_rom *rom)
     code_size = 17;
     vpatch(rom, address, code_size,
         0xa9, 0,	// LDA Tantegel index
-        0x8d, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STA ram_i
-		0x8d, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // STA ram_j
+        0x8d, ram_i & 0xff, (ram_i >> 8) & 0xff, // STA ram_i
+		0x8d, ram_j & 0xff, (ram_j >> 8) & 0xff, // STA ram_j
 		0xa9, 1,	// LDA only Tantegel has been visited
-		0x8d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8), // STA ram_v
+		0x8d, ram_v & 0xff, (ram_v >> 8) & 0xff, // STA ram_v
         0x20, 0x47, 0xcb,   // Go to vanilla subroutine
         0x60                // RTS
     );
@@ -3004,7 +3006,7 @@ void zoom_and_whistle(dw_rom *rom)
     code_size = 9;
     vpatch(rom, address, code_size,
         0xa9, 0,            // LDA Tantegel index
-        0x8d, (uint8_t)(ram_i & 0x00ff), (uint8_t)((ram_i & 0xff00) >> 8), // STA ram_i
+        0x8d, ram_i & 0xff, (ram_i >> 8) & 0xff, // STA ram_i
         0x20, 0x48, 0xf1,   // Go to vanilla subroutine
         0x60                // RTS
     );
@@ -3030,8 +3032,8 @@ void zoom_and_whistle(dw_rom *rom)
         0xd0, 0x03,         // LDAFB:  BNE DoReturn            ;If not, skip the JMP and go do flute stuff
         0x4c, 0x55, 0xda,   // LDAFD:  JMP SpellFizzle         ;($DA55)Print text indicating spell did not work.
 
-		0xad, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8), // LDA absolute zoom_j
-        0x20, address_orig & 0xff, (address_orig >> 8) & 0xff,   // JSR to code that loads zoom coords from index
+		0xad, ram_j & 0xff, (ram_j >> 8) & 0xff, // LDA absolute zoom_j
+        0x20, newcode & 0xff, (newcode >> 8) & 0xff,   // JSR to code that loads zoom coords from index
         0xa8,               // TAY, for later restoration
 
         // Update whistle index
@@ -3052,9 +3054,9 @@ void zoom_and_whistle(dw_rom *rom)
         0xd0, 0xf8,         // BNE Shifting (-8), keep looping the left-shifting
 
         // Visited-check
-        0x2d, (uint8_t)(ram_v & 0x00ff), (uint8_t)((ram_v & 0xff00) >> 8),  // AND ram_v (did we visit the town's inn?)
+        0x2d, ram_v & 0xff, (ram_v >> 8) & 0xff,  // AND ram_v (did we visit the town's inn?)
         0xf0, 0xe4,          // BEQ Start (-28) (No, we haven't visited it. Go back to incrementing)
-        0x8c, (uint8_t)(ram_j & 0x00ff), (uint8_t)((ram_j & 0xff00) >> 8),  // STY RAM_j. We're done, here's the new index!
+        0x8c, ram_j & 0xff, (ram_j >> 8) & 0xff,  // STY RAM_j. We're done, here's the new index!
 
         0xa9, 0x01,         // LDA #MAP_OVERWORLD      ;Set player's current map as the overworld map.
         0x85, 0x45,         // STA MapNumber
@@ -3180,7 +3182,7 @@ void unbreakable_keys(dw_rom *rom)
     const uint16_t newcode = find_free_space(rom->content, 0xc422, 11);
     printf("The unbreakable_keys newcode is at: %04x" PRIu16 "\n", newcode);
 
-    if (!UNBREAKABLE_KEYS(rom) || !NO_KEYS(rom))
+    if (!UNBREAKABLE_KEYS(rom) || NO_KEYS(rom))
         return;
     printf("Keys are made of titanium in Alefgard...\n");
 
