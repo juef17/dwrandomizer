@@ -411,14 +411,14 @@ void dwx_run_mechanics(dw_rom *rom)
         vpatch(rom, tryrun_newcode, 35,
             0xad, ram_n & 0xff, (ram_n >> 8) & 0xff,   // lda ram_n
             0xc9, 0x03,			// cmp #$03 : if we were blocked 3 times before...
-            0xf0, 0x20,			// beq set_carry_rts : set carry to say we succeed in running away, and rts
+            0xf0, 0x1a,			// beq set_carry_rts : set carry to say we succeed in running away, and rts
 
             0xc9, 0x02,			// cmp #$02 : if we were blocked 2 times before...
-            0xf0, 0x0e,			// beq check_64 : go and check for the 75% run chance
+            0xf0, 0x0b,			// beq check_64 : go and check for the 75% run chance
 
             0xa5, 0x95,			// lda $95 (random) : we're at 0 or 1 attempt
             0xc9, 0x80,			// cmp #$80 : so check for 50%
-            0xb0, 0x16,			// bcs set_carry_rts : if success, set carry for success and rts
+            0xb0, 0x10,			// bcs set_carry_rts : if success, set carry for success and rts
 
             0x18,	  			// clc : nope, we didn't run away. clear carry
             0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n : increment run blocks
@@ -427,7 +427,7 @@ void dwx_run_mechanics(dw_rom *rom)
             // check_64
             0xa5, 0x95,			// lda $95
             0xc9, 0x40,			// cmp #$40
-            0xb0, 0x08,			// bcs set_carry_rts
+            0xb0, 0x05,			// bcs set_carry_rts
 
             0x18,	  			// clc
             0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
