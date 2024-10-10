@@ -126,11 +126,12 @@ function setup_ui() {
     ui.addTab('Feat.');
     ui.addTab('Monst.');
     ui.addTab('Shortc.');
-    ui.addTab('Chall.');
+    ui.addTab('Chal.');
     ui.addTab('Cosm.');
     ui.addTab('New 1');
     ui.addTab('New 2');
-    ui.addSummaryTab('Summary');
+    ui.addTab('New 3');
+    ui.addSummaryTab('S.');
     ui.setActiveTab('Gamepl.');
 
     ui.addTriOption('Gamepl.',  0,  0, 6, 'Shuffle Chests & Searches',
@@ -212,45 +213,39 @@ function setup_ui() {
         'Random': 3
     });
 
-    ui.addTriOption('Chall.',  0,  9, 6, 'No Hurtmore',
+    ui.addTriOption('Chal.',  0,  9, 6, 'No Hurtmore',
         'You will never learn HURTMORE. Monsters can still have it.');
-    ui.addTriOption('Chall.',  2,  9, 4, 'No Numbers',
+    ui.addTriOption('Chal.',  2,  9, 4, 'No Numbers',
         'No numbers will be visible until the Dragonlord fight.');
-    ui.addTriOption('Chall.',  4,  9, 2, 'Invisible Hero',
+    ui.addTriOption('Chal.',  4,  9, 2, 'Invisible Hero',
         'Your sprite will be invisible.');
-    ui.addTriOption('Chall.',  6,  9, 0, 'Invisible NPCs',
+    ui.addTriOption('Chal.',  6,  9, 0, 'Invisible NPCs',
         'All NPCs will be invisible.');
-    ui.addTriOption('Chall.',  1, 13, 0, 'Treasure Guards',
+    ui.addTriOption('Chal.',  1, 13, 0, 'Treasure Guards',
         'Important items will have a mid-level monster guarding them.');
-    ui.addTriOption('Chall.',  3, 10, 0, 'Big Swamp',
+    ui.addTriOption('Chal.',  3, 10, 0, 'Big Swamp',
         'Approximately 60% of the overworld will be poisonous swamp.');
-    ui.addTriOption('Chall.',  5, 10, 2, 'Randomly Rotate/Mirror Dungeons',
+    ui.addTriOption('Chal.',  5, 10, 2, 'Randomly Rotate/Mirror Dungeons',
         'All dungeons will be rotated at random angles and/or mirrored.');
-    ui.addTriOption('Chall.',  7, 10, 4, "No Armor in Charlock",
+    ui.addTriOption('Chal.',  7, 10, 4, "No Armor in Charlock",
         "Prevent Erdrick's Armor from being in a chest in Charlock Castle.");
-    ui.addTriOption('Chall.',  9, 10, 6, "Easy Charlock",
+    ui.addTriOption('Chal.',  9, 10, 6, "Easy Charlock",
         "Make it slightly easier to run from high level monsters.");
 
     ui.addTriOption('Cosm.',  4, 11, 6, 'Modern Spell Names',
         'Use spell names from more recent DQ releases.');
     ui.addTriOption('Cosm.',  7, 11, 4, 'Noir Mode',
         "It's all black and white baby!");
-    ui.addOption   ('Cosm.',  9, 19, 0, 'Winter Theme',
-        'Sometimes, saving Alefgard cannot wait until summer.');
     ui.addOption   ('Cosm.',  0, 14, 7, 'Shuffle Music',
         'Music in each area will be randomized.');
     ui.addOption   ('Cosm.',  2, 14, 6, 'Disable Music',
         'This disables the game music in most situations.');
     ui.addOption   ('Cosm.',  8, 14, 5, 'Disable Spell Flashing',
         'Prevents the screen from flashing when you cast spells.', true);
-    ui.addOption   ('Cosm.',  10, 17, 7, 'Disable Red Flashes',
-        'Prevents the screen from flashing when walking on damage tiles.');
     ui.addOption   ('Cosm.',   6, 14, 4, 'Show Death Counter',
         'The stats window will also have a death counter.');
     ui.addOption   ('Cosm.',   3, 14, 3, 'Allow Custom Spell Names',
         'Allow spell names to be changed based on the chosen sprite.', true);
-    ui.addOption   ('Cosm.',   5, 14, 2, 'Skip Original Credits',
-        'Skip the original credits and go straight to stat scroll.', true);
     ui.addOption   ('Cosm.',   5, 14, 2, 'Skip Original Credits',
         'Skip the original credits and go straight to stat scroll.', true);
 
@@ -331,6 +326,16 @@ function setup_ui() {
         'The maximum number of herbs you can carry is randomly chosen between 0 and 9.');
     ui.addOption   ('New 2', 11, 19, 1, 'Random Key Carry',
         'The maximum number of keys you can carry is randomly chosen between 2 and 9. Some flags will make 4 the minimum.');
+
+
+    ui.addOption   ('New 3',  0, 19, 0, 'Winter Theme',
+        'Sometimes, saving Alefgard cannot wait until summer.');
+    ui.addOption   ('New 3',  2, 17, 7, 'Disable Red Flashes',
+        'Prevents the screen from flashing when walking on damage tiles.');
+    ui.addTriOption('New 3',  1, 20, 2, 'Unbreakable Keys',
+        'Using a key outside of the throne room will not remove it from your inventory.');
+    ui.addTriOption('New 3',  3, 20, 0, 'Ascetic King',
+        'King Lorik will let the player keep their hard earned gold upon dying.');
 
     // player sprite
     let spriteBox;

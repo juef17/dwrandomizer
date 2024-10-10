@@ -92,6 +92,8 @@ static void update_flags(dw_rom *rom)
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
     if(RADISH_FINISH(rom) == 2)         rom->flags[20] = (rom->flags[20] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
     if(DWX_RUN_MECHANICS(rom) == 3)     rom->flags[20] = (rom->flags[20] | 0x30) & ((mt_rand(0, 2) << 4) | 0xcf);
+    if(UNBREAKABLE_KEYS(rom) == 2)      rom->flags[20] = (rom->flags[20] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
+    if(ASCETIC_KING(rom) == 2)          rom->flags[20] = (rom->flags[20] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -115,7 +117,10 @@ static void update_flags(dw_rom *rom)
     printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
     printf("Warp whistle: %d\n", WARP_WHISTLE(rom));
     printf("Radish finish: %d\n", RADISH_FINISH(rom));
-    printf("DWX run mechanics: %d\n", DWX_RUN_MECHANICS(rom));*/
+    printf("DWX run mechanics: %d\n", DWX_RUN_MECHANICS(rom));
+    printf("Unbreakable keys: %d\n", UNBREAKABLE_KEYS(rom));
+    printf("Ascetic king: %d\n", ASCETIC_KING(rom));
+    */
 }
 
 /**
@@ -3166,6 +3171,48 @@ void max_keys(dw_rom *rom)
 }
 
 /**
+ * Makes you keep keys upon using them
+ *
+ * @param rom The rom struct
+ */
+void unbreakable_keys(dw_rom *rom)
+{
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 11);
+    printf("The unbreakable_keys newcode is at: %04x" PRIu16 "\n", newcode);
+
+    if (!UNBREAKABLE_KEYS(rom))
+        return;
+    printf("Keys are made of titanium in Alefgard...\n");
+
+    // Hook into first 4 bytes of UseKey
+    vpatch(rom, 0xdca8, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR newcode
+
+    // New code
+    vpatch(rom, newcode, 11,
+        0xa2, 0x00, // LDX $00 (original overwritten code)
+        0xa5, 0x45, // LDA (zeropage) map
+        0xc9, 0x05, // CMP (immediate) throne room
+        0xd0, 0x02, // BNE to RTS (not in throne room, no need to decrement key count)
+        0xc6, 0xbf, // DEC (zeropage) key count
+        0x60        // RTS
+    );
+}
+
+/**
+ * King is feeling fair and lets you keep your gold when you die
+ *
+ * @param rom The rom struct
+ */
+void ascetic_king(dw_rom *rom)
+{
+    if (!ASCETIC_KING(rom))
+        return;
+    printf("Ah, Lorik is such a fair king...\n");
+
+    vpatch(rom, 0xedcb, 4, 0xea, 0xea, 0xea, 0xea);
+}
+
+/**
  * Does most of the randomization. Put in a new function since it's now reused
  *
  * @param rom The rom struct
@@ -3248,6 +3295,8 @@ void apply_stuff_to_rom(dw_rom *rom)
     max_herbs(rom);
     max_keys(rom);
     crit_changes(rom);
+    unbreakable_keys(rom);
+    ascetic_king(rom);
 }
 
 

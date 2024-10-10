@@ -9,7 +9,7 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.11"
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.12"
 #define VERSION DWR_VERSION
 
 #define DEFAULT_FLAGS "IVIAAVCAKACAAAAAAAAAAEAAAAIAAAAAAAAAAAAA"
@@ -102,6 +102,8 @@
 #define WINTER_THEME(x)           ((x->flags[19] & 0x01)     ) // 1
 #define RADISH_FINISH(x)          ((x->flags[20] & 0xc0) >> 6) // 2
 #define DWX_RUN_MECHANICS(x)      ((x->flags[20] & 0x30) >> 4) // 2
+#define UNBREAKABLE_KEYS(x)       ((x->flags[20] & 0x0c) >> 2) // 2
+#define ASCETIC_KING(x)           ((x->flags[20] & 0x03)     ) // 2
 
 
 #ifdef __cplusplus
