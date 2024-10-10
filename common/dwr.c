@@ -3180,7 +3180,7 @@ void unbreakable_keys(dw_rom *rom)
     const uint16_t newcode = find_free_space(rom->content, 0xc422, 11);
     printf("The unbreakable_keys newcode is at: %04x" PRIu16 "\n", newcode);
 
-    if (!UNBREAKABLE_KEYS(rom))
+    if (!UNBREAKABLE_KEYS(rom) || !NO_KEYS(rom))
         return;
     printf("Keys are made of titanium in Alefgard...\n");
 
