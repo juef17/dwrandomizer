@@ -393,32 +393,30 @@ void dwx_run_mechanics(dw_rom *rom)
                     Leave battle
                 No:
                     Increment byte
-                    Increment block counter $663c (à changer l'endianness)
                     Go back to battle
 
             Does the following depending on the value of ram_n
-            For 0 or 1: set carry if zeropage $95 is >= 128 (otherwise clear the carry and increment both ram_n and ram_blocks) then RTS.
-            For 2: set carry if zeropage $95 is >= 64 (otherwise clear the carry and increment both ram_n and ram_blocks) then RTS.
+            For 0 or 1: set carry if zeropage $95 is >= 128 (otherwise clear the carry and increment ram_n) then RTS.
+            For 2: set carry if zeropage $95 is >= 64 (otherwise clear the carry and increment ram_n) then RTS.
             For 3: set carry then RTS.
 
-            This is probably a bit inefficient but there's plenty of bytes to overwrite there anyway
+            This is surely inefficient but there's plenty of bytes to overwrite there anyway
         */
 
-        vpatch(rom, tryrun_newcode, 41,
+        vpatch(rom, tryrun_newcode, 35,
             0xad, ram_n & 0xff, (ram_n >> 8) & 0xff,   // lda ram_n
-            0xc9, 0x03,			// cmp #$03
-            0xf0, 0x20,			// beq set_carry_rts
+            0xc9, 0x03,			// cmp #$03 : if we were blocked 3 times before...
+            0xf0, 0x20,			// beq set_carry_rts : set carry to say we succeed in running away, and rts
 
-            0xc9, 0x02,			// cmp #$02
-            0xf0, 0x0e,			// beq check_64
+            0xc9, 0x02,			// cmp #$02 : if we were blocked 2 times before...
+            0xf0, 0x0e,			// beq check_64 : go and check for the 75% run chance
 
-            0xa5, 0x95,			// lda $95 (random)
-            0xc9, 0x80,			// cmp #$80
-            0xb0, 0x16,			// bcs set_carry_rts
+            0xa5, 0x95,			// lda $95 (random) : we're at 0 or 1 attempt
+            0xc9, 0x80,			// cmp #$80 : so check for 50%
+            0xb0, 0x16,			// bcs set_carry_rts : if success, set carry for success and rts
 
-            0x18,	  			// clc
-            0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
-            0xee, ram_blocks & 0xff, (ram_blocks >> 8) & 0xff,   // inc ram_blocks
+            0x18,	  			// clc : nope, we didn't run away. clear carry
+            0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n : increment run blocks
             0x60,	  			// rts
 
             // check_64
@@ -428,7 +426,6 @@ void dwx_run_mechanics(dw_rom *rom)
 
             0x18,	  			// clc
             0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
-            0xee, ram_blocks & 0xff, (ram_blocks >> 8) & 0xff,   // inc ram_blocks
             0x60,	  			// rts
 
             //set_carry_rts
@@ -2279,8 +2276,7 @@ void setup_expansion(dw_rom *rom)
     add_hook(rom, JSR, 0xe62a, INC_CRIT_CTR);
     add_hook(rom, JSR, 0xe65a, INC_MISS_CTR);
     add_hook(rom, JSR, 0xe68a, INC_DODGE_CTR);
-    if(!DWX_RUN_MECHANICS(rom))
-        add_hook(rom, DIALOGUE, 0xe89d, BLOCKED_IN_FRONT);
+    add_hook(rom, DIALOGUE, 0xe89d, BLOCKED_IN_FRONT);
     add_hook(rom, JSR, 0xe98c, COUNT_WIN);
     add_hook(rom, JSR, 0xed9e, INC_ENEMY_DEATH_CTR);
     add_hook(rom, JSR, 0xeda9, INC_DEATH_CTR);
