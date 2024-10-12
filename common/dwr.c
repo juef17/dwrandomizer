@@ -805,7 +805,7 @@ static void randomize_spells(dw_rom *rom)
     if (LEVEL_1_RADIANT(rom))
         spell_levels[RADIANT] = 1;
 
-    if (HEAL_HURT_B4_MORE(rom)) {
+    if (HEAL_HURT_B4_MORE(rom) && !ONLY_HEALMORE(rom)) {
         if (spell_levels[HEAL] > spell_levels[HEALMORE]) {
             tmp = spell_levels[HEAL];
             spell_levels[HEAL] = spell_levels[HEALMORE];
@@ -3187,7 +3187,7 @@ void unbreakable_keys(dw_rom *rom)
     printf("Keys are made of titanium in Alefgard...\n");
 
     // Hook into first 4 bytes of UseKey
-    vpatch(rom, 0xdca8, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR newcode
+    vpatch(rom, 0xdca8, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode
 
     // New code
     vpatch(rom, newcode, 11,
