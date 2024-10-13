@@ -42,12 +42,12 @@ set(SOURCE_FILES
         common/chests.c
         common/expansion.c
         common/mt19937-64.c
+        common/flute_music.c
         common/chaos.c
         common/patch.c
         common/challenge.c
         common/polyfit.c
         common/base32.c
-        common/flute_music.c
         common/credit_music.c)
 
 if (ALPHA)
@@ -80,6 +80,7 @@ if (EMSCRIPTEN)
     file(CREATE_LINK ${CMAKE_SOURCE_DIR}/webui/base32.js       ${CMAKE_BINARY_DIR}/release/base32.js)
     file(CREATE_LINK ${CMAKE_SOURCE_DIR}/webui/interface.js    ${CMAKE_BINARY_DIR}/release/interface.js)
     file(CREATE_LINK ${CMAKE_SOURCE_DIR}/webui/modal.js        ${CMAKE_BINARY_DIR}/release/modal.js)
+    file(CREATE_LINK ${CMAKE_SOURCE_DIR}/webui/.htaccess       ${CMAKE_BINARY_DIR}/release/.htaccess)
     file(CREATE_LINK ${CMAKE_SOURCE_DIR}/webui/sprites         ${CMAKE_BINARY_DIR}/release/sprites SYMBOLIC)
     add_custom_command(TARGET dwrandomizer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/dwrandomizer.js ${CMAKE_BINARY_DIR}/release/)
     add_custom_command(TARGET dwrandomizer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/dwrandomizer.wasm ${CMAKE_BINARY_DIR}/release/)

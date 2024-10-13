@@ -335,7 +335,7 @@ function setup_ui() {
     ui.addTriOption('New 3',  1, 20, 2, 'Unbreakable Keys',
         'Using a key outside of the throne room will not remove it from your inventory.');
     ui.addTriOption('New 3',  3, 20, 0, 'Ascetic King',
-        'King Lorik will let the player keep their hard earned gold upon dying.');
+        'King Lorik will let the player keep their hard-earned gold upon dying.');
 
     // player sprite
     let spriteBox;
