@@ -2345,13 +2345,11 @@ static void magic_herbs(dw_rom *rom)
 
 static void no_red_flash(dw_rom *rom)
 {
-    int i;
     if(!NO_RED_FLASH(rom))
         return;
 
-    // NOP the whole red flash routine
-    for(i = 0; i<17; i++)
-        vpatch(rom, 0xee17 + i, 1, 0xea);
+    // RTS after the wait for nmi
+    vpatch(rom, 0xee17, 1, 0x60);
 }
 
 static void crit_changes(dw_rom *rom)
