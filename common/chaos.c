@@ -343,7 +343,8 @@ void chaos_mode(dw_rom *rom)
         chaos_zones(rom);
     }
 
-    chaos_running(rom);
+    if(!DWX_RUN_MECHANICS(rom))
+        chaos_running(rom);
     chaos_enemy_drops(rom);
     chaos_xp(rom);
     chaos_weapon_prices(rom);
