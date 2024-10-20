@@ -3205,8 +3205,7 @@ void step_counter(dw_rom *rom)
 {
 	const uint16_t ram_s = 0x6804; // and 0x6805! Just random RAM addresses I thought might be unused
 	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 13); // Starting address for new code
-
-    //TODO actually initialize ram to 0
+    printf("The step_counter newcode is at: %04x" PRIu16 "\n", newcode);
 
     vpatch(rom, 0x3265, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into RightSynced
     vpatch(rom, 0x335f, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into LeftSynced
@@ -3220,8 +3219,6 @@ void step_counter(dw_rom *rom)
         0xa5, 0x16, 0xc9, 0x20,                         // Done! Original code we overwrote
         0x60                                            // RTS
     );
-
-    printf("Every step you take...\n");
 }
 
 /**
