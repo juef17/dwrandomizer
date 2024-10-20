@@ -868,6 +868,12 @@ stats_data:
     .word $663a ; Data address
 
     .db INSTR_SET_PPU
+    .word $22D1 ; PPU address
+    .db "Steps    "
+    .db INSTR_SHOW_NUMBER
+    .word $6804 ; Data address
+
+    .db INSTR_SET_PPU
     .word $2311 ; PPU address
     .db "Play Time"
     .db INSTR_SET_PPU

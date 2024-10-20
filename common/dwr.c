@@ -2857,7 +2857,7 @@ void zoom_and_whistle(dw_rom *rom)
     const uint16_t ram_j = 0x6801; // Index of town to warp-whistle to
 	const uint16_t ram_v = 0x6802; // List of visited towns (00RC GKBT)
 
-	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 192); // Starting address for new code
+	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 175); // Starting address for new code
 	uint16_t address = newcode; // Starting address for new code
 
 	uint8_t i;
@@ -2978,22 +2978,6 @@ void zoom_and_whistle(dw_rom *rom)
         0x00,       // LD8E1:  BRK
         0x04, 0x17,
         0x60        // RTS
-    );
-    address += code_size;
-
-    // Hook start of the game to set initial zoom index
-    vpatch(rom, 0xca1a, 3, 0x20, address & 0xff, (address >> 8) & 0xff); // JSR new code
-
-    // New code to set initial zoom index
-    code_size = 17;
-    vpatch(rom, address, code_size,
-        0xa9, 0,	// LDA Tantegel index
-        0x8d, ram_i & 0xff, (ram_i >> 8) & 0xff, // STA ram_i
-		0x8d, ram_j & 0xff, (ram_j >> 8) & 0xff, // STA ram_j
-		0xa9, 1,	// LDA only Tantegel has been visited
-		0x8d, ram_v & 0xff, (ram_v >> 8) & 0xff, // STA ram_v
-        0x20, 0x47, 0xcb,   // Go to vanilla subroutine
-        0x60                // RTS
     );
     address += code_size;
 
@@ -3213,6 +3197,67 @@ void ascetic_king(dw_rom *rom)
 }
 
 /**
+ * Implements a step counter
+ *
+ * @param rom The rom struct
+ */
+void step_counter(dw_rom *rom)
+{
+	const uint16_t ram_s = 0x6804; // and 0x6805! Just random RAM addresses I thought might be unused
+	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 13); // Starting address for new code
+
+    //TODO actually initialize ram to 0
+
+    vpatch(rom, 0x3265, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into RightSynced
+    vpatch(rom, 0x335f, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into LeftSynced
+    vpatch(rom, 0x3517, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into UpSynced
+    vpatch(rom, 0x33eb, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into DownSynced
+
+    vpatch(rom, newcode, 13,
+        0xee, ram_s & 0xff, (ram_s >> 8) & 0xff,        // inc ram_s
+        0xd0, 3,                                        // BNE to Done, no overflow on first byte
+        0xee, (ram_s+1) & 0xff, (ram_s >> 8) & 0xff,    // inc ram_s+1
+        0xa5, 0x16, 0xc9, 0x20,                         // Done! Original code we overwrote
+        0x60                                            // RTS
+    );
+
+    printf("Every step you take...\n");
+}
+
+/**
+ * Hooks to set initial RAM values for new flags
+ *
+ * @param rom The rom struct
+ */
+void new_flags_ram_init(dw_rom *rom)
+{
+    const uint16_t newcode = find_free_space(rom->content, 0xc82b, 23); // Starting address for new code
+    const uint16_t address = 0x6800; // First RAM byte used by new flags
+
+    const uint16_t ram_i = address; // Return index
+    const uint16_t ram_j = address + 1; // Whistle index
+    const uint16_t ram_v = address + 2; // List of visited towns
+    const uint16_t ram_n = address + 3; // Number of run blocks for current battle, set at start of battle)
+    const uint16_t ram_s = address + 4; // Number of steps
+    //             ram_s = address + 5; // Number of steps (2nd byte)
+
+    // Hook start of the game
+    vpatch(rom, 0xca1a, 3, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR new code
+
+    vpatch(rom, newcode, 23,
+        0xa9, 0,	// LDA 0
+        0x8d, ram_i & 0xff, (ram_i >> 8) & 0xff, // STA (set Return index to Tantegel)
+		0x8d, ram_j & 0xff, (ram_j >> 8) & 0xff, // STA (set Whistle index to Tantegel)
+        0x8d, ram_s & 0xff, (ram_s >> 8) & 0xff, // STA (set byte 1 of step counter to 0)
+		0x8d, (ram_s+1) & 0xff, ((ram_s+1) >> 8) & 0xff, // STA (set byte 2 of step counter to 0)
+		0xa9, 1,	// LDA 1
+		0x8d, ram_v & 0xff, (ram_v >> 8) & 0xff, // STA (only Tantegel has been visited)
+        0x20, 0x47, 0xcb,   // Go to vanilla subroutine
+        0x60                // RTS
+    );
+}
+
+/**
  * Does most of the randomization. Put in a new function since it's now reused
  *
  * @param rom The rom struct
@@ -3278,6 +3323,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     magic_herbs(rom);
     shuffle_inn_prices(rom);
     shuffle_key_prices(rom);
+    step_counter(rom);
 
     modern_spell_names(rom);
     randomize_music(rom);
@@ -3290,6 +3336,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     death_counter(rom);
     return_escapes(rom);
     zoom_and_whistle(rom);
+    new_flags_ram_init(rom);
     hurtmore_doors(rom);
     levelup_refill(rom);
     max_herbs(rom);
