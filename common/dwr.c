@@ -3238,6 +3238,8 @@ void new_flags_ram_init(dw_rom *rom)
     const uint16_t ram_s = address + 4; // Number of steps
     //             ram_s = address + 5; // Number of steps (2nd byte)
 
+    printf("The new_flags_ram_init newcode is at: %04x" PRIu16 "\n", newcode);
+
     // Hook start of the game
     vpatch(rom, 0xca1a, 3, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR new code
 

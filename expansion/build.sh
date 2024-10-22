@@ -2,7 +2,7 @@
 
 echo -n "Compiling... "
 
-asm6f -q -m -f -dDEBUG credits.asm credits.nes
+"/home/francois/Documents/Perm stuff/Software/dwr_compilation/asm6f" -q -m -f -dDEBUG credits.asm credits.nes
 
 echo "Done."
 
