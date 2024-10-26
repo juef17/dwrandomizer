@@ -172,6 +172,11 @@ King Lorik is feeling fair today and will let you keep your hard-earned gold whe
 The post-credits sequence will show how many steps you've taken in your entire playthrough.
 
 
+#### Differences from Standard ####
+
+The `Summary` tab will now show differences between the chosen flagset and the standard flagset.
+
+
 ## Known Issues ##
 - When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in mcgrew's official DWR version, where it doesn't matter because there is no point in going there then. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
