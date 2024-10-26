@@ -118,7 +118,7 @@ class Rom extends Uint8Array {
 function setup_ui() {
     let flagsize = 25;
     if (!localStorage.flags || localStorage.flags.length < flagsize / 5 * 8)
-        localStorage.flags = 'IVIAAVCAKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
+        localStorage.flags = 'IVIAAVCEKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
     if (!localStorage.retainFlags || localStorage.flags.length < flagsize / 5 * 8)
         localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
     ui = new Interface(flagsize);
