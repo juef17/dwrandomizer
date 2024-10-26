@@ -519,6 +519,23 @@ class Interface {
         let spriteBox = $('#sprite-box')
         if (spriteBox)
             this.summary.innerHTML += 'Player Sprite: ' + spriteBox.getValue();
+
+
+        // Now add the differences from Standard (base64 encoded)
+        const standardLines = atob("DQoNCkZsYWdzOiBJVklBQVZDRUtBQ0FBQUFBQUFBQUFFQVVBQUlCQUFBQUFBQUFBQUFBDQpTZWVkOiAxMTc0NDQ2Nzk1MjczMzA2DQpTaHVmZmxlIENoZXN0cyAmIFNlYXJjaGVzOiBZZXMNClJhbmRvbSBDaGVzdCBMb2NhdGlvbnM6IE5vDQpSYW5kb20gR3Jvd3RoOiBZZXMNClJhbmRvbSBNYXA6IFllcw0KUmFuZG9tIFNwZWxsIExlYXJuaW5nOiBZZXMNClJhbmRvbSBXZWFwb24gU2hvcHM6IFllcw0KUmFuZG9tIFdlYXBvbiBQcmljZXM6IE5vDQpSYW5kb20gWFAgUmVxdWlyZW1lbnRzOiBObw0KSGVhbC9IdXJ0IEJlZm9yZSAiTW9yZSI6IE5vDQpTdGFpciBTaHVmZmxlOiBObw0KRW5hYmxlIE1lbnUgV3JhcHBpbmc6IFllcw0KRW5hYmxlIERlYXRoIE5lY2tsYWNlOiBZZXMNCkVuYWJsZSBUb3JjaGVzIEluIEJhdHRsZTogWWVzDQpSZXBlbCBpbiBEdW5nZW9uczogWWVzDQpQZXJtYW5lbnQgUmVwZWw6IE5vDQpQZXJtYW5lbnQgVG9yY2g6IFllcw0KQWx0ZXJuYXRlIFJ1bm5pbmcgQWxnb3JpdGhtOiBObw0KUmFuZG9tIE1vbnN0ZXIgQWJpbGl0aWVzOiBZZXMNClJhbmRvbSBNb25zdGVyIFpvbmVzOiBZZXMNClJhbmRvbSBNb25zdGVyIFN0YXRzOiBObw0KUmFuZG9tIE1vbnN0ZXIgWFAgJiBHb2xkOiBObw0KTWFrZSBSYW5kb20gU3RhdHMgQ29uc2lzdGVudDogTm8NClNjYXJlZCBNZXRhbCBTbGltZXM6IE5vDQpTY2FsZWQgTWV0YWwgU2xpbWUgWFA6IFllcw0KRmFzdCBUZXh0OiBObw0KU3BlZWQgSGFja3M6IE5vDQpPcGVuIENoYXJsb2NrOiBObw0KU2hvcnQgQ2hhcmxvY2s6IE5vDQpEb24ndCBSZXF1aXJlIE1hZ2ljIEtleXM6IE5vDQpTdW1tZXIgU2FsZTogTm8NCkN1cnNlZCBQcmluY2VzczogTm8NClRocmVlJ3MgQ29tcGFueTogTm8NCkxldmVsaW5nIFNwZWVkOiBGYXN0DQpSYW5kb20gTWFwIFNpemU6IE5vcm1hbA0KTm8gSHVydG1vcmU6IE5vDQpObyBOdW1iZXJzOiBObw0KSW52aXNpYmxlIEhlcm86IE5vDQpJbnZpc2libGUgTlBDczogTm8NClRyZWFzdXJlIEd1YXJkczogTm8NCkJpZyBTd2FtcDogTm8NClJhbmRvbWx5IFJvdGF0ZS9NaXJyb3IgRHVuZ2VvbnM6IE5vDQpObyBBcm1vciBpbiBDaGFybG9jazogTm8NCkVhc3kgQ2hhcmxvY2s6IE5vDQpNb2Rlcm4gU3BlbGwgTmFtZXM6IE5vDQpOb2lyIE1vZGU6IE5vDQpTaHVmZmxlIE11c2ljOiBObw0KRGlzYWJsZSBNdXNpYzogTm8NCkRpc2FibGUgU3BlbGwgRmxhc2hpbmc6IE5vDQpTaG93IERlYXRoIENvdW50ZXI6IFllcw0KQWxsb3cgQ3VzdG9tIFNwZWxsIE5hbWVzOiBObw0KU2tpcCBPcmlnaW5hbCBDcmVkaXRzOiBZZXMNCkRpc2d1aXNlZCBEcmFnb25sb3JkOiBObw0KUmFuZG9taXplIEZsdXRlIE11c2ljOiBZZXMNClZlbmRvciBTaHVmZmxlOiBObw0KQ2hhcmxvY2sgSW5uOiBObw0KT25seSBIZWFsbW9yZTogTm8NCk1hZ2ljIEhlcmJzOiBObw0KSW5uIFByaWNlczogVmFuaWxsYQ0KS2V5IFByaWNlczogVmFuaWxsYQ0KREwxIENyaXRzOiBObw0KREwyIENyaXRzOiBObw0KQ3JpdCBDaGFuY2U6IFZhbmlsbGEgKDEvMzIpDQpCb25rIERtZzogTm9uZQ0KRGlzY2FyZGFibGUgRmx1dGU6IE5vDQpGbHV0ZSBpcyBmb3I6IEdvbGVtDQpSYWRpc2ggRmluaXNoOiBObw0KTGV2ZWwgMSBSYWRpYW50OiBObw0KUmV0dXJuIEVzY2FwZXM6IE5vDQpSZXR1cm4gdG8gVG93bjogTm8NCldhcnAgV2hpc3RsZTogTm8NCkh1cnRtb3JlIERvb3JzOiBObw0KTGV2ZWx1cCBSZWZpbGw6IE5vDQpSdW4gTWVjaGFuaWNzOiBPcmlnaW5hbA0KUmFuZG9tIEhlcmIgQ2Fycnk6IE5vDQpSYW5kb20gS2V5IENhcnJ5OiBObw0KV2ludGVyIFRoZW1lOiBObw0KRGlzYWJsZSBSZWQgRmxhc2hlczogTm8NClVuYnJlYWthYmxlIEtleXM6IE5vDQpBc2NldGljIEtpbmc6IE5vDQpQbGF5ZXIgU3ByaXRlOiBSYW5kb20NCg0K").split('\n');
+        const summaryLines = this.summary.innerHTML.split('\n');
+        let updatedContent = '----------- Differences from standard: -----------\n';
+        for (let i = 2; i < summaryLines.length; i++)
+        {
+            const lastColonIndexSummary = summaryLines[i].trim().lastIndexOf(':');
+            const lineEndSummary = lastColonIndexSummary !== -1 ? summaryLines[i].trim().slice(lastColonIndexSummary + 1).trim() : '';
+            const lastColonIndexStandard = standardLines[i+2].trim().lastIndexOf(':');
+            const lineEndStandard = lastColonIndexStandard !== -1 ? standardLines[i+2].trim().slice(lastColonIndexStandard + 1).trim() : '';
+            if (lineEndSummary !== lineEndStandard)
+                updatedContent += summaryLines[i] + '\n';
+        }
+        updatedContent += "\n---------------- Complete summary ----------------\n" + this.summary.innerHTML;
+        this.summary.innerHTML = updatedContent;
     }
 
     /**
