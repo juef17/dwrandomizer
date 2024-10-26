@@ -178,7 +178,7 @@ The `Summary` tab will now show differences between the chosen flagset and the s
 
 
 ## Known Issues ##
-- When there is no vendor in Rimuldar's vanilla key shop, the very top left tile of the town is an invisible wall. This is present in mcgrew's official DWR version, where it doesn't matter because there is no point in going there then. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration.
+- In mcgrew's official DWR version, when a vendor is missing in Rimuldar (e.g. key vendor), the very top left tile of the town is an invisible wall. It doesn't matter then because there is no point in going there if there is no vendor. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.
 - With the `Disguised Dragonlord` flag, there may be some graphical glitches in both Dragonlord fights, depending on his's location. They are purely cosmetic and do not affect the ability to run away or to complete the game.
 - The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, cursed belt or death necklace use, …).

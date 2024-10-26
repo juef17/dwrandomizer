@@ -1947,9 +1947,6 @@ static void no_keys(dw_rom *rom)
     /*vpatch(rom, 0x1783, 3, 0, 0, 0);
     vpatch(rom, 0x185c, 3, 0, 0, 0);
     vpatch(rom, 0x181b, 3, 0, 0, 0);*/
-
-    // The top-left tile in Rimuldar becomes an invisible block for some reason. Let's at least make it a visible block (of water)...
-    vpatch(rom, 0x0b62, 1, 0x20);
 }
 
 /**
@@ -2662,6 +2659,12 @@ static void npc_shenanigans(dw_rom *rom)
         if(NPCData[i][4] < 0xff)
             NPCsCountTables[NPCData[i][4]/2][NPCData[i][4]%2]++;
     }
+
+    // The top-left (0,0) tile in Rimuldar becomes an invisible block (NPC bytes 0,0,0) when there's fewer than 20 NPCs in the town.
+    // So let's at least make it a visible block (of water). Another viable solution would be to add a hook when we're in this
+    // situation to loop through fewer NPCs when in Rim and checking for NPC collisions, but I don't think it's worth it at the moment.
+    if(NPCsCountTables[7][0] + NPCsCountTables[7][1] < 20)
+        vpatch(rom, 0x0b62, 1, 0x20);
 
 	// After this sort, NPCData indexes are worthless references, so we use the last element of each row, which stores the original id
     qsort(NPCData, sizeof(NPCData)/(6*sizeof(uint8_t)), 6*sizeof(uint8_t), &compareLocation);
