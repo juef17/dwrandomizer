@@ -86,7 +86,7 @@ static void update_flags(dw_rom *rom)
     if(MAGIC_HERBS(rom) == 2)           rom->flags[16] = (rom->flags[16] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(CRIT_DL1(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(CRIT_DL2(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
-    if(CRIT_CHANCE(rom) == 5)           rom->flags[17] = (rom->flags[17] | 0x70) & ((mt_rand(0, 4) << 4) | 0x8f);
+    if(CRIT_CHANCE(rom) == 6)           rom->flags[17] = (rom->flags[17] | 0x70) & ((mt_rand(0, 5) << 4) | 0x8f);
     if(DAMAGE_BONKS(rom) == 6)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 5) << 5) | 0x1f);
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
@@ -2355,6 +2355,7 @@ static void crit_changes(dw_rom *rom)
         vpatch(rom, 0xe61a, 1, 0x00);
     if(CRIT_DL2(rom))
         vpatch(rom, 0xe61e, 1, 0x00);
+
     if(CRIT_CHANCE(rom) == 0)
         vpatch(rom, 0xe624, 1, 0x09);
     // CRIT_CHANCE == 1 is vanilla so we don't do anything
@@ -2364,6 +2365,8 @@ static void crit_changes(dw_rom *rom)
         vpatch(rom, 0xe625, 1, 0x00);
     if(CRIT_CHANCE(rom) == 4)
         vpatch(rom, 0xe625, 1, mt_rand(0, 0x1f));
+    if(CRIT_CHANCE(rom) == 5) // AG/256
+        vpatch(rom, 0xe624, 3, 0xc5, 0xc9, 0xb0); // CMP 0xC9, BCE __ (if value at 0x95 (RNG) >= value at 0xC9 (AG), we don't crit: change original BNE to a BCS, but go to the same location)
 }
 
 /**
@@ -2638,7 +2641,6 @@ static void npc_shenanigans(dw_rom *rom)
     for(i = 0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
     {
         // Remove key vendors if NO_KEYS is on
-		// Hopefully this removes the invisible block in Rimuldar. TODO: it doesn't :(
         if(NO_KEYS(rom) && (NPCData[i][3] & 0x04))
         {
             // TODO

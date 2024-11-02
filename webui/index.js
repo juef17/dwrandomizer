@@ -283,7 +283,8 @@ function setup_ui() {
         'Double (1/16)' : 2,
         'Always (100%)' : 3,
         'Random (1-32)/32' : 4,
-        'One of the above': 5
+        'AG/256' : 5,
+        'One of the above': 6
     });
     ui.addDropDown ('New 1',  11, 18, 5, 'Bonk Dmg', {
         'None' : 0,
