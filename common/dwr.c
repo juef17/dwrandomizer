@@ -94,6 +94,7 @@ static void update_flags(dw_rom *rom)
     if(DWX_RUN_MECHANICS(rom) == 3)     rom->flags[20] = (rom->flags[20] | 0x30) & ((mt_rand(0, 2) << 4) | 0xcf);
     if(UNBREAKABLE_KEYS(rom) == 2)      rom->flags[20] = (rom->flags[20] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(ASCETIC_KING(rom) == 2)          rom->flags[20] = (rom->flags[20] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
+    if(CRIT_CHANCE(rom) == 4)           rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 3) << 2) | 0xe3);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -1355,9 +1356,15 @@ static void summer_sale(dw_rom *rom)
         return;
 
     for (i=0; i < 17; i++) {
-        /* if it's a maybe flag, only apply about half the time */
-        if (SUMMER_SALE(rom) & 0xAA && mt_rand_bool())
-            continue;
+        /* if it's a maybe flag, only apply 50% of the time... or something else */
+        if (SUMMER_SALE(rom) & 0xAA)
+        {
+             if(    (SUMMER_SALE_CHANCE(rom) == 0 && mt_rand_double_ranged(0.0, 1.0) > 0.5)
+                 || (SUMMER_SALE_CHANCE(rom) == 1 && mt_rand_double_ranged(0.0, 1.0) > 0.125)
+                 || (SUMMER_SALE_CHANCE(rom) == 2 && mt_rand_double_ranged(0.0, 1.0) > 0.25)
+                 || (SUMMER_SALE_CHANCE(rom) == 3 && mt_rand_double_ranged(0.0, 1.0) > 0.75)
+             ) continue;
+        }
         discount = mt_rand_double_ranged(0.35, 0.65);
         rom->weapon_price_display[i] = rom->weapon_prices[i] =
             (uint16_t)(rom->weapon_prices[i] * discount);
@@ -1792,6 +1799,7 @@ static void treasure_guards(dw_rom *rom)
     printf("Adding important treasure guards...\n");
 
     for (i=0; i < 2; i++){
+        if(i == 0 && UNGUARDED_OW_SEARCHSPOT(rom)) continue;
         if (should_be_guarded(search->item[i])) {
             /* if it's a maybe flag, only apply about half the time */
             if (TREASURE_GUARDS(rom) & 0xAA && mt_rand_bool())
@@ -3227,6 +3235,44 @@ void step_counter(dw_rom *rom)
 }
 
 /**
+ * Changes the amount of gold in chests
+ *
+ * @param rom The rom struct
+ */
+void chest_gold_amount(dw_rom *rom)
+{
+	const uint16_t random_address = 0xe338;
+    const uint16_t branch_address = 0xe343;
+    const uint16_t base_lb_address = 0xe33c;
+	const uint16_t base_ub_address = 0xe340;
+    uint16_t random;
+    uint16_t base;
+
+    if(!CHEST_GOLD_AMOUNT(rom))
+        return;
+    if(CHEST_GOLD_AMOUNT(rom) == 1)
+    {
+        base = 5;
+        random = 15;
+    }
+    if(CHEST_GOLD_AMOUNT(rom) == 2)
+    {
+        base = 120;
+        random = 0;
+    }
+    if(CHEST_GOLD_AMOUNT(rom) == 3)
+    {
+        base = mt_rand(1, 1745);
+        random = mt_rand(0, 255);
+    }
+    vpatch(rom, random_address, 1, random);
+    vpatch(rom, base_ub_address, 1, (base >> 8) & 0xff);
+    vpatch(rom, base_lb_address, 1, base & 0xff);
+    if(((base >> 8) & 0xff) == 0)
+        vpatch(rom, branch_address, 1, 0xf0); // Change the BNE to BEQ
+}
+
+/**
  * Hooks to set initial RAM values for new flags
  *
  * @param rom The rom struct
@@ -3348,6 +3394,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     crit_changes(rom);
     unbreakable_keys(rom);
     ascetic_king(rom);
+    chest_gold_amount(rom);
 }
 
 

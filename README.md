@@ -177,6 +177,21 @@ The post-credits sequence will show how many steps you've taken in your entire p
 The `Summary` tab will now show differences between the chosen flagset and the standard flagset.
 
 
+#### Modifiable Tristate Summer Sale chance ####
+
+Normally, having `Summer Sale` on tristate will make each piece of gear have a 50% chance to have a reduced price. This probability can now be modified.
+
+
+#### Unguarded Overworld Search Spot ####
+
+There is now a flag to ensure the overworld search spots, a.k.a. coordinates, will be unguarded, even if `Treasure Guards` is on.
+
+
+#### Gold Chest Contents ####
+
+The amount of gold that gold chests hold can now be modified.
+
+
 ## Known Issues ##
 - In mcgrew's official DWR version, when a vendor is missing in Rimuldar (e.g. key vendor), the very top left tile of the town is an invisible wall. It doesn't matter then because there is no point in going there if there is no vendor. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration.
 - When there is no vendor in Tantegel's vanilla key shop, returning the princess will make a throne room guard disappear. The player can leave the room to fix this.

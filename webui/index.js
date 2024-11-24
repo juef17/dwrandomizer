@@ -337,6 +337,21 @@ function setup_ui() {
         'Using a key outside of the throne room will not remove it from your inventory.');
     ui.addTriOption('New 3',  3, 20, 0, 'Ascetic King',
         'King Lorik will let the player keep their hard-earned gold upon dying.');
+    ui.addDropDown ('New 3',  4, 21, 6, 'Summer Sale Tristate Chance', {
+        '12.5%' : 1,
+        '25%' : 2,
+        '50%' : 0,
+        '75%': 3
+    });
+    ui.addDropDown ('New 3',  6, 21, 2, 'Gold Chest Contents', {
+        '5-20 G' : 1,
+        '120 G' : 2,
+        '500-756 G' : 0,
+        'Random (1-2000 G)' : 3,
+        'One of the above': 4
+    });
+    ui.addOption   ('New 3',  5, 21, 5, 'Unguarded OW search spot',
+        'Even with Treasure Guards on, the overworld search spot will not be guarded when this is on.');
 
     // player sprite
     let spriteBox;
