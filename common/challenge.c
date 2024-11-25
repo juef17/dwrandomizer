@@ -120,7 +120,7 @@ void no_numbers(dw_rom *rom)
 void damage_bonks(dw_rom *rom)
 {
     uint8_t damage, sound = 0x8f;
-    const uint16_t newcode = find_free_space(rom->content, 0xc422, 43);
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 48);
     printf("The damage_bonks newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!DAMAGE_BONKS(rom))
@@ -145,12 +145,14 @@ void damage_bonks(dw_rom *rom)
     vpatch(rom, 0x31e9, 5, 0xea, 0xea, 0x20, newcode & 0xff, (newcode >> 8) & 0xff);
 
     // This is basically a copy of the swamp damage routine, with a rts at the end
-    vpatch(rom, newcode, 43,
+    vpatch(rom, newcode, 48,
         0xa9, sound,0x00, 0x04, 0x17, 0x20, 0x14, 0xee,
         0x20, 0x74, 0xff, 0xa5, 0xc5, 0x38, 0xe9, damage,
         0xb0, 0x02, 0xa9, 0x00, 0x85, 0xc5, 0x20, 0x74,
         0xff, 0x20, 0x28, 0xee, 0xa5, 0xc5, 0xd0, 0x07,
         0x20, 0xf0, 0xc6, 0x00, 0x4c, 0xa7, 0xed,
-        0xee, 0x3a, 0x66, // Increment bonk counter at $663a
+        0xee, 0x3a, 0x66, // inc bonk counter at $663a
+        0xd0, 3,          // BNE to rts, no overflow on first byte
+        0xee, 0x3a, 0x66, // inc bonk counter at $663b
         0x60);
 }
