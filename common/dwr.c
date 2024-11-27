@@ -87,14 +87,15 @@ static void update_flags(dw_rom *rom)
     if(CRIT_DL1(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(CRIT_DL2(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(CRIT_CHANCE(rom) == 6)           rom->flags[17] = (rom->flags[17] | 0x70) & ((mt_rand(0, 5) << 4) | 0x8f);
-    if(DAMAGE_BONKS(rom) == 6)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 5) << 5) | 0x1f);
+    if(DAMAGE_BONKS(rom) == 7)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 6) << 5) | 0x1f);
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
     if(RADISH_FINISH(rom) == 2)         rom->flags[20] = (rom->flags[20] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
-    if(DWX_RUN_MECHANICS(rom) == 3)     rom->flags[20] = (rom->flags[20] | 0x30) & ((mt_rand(0, 2) << 4) | 0xcf);
     if(UNBREAKABLE_KEYS(rom) == 2)      rom->flags[20] = (rom->flags[20] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(ASCETIC_KING(rom) == 2)          rom->flags[20] = (rom->flags[20] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
-    if(CRIT_CHANCE(rom) == 4)           rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 3) << 2) | 0xe3);
+    if(DWX_RUN_MECHANICS(rom) == 4)     rom->flags[21] = (rom->flags[21] | 0xe0) & ((mt_rand(0, 3) << 5) | 0x1f);
+    if(CHEST_GOLD_AMOUNT(rom) == 4)     rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 3) << 2) | 0xe3);
+    if(RANDOM_PRINCESS_LOC(rom) == 2)   rom->flags[21] = (rom->flags[21] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -355,7 +356,8 @@ static void torch_in_battle(dw_rom *rom) {
 }
 
 /**
- * Implements the Dragon Warrior II & IV running away mechanics
+ * Implements the Dragon Warrior II & IV running away mechanics and a safer version of DW1
+ * For Safer DW1: same as original, but 4th attempt is always successful
  * For DW2: 2/3 success rate every time
  * For DW4:
  * 1st & 2nd attempts at running away: 50% success rate
@@ -370,7 +372,11 @@ void dwx_run_mechanics(dw_rom *rom)
 	const uint16_t ram_blocks = 0x663c;
     const uint16_t battle_start_hook = 0xe4f0;
     const uint16_t battle_start_newcode = find_free_space(rom->content, 0xc422, 8);
-    const uint16_t tryrun_newcode = 0xee94; // Overwrites original code
+    const uint16_t tryrun_newcode = 0xee94; // Overwrites original code post rng call
+    const uint16_t tryrunsafer_hook_check_n = 0xe898; // Hook into original code (overwrites jsr to TryRun)
+    uint16_t tryrunsafer_newcode_check_n;
+    const uint16_t tryrunsafer_hook_inc_n = 0xe8a1; // Hook into original code (overwrites jmp to enemy turn)
+    uint16_t tryrunsafer_newcode_inc_n;
 
     printf("The battle_start_newcode is at: %04x" PRIu16 "\n", battle_start_newcode);
 
@@ -381,18 +387,21 @@ void dwx_run_mechanics(dw_rom *rom)
             0xc9, 0x55,			// cmp #$55 (1/3 of 0xff)
             0x60	  			// rts
         );
+        return;
     }
-    else if(DWX_RUN_MECHANICS(rom) == 2) // DW4
-    {
-        //	Hook at battle start to set ram_n to 0
-        vpatch(rom, battle_start_hook, 4, 0x20, battle_start_newcode & 0xff, (battle_start_newcode >> 8) & 0xff, 0xea); // JSR battle_start_newcode and NOP for operation alignment
-        vpatch(rom, battle_start_newcode, 8,
-            0xa9, 0x00, // LDA $00
-            0x8d, ram_n & 0xff, (ram_n >> 8) & 0xff,    // STA ram_n
-            0x85, 0x41, // STA 0x41 (original code)
-            0x60        // RTS
-        );
 
+    // For everything that follows, we need a run attempt counter
+    // Hook at battle start to set ram_n to 0
+    vpatch(rom, battle_start_hook, 4, 0x20, battle_start_newcode & 0xff, (battle_start_newcode >> 8) & 0xff, 0xea); // JSR battle_start_newcode and NOP for operation alignment
+    vpatch(rom, battle_start_newcode, 8,
+        0xa9, 0x00, // LDA $00
+        0x8d, ram_n & 0xff, (ram_n >> 8) & 0xff,    // STA ram_n
+        0x85, 0x41, // STA 0x41 (original code)
+        0x60        // RTS
+    );
+
+    if(DWX_RUN_MECHANICS(rom) == 2) // DW4
+    {
         /*	Hook at run attempt:
             Check for success
                 Yes:
@@ -439,7 +448,31 @@ void dwx_run_mechanics(dw_rom *rom)
             0x60	  			// rts
         );
     }
-    return;
+    else if(DWX_RUN_MECHANICS(rom) == 3) // Safer DW1
+    {
+        // Hook at beginning of running: check if ram_n == 3. Yes: jmp/jsr to run success. No: go back to usual code
+        tryrunsafer_newcode_check_n = find_free_space(rom->content, 0xc422, 13);
+        printf("The tryrunsafer_newcode_check_n is at: %04x" PRIu16 "\n", tryrunsafer_newcode_check_n);
+        vpatch(rom, tryrunsafer_hook_check_n, 3, 0x20, tryrunsafer_newcode_check_n & 0xff, (tryrunsafer_newcode_check_n >> 8) & 0xff);
+        vpatch(rom, tryrunsafer_newcode_check_n, 13,
+            0xad, ram_n & 0xff, (ram_n >> 8) & 0xff,   // lda ram_n
+            0xc9, 0x03,			// cmp #$03 : if we were blocked 3 times before...
+            0xf0, 0x04,			// beq set_carry_rts : set carry to say we succeed in running away, and rts
+            0x20, 0x91, 0xee,   // no 3-time block so we do vanilla run algo. JSR ($EE91) (overwritten by hook)
+            0x60,               // rts
+            0x38,	  			// set_carry_rts: sec
+            0x60	  			// rts
+        );
+
+        // Hook at run fail: inc ram_n, continue to usual code
+        tryrunsafer_newcode_inc_n = find_free_space(rom->content, 0xc422, 6);
+        printf("The tryrunsafer_newcode_inc_n is at: %04x" PRIu16 "\n", tryrunsafer_newcode_inc_n);
+        vpatch(rom, tryrunsafer_hook_inc_n, 3, 0x4c, tryrunsafer_newcode_inc_n & 0xff, (tryrunsafer_newcode_inc_n >> 8) & 0xff);
+        vpatch(rom, tryrunsafer_newcode_inc_n, 6,
+            0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
+            0x4c, 0x1b, 0xeb                           // JMP ($EB1B) that was overwritten by hook
+        );
+    }
 }
 
 static void modify_run_rate(dw_rom *rom) {
@@ -3245,8 +3278,8 @@ void chest_gold_amount(dw_rom *rom)
     const uint16_t branch_address = 0xe343;
     const uint16_t base_lb_address = 0xe33c;
 	const uint16_t base_ub_address = 0xe340;
-    uint16_t random;
-    uint16_t base;
+    uint8_t random = 0;
+    uint16_t base = 0;
 
     if(!CHEST_GOLD_AMOUNT(rom))
         return;
@@ -3268,8 +3301,41 @@ void chest_gold_amount(dw_rom *rom)
     vpatch(rom, random_address, 1, random);
     vpatch(rom, base_ub_address, 1, (base >> 8) & 0xff);
     vpatch(rom, base_lb_address, 1, base & 0xff);
+
     if(((base >> 8) & 0xff) == 0)
         vpatch(rom, branch_address, 1, 0xf0); // Change the BNE to BEQ
+}
+
+/**
+ * Move (possibly) the princess to another dungeon
+ *
+ * @param rom The rom struct
+ */
+void random_princess_location(dw_rom *rom)
+{
+    if (!RANDOM_PRINCESS_LOC(rom))
+        return;
+    printf("Princess is playing 'hide and seek'...\n");
+
+    uint8_t locations[][3] = {
+        SWAMP_CAVE,      5,  18,
+        ERDRICKS_CAVE,   1,  9,
+        ERDRICKS_CAVE_2, 5,  4,
+        MOUNTAIN_CAVE,   8,  3,
+        MOUNTAIN_CAVE_2, 11, 10,
+        GARINS_GRAVE_1,  11, 12,
+        GARINS_GRAVE_1,  5,  17,
+        GARINS_GRAVE_2,  11, 6,
+        GARINS_GRAVE_3,  6,  15,
+        GARINS_GRAVE_3,  11, 17,
+        GARINS_GRAVE_3,  8,  7,
+        GARINS_GRAVE_3,  17, 4,
+        GARINS_GRAVE_4,  9,  4,
+    };
+    int i = mt_rand(0, sizeof(locations)/(3*sizeof(uint8_t)));
+
+    set_dungeon_tile(rom, locations[0][0], locations[0][1], locations[0][2], 2); // Remove original Gwaelin
+    set_dungeon_tile(rom, locations[i][0], locations[i][1], locations[i][2], 6); // Create brand new Gwaelin
 }
 
 /**
@@ -3362,6 +3428,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     torch_in_battle(rom);
     repel_mods(rom);
     permanent_torch(rom);
+    random_princess_location(rom);
     rotate_dungeons(rom);
     treasure_guards(rom);
     sorted_inventory(rom);

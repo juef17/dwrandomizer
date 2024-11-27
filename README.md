@@ -147,9 +147,9 @@ Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-loo
 A new way to win the game: talk to the radish vendor while carrying Gwaelin so you can share those sweet, sweet radishes with her.
 
 
-#### DWII & DWIV Running Mechanics ####
+#### Safer DWI, DWII & DWIV Running Mechanics ####
 
-Make the game use mechanics mechanics for running away from an enemy from another game in the series. For Dragon Warrior II, it's a flat 2/3 chance everytime. For Dragon Warrior IV, it goes like this:
+Make the game use alternate mechanics for running away from an enemy from another game in the series. For Safer Dragon Warrior I, mechanics are untouched but a 4th run attempt will always be successful. For Dragon Warrior II, it's a flat 2/3 chance everytime. For Dragon Warrior IV, it goes like this:
 - On your first and second run attempt in a battle, you have a 50% chance to get away.
 - On your third run attempt in a battle, you have a 75% chance to get away.
 - On your fourth run attempt, or if the enemy's asleep, you're guaranteed to get away.
@@ -190,6 +190,11 @@ There is now a flag to ensure the overworld search spots, a.k.a. coordinates, wi
 #### Gold Chest Contents ####
 
 The amount of gold that gold chests hold can now be modified.
+
+
+#### Random Princess Location ####
+
+Gwaelin might not be in her usual Swamp Cave today. Find her in [one of these](https://snestop.jerther.com/misc/dwr/random_princess_location/) locations. No door or spike tile is moved.
 
 
 ## Known Issues ##

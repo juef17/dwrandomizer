@@ -293,7 +293,8 @@ function setup_ui() {
         '20 HP' : 3,
         'Instakill' : 4,
         'Random (0-80)': 5,
-        'One of the above': 6
+        'Current HP / 2': 6,
+        'One of the above': 7
     });
     ui.addTriOption('New 2',  0, 18, 3, 'Discardable Flute',
         'Make it possible to drop the flute on finding a new item with a full inventory.');
@@ -317,11 +318,12 @@ function setup_ui() {
         'Blast doors open with a cast of Hurtmore.');
     ui.addOption   ('New 2',  8, 19, 3, 'Levelup Refill',
         'Have HP and MP refilled after leveling up.');
-    ui.addDropDown ('New 2',  9, 20, 4, 'Run Mechanics', {
-        'Original' : 0,
+    ui.addDropDown ('New 2',  9, 21, 5, 'Run Mechanics', {
+        'DW I' : 0,
+        'Safer DW I' : 3,
         'DW II' : 1,
         'DW IV' : 2,
-        'Random': 3
+        'Random': 4
     });
     ui.addOption   ('New 2', 10, 19, 2, 'Random Herb Carry',
         'The maximum number of herbs you can carry is randomly chosen between 0 and 9.');
@@ -337,7 +339,7 @@ function setup_ui() {
         'Using a key outside of the throne room will not remove it from your inventory.');
     ui.addTriOption('New 3',  3, 20, 0, 'Ascetic King',
         'King Lorik will let the player keep their hard-earned gold upon dying.');
-    ui.addDropDown ('New 3',  4, 21, 6, 'Summer Sale Tristate Chance', {
+    ui.addDropDown ('New 3',  4, 20, 4, 'Summer Sale Tristate Chance', {
         '12.5%' : 1,
         '25%' : 2,
         '50%' : 0,
@@ -350,8 +352,10 @@ function setup_ui() {
         'Random (1-2000 G)' : 3,
         'One of the above': 4
     });
-    ui.addOption   ('New 3',  5, 21, 5, 'Unguarded OW search spot',
+    ui.addOption   ('New 3',  5, 22, 7, 'Unguarded OW search spot',
         'Even with Treasure Guards on, the overworld search spot will not be guarded when this is on.');
+    ui.addTriOption('New 3',  7, 21, 0, 'Random Princess Location',
+        'The princess may be locked in a different cave. No spike tile is moved.');
 
     // player sprite
     let spriteBox;

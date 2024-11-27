@@ -119,8 +119,8 @@ void no_numbers(dw_rom *rom)
  */
 void damage_bonks(dw_rom *rom)
 {
-    uint8_t damage, sound = 0x8f;
-    const uint16_t newcode = find_free_space(rom->content, 0xc422, 48);
+    uint8_t damage = 0, sound = 0x8f;
+    uint16_t newcode = find_free_space(rom->content, 0xc422, 48);
     printf("The damage_bonks newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!DAMAGE_BONKS(rom))
@@ -133,16 +133,15 @@ void damage_bonks(dw_rom *rom)
     if(DAMAGE_BONKS(rom) == 4)
         damage = 255;
     if(DAMAGE_BONKS(rom) == 5)
+    {
         damage = mt_rand(0, 0x50);
-    if(!damage)
-        return;
+        if(!damage)
+            return;
+    }
 
     // Make the swamp damage sound if no red flashes is on so we know we get damaged
     if(NO_RED_FLASH(rom))
         sound = 0x84;
-
-    // Don't load the bonk sound for now, jsr at newcode instead
-    vpatch(rom, 0x31e9, 5, 0xea, 0xea, 0x20, newcode & 0xff, (newcode >> 8) & 0xff);
 
     // This is basically a copy of the swamp damage routine, with a rts at the end
     vpatch(rom, newcode, 48,
@@ -155,4 +154,10 @@ void damage_bonks(dw_rom *rom)
         0xd0, 3,          // BNE to rts, no overflow on first byte
         0xee, 0x3b, 0x66, // inc bonk counter at $663b
         0x60);
+
+    if(DAMAGE_BONKS(rom) == 6) // HP >> 1
+        vpatch(rom, newcode + 14, 3, 0x4a, 0xea, 0xd0); // lsr, nop
+
+    // Don't load the bonk sound for now, jsr at newcode instead
+    vpatch(rom, 0x31e9, 5, 0xea, 0xea, 0x20, newcode & 0xff, (newcode >> 8) & 0xff);
 }
