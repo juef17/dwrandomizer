@@ -127,9 +127,9 @@ The maximum number of keys and herbs will be randomized.
 The Fairy Flute can now put all enemies to sleep. The Dragonlord's second form can be excluded or not.
 
 
-#### Level 1 Radiant ####
+#### Level 1 Radiant / Repel ####
 
-Makes sure the player starts with Radiant and some MP. Like the No Hurtmore flag, this only works with `Randomized Spells` on.
+Makes sure the player starts with Radiant and/or Repel and some MP. Like the No Hurtmore flag, this only works with `Randomized Spells` on.
 
 
 #### Hurtmore Doors ####
@@ -194,7 +194,7 @@ The amount of gold that gold chests hold can now be modified.
 
 #### Random Princess Location ####
 
-Gwaelin might not be in her usual Swamp Cave today. Find her in [one of these](https://snestop.jerther.com/misc/dwr/random_princess_location/) locations. No door or spike tile is moved.
+Gwaelin might not be in her usual Swamp Cave today. Look for her in [one of these](https://snestop.jerther.com/misc/dwr/random_princess_location/) locations (or in her vanilla spot). **Beware:** if `Stair Shuffle` is on, the randomizer will ***not*** check if the princess is accessible without going through Charlock. If you do turn both flags on, it is strongly recommended to also have `Open Charlock` on.
 
 
 ## Known Issues ##

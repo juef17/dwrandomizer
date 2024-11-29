@@ -239,7 +239,7 @@ static void rotate_chest_positions(dw_rom *rom, dw_map_index map_index,
 }
 
 /**
- * Rotates the forced encounter in swamp cave
+ * Rotates the forced encounter guarding the princess (originally in Swamp Cave)
  *
  * @param rom The rom struct
  * @param rotatemirror Bits to indicate the rotation to be applied
@@ -247,7 +247,7 @@ static void rotate_chest_positions(dw_rom *rom, dw_map_index map_index,
 static void rotate_forced_encounter(dw_rom *rom, uint8_t rotatemirror)
 {
     uint8_t x, y, tmp;
-    const dw_map_meta *meta = &rom->map.meta[SWAMP_CAVE];
+    const dw_map_meta *meta = &rom->map.meta[rom->spike_table->map[1]];
 
     x = rom->spike_table->x[1];
     y = rom->spike_table->y[1];
@@ -354,7 +354,7 @@ static void rotate_mirror_map(dw_rom *rom, dw_map_index map_index)
     }
     rotate_warps(rom, map_index, rotatemirror);
     rotate_chest_positions(rom, map_index, rotatemirror);
-    if (map_index == SWAMP_CAVE) {
+    if (map_index == rom->spike_table->map[1]) {
         rotate_forced_encounter(rom, rotatemirror);
     }
 

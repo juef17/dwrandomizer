@@ -348,14 +348,17 @@ function setup_ui() {
     ui.addDropDown ('New 3',  6, 21, 2, 'Gold Chest Contents', {
         '5-20 G' : 1,
         '120 G' : 2,
-        '500-756 G' : 0,
+        '500-755 G' : 0,
+        '560-755 G' : 4,
         'Random (1-2000 G)' : 3,
-        'One of the above': 4
+        'One of the above': 5
     });
     ui.addOption   ('New 3',  5, 22, 7, 'Unguarded OW search spot',
         'Even with Treasure Guards on, the overworld search spot will not be guarded when this is on.');
     ui.addTriOption('New 3',  7, 21, 0, 'Random Princess Location',
-        'The princess may be locked in a different cave. No spike tile is moved.');
+        'The princess may be locked in a different cave.');
+    ui.addOption   ('New 3',  8, 22, 6, 'Level 1 Repel',
+        'If spells are randomized, makes sure the hero always knows Repel.');
 
     // player sprite
     let spriteBox;

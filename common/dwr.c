@@ -94,7 +94,7 @@ static void update_flags(dw_rom *rom)
     if(UNBREAKABLE_KEYS(rom) == 2)      rom->flags[20] = (rom->flags[20] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(ASCETIC_KING(rom) == 2)          rom->flags[20] = (rom->flags[20] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(DWX_RUN_MECHANICS(rom) == 4)     rom->flags[21] = (rom->flags[21] | 0xe0) & ((mt_rand(0, 3) << 5) | 0x1f);
-    if(CHEST_GOLD_AMOUNT(rom) == 4)     rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 3) << 2) | 0xe3);
+    if(CHEST_GOLD_AMOUNT(rom) == 5)     rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 4) << 2) | 0xe3);
     if(RANDOM_PRINCESS_LOC(rom) == 2)   rom->flags[21] = (rom->flags[21] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
 
     /*
@@ -832,6 +832,8 @@ static void randomize_spells(dw_rom *rom)
             spell_levels[i] = 255;
     }
 
+    if (LEVEL_1_REPEL(rom))
+        spell_levels[REPEL] = 1;
     if (PERMANENT_REPEL(rom))
         spell_levels[REPEL] = 255;
     if (NO_HURTMORE(rom))
@@ -3171,7 +3173,6 @@ void max_herbs(dw_rom *rom)
     printf("6 herbs? How about something else...\n");
 
     n = mt_rand(0, 9);
-    // Ideally I'd offer these possibilities: 0, 2, 4, 6, 9, random 0-9, one of the above. But the flags string is already long as it is and I'm lazy
 
     vpatch(rom, 0xd6fa, 1, n);
     vpatch(rom, 0xe249, 1, n);
@@ -3192,9 +3193,10 @@ void max_keys(dw_rom *rom)
 
     if(RANDOM_CHEST_LOCATIONS(rom) || STAIR_SHUFFLE(rom))
         n = mt_rand(4, 9);
+    else if(RANDOM_PRINCESS_LOC(rom))
+        n = mt_rand(3, 9);
     else
         n = mt_rand(2, 9);
-    // Ideally I'd offer these possibilities: 2, 3, 4, 6, 9, random 2-9, one of the above. But the flags string is already long as it is and I'm lazy
 
     vpatch(rom, 0xd80e, 1, n);
     vpatch(rom, 0xe22d, 1, n);
@@ -3283,20 +3285,25 @@ void chest_gold_amount(dw_rom *rom)
 
     if(!CHEST_GOLD_AMOUNT(rom))
         return;
-    if(CHEST_GOLD_AMOUNT(rom) == 1)
+    else if(CHEST_GOLD_AMOUNT(rom) == 1)
     {
         base = 5;
         random = 15;
     }
-    if(CHEST_GOLD_AMOUNT(rom) == 2)
+    else if(CHEST_GOLD_AMOUNT(rom) == 2)
     {
         base = 120;
         random = 0;
     }
-    if(CHEST_GOLD_AMOUNT(rom) == 3)
+    else if(CHEST_GOLD_AMOUNT(rom) == 3)
     {
         base = mt_rand(1, 1745);
         random = mt_rand(0, 255);
+    }
+    else if(CHEST_GOLD_AMOUNT(rom) == 4)
+    {
+        base = 560;
+        random = 195;
     }
     vpatch(rom, random_address, 1, random);
     vpatch(rom, base_ub_address, 1, (base >> 8) & 0xff);
@@ -3317,25 +3324,36 @@ void random_princess_location(dw_rom *rom)
         return;
     printf("Princess is playing 'hide and seek'...\n");
 
-    uint8_t locations[][3] = {
-        SWAMP_CAVE,      5,  18,
-        ERDRICKS_CAVE,   1,  9,
-        ERDRICKS_CAVE_2, 5,  4,
-        MOUNTAIN_CAVE,   8,  3,
-        MOUNTAIN_CAVE_2, 11, 10,
-        GARINS_GRAVE_1,  11, 12,
-        GARINS_GRAVE_1,  5,  17,
-        GARINS_GRAVE_2,  11, 6,
-        GARINS_GRAVE_3,  6,  15,
-        GARINS_GRAVE_3,  11, 17,
-        GARINS_GRAVE_3,  8,  7,
-        GARINS_GRAVE_3,  17, 4,
-        GARINS_GRAVE_4,  9,  4,
+    // Map, (x,y) of Gwaelin, (x,y) of Door, (x,y) of spike tile, (x,y) coords of a brick wall to add (only if ≠ (99,99))
+    uint8_t locations[][9] = {
+        SWAMP_CAVE,      5,  18, 5,  20, 4,  14, 99, 99,
+        ERDRICKS_CAVE,   1,  9,  1,  8,  2,  8,  99, 99,
+        ERDRICKS_CAVE_2, 5,  4,  5,  5,  5,  6,  99, 99,
+        MOUNTAIN_CAVE,   8,  3,  7,  3,  5,  3,  99, 99,
+        MOUNTAIN_CAVE_2, 11, 10, 11, 11, 12, 11, 10, 11,
+        GARINS_GRAVE_1,  11, 12, 12, 11, 14, 12, 99, 99,
+        GARINS_GRAVE_1,  5,  17, 7,  16, 10, 16, 99, 99,
+        GARINS_GRAVE_2,  11, 6,  11, 5,  10, 4,  99, 99,
+        GARINS_GRAVE_3,  6,  15, 8,  13, 9,  16, 99, 99,
+        GARINS_GRAVE_3,  11, 17, 12, 17, 14, 17, 99, 99,
+        GARINS_GRAVE_3,  8,  7,  8,  8,  8,  10, 99, 99,
+        GARINS_GRAVE_3,  17, 4,  19, 5,  19, 7,  99, 99,
+        GARINS_GRAVE_4,  3,  3,  3,  2,  5,  1,  2,  3
     };
-    int i = mt_rand(0, sizeof(locations)/(3*sizeof(uint8_t)));
+    int i = mt_rand(0, sizeof(locations)/(9*sizeof(uint8_t)));
 
     set_dungeon_tile(rom, locations[0][0], locations[0][1], locations[0][2], 2); // Remove original Gwaelin
     set_dungeon_tile(rom, locations[i][0], locations[i][1], locations[i][2], 6); // Create brand new Gwaelin
+
+    set_dungeon_tile(rom, locations[0][0], locations[0][3], locations[0][4], 2); // Remove original door
+    set_dungeon_tile(rom, locations[i][0], locations[i][3], locations[i][4], 5); // Create brand new door
+
+    if(locations[i][7] < 99 && locations[i][8] < 99)
+        set_dungeon_tile(rom, locations[i][0], locations[i][7], locations[i][8], 0); // Add optional brick wall
+
+    rom->spike_table->map[1] = locations[i][0];
+    rom->spike_table->x[1] = locations[i][5];
+    rom->spike_table->y[1] = locations[i][6];
 }
 
 /**
