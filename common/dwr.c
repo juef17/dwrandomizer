@@ -2634,7 +2634,7 @@ static void npc_shenanigans(dw_rom *rom)
 
         do
         {
-            chosen_NPC = mt_rand(0, sizeof(NPCData) / (6*sizeof(uint8_t)));
+            chosen_NPC = mt_rand(0, sizeof(NPCData) / (6*sizeof(uint8_t)) - 1);
         } while(!(NPCData[chosen_NPC][3] & swappable_check));
 
         switch((0xe0 & NPCData[chosen_NPC][0]) >> 5)
@@ -3340,7 +3340,7 @@ void random_princess_location(dw_rom *rom)
         GARINS_GRAVE_3,  17, 4,  19, 5,  19, 7,  99, 99,
         GARINS_GRAVE_4,  3,  3,  3,  2,  5,  1,  2,  3
     };
-    int i = mt_rand(0, sizeof(locations)/(9*sizeof(uint8_t)));
+    int i = mt_rand(0, sizeof(locations)/(9*sizeof(uint8_t))-1);
 
     set_dungeon_tile(rom, locations[0][0], locations[0][1], locations[0][2], 2); // Remove original Gwaelin
     set_dungeon_tile(rom, locations[i][0], locations[i][1], locations[i][2], 6); // Create brand new Gwaelin
