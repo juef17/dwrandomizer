@@ -109,6 +109,7 @@
 #define RANDOM_PRINCESS_LOC(x)    ((x->flags[21] & 0x03)     ) // 2
 #define UNGUARDED_OW_SEARCHSPOT(x)((x->flags[22] & 0x80) >> 7) // 1
 #define LEVEL_1_REPEL(x)          ((x->flags[22] & 0x40) >> 6) // 1
+#define VANILLA_RESTORATION(x)    ((x->flags[22] & 0x20) >> 5) // 1
 
 #ifdef __cplusplus
 extern "C" {

@@ -102,6 +102,7 @@ class FlagsModal extends Modal {
             'Fast Standard': 'IVIAAVCEKACFAAAAAAAAAIAUAAIBAAAAAAAAAAAA',
             'Easy Standard': 'IVIAAVCFKACACQAAKAAAAZAUAAIBAAAAAAAAAAAA',
             'Tiebreaker': 'IVKQAVCEKEAFKRIAAAAAAYAUAAIBAAAAAAAAAAAA',
+            'Non-rando': 'AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAACCAAAA',
         }
         this.dialog.append(this.create('div', 'Save', {
             'font-weight': 'normal',

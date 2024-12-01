@@ -2001,9 +2001,10 @@ static void no_keys(dw_rom *rom)
  */
 static void repel_mods(dw_rom *rom)
 {
-    if (REPEL_IN_DUNGEONS(rom))
+    if (REPEL_IN_DUNGEONS(rom)) {
         printf("Making repel work in dungeons...\n");
         vpatch(rom, 0xcf20, 2, 0xa9, 0x01);
+    }
 
     if (PERMANENT_REPEL(rom)) {
         printf("Making repel permanent...\n");
@@ -2322,7 +2323,7 @@ void setup_expansion(dw_rom *rom)
     add_hook(rom, JSR, 0xe65a, INC_MISS_CTR);
     add_hook(rom, JSR, 0xe68a, INC_DODGE_CTR);
     add_hook(rom, DIALOGUE, 0xe89d, BLOCKED_IN_FRONT);
-    add_hook(rom, JSR, 0xe98c, COUNT_WIN);
+    if(!VANILLA_RESTORATION(rom)) add_hook(rom, JSR, 0xe98c, COUNT_WIN);
     add_hook(rom, JSR, 0xed9e, INC_ENEMY_DEATH_CTR);
     add_hook(rom, JSR, 0xeda9, INC_DEATH_CTR);
     add_hook(rom, JSR, 0xf720, INIT_SAVE_RAM);
@@ -3411,25 +3412,37 @@ void apply_stuff_to_rom(dw_rom *rom)
     memset(&rom->content[0xc7ec], 0xff, 0xc9b5 - 0xc7ec);
     memset(&rom->content[0xf232], 0xff, 0xf35b - 0xf232);
 
-    show_spells_learned(rom);
-    other_patches(rom);
+    if(VANILLA_RESTORATION(rom))
+    {
+        /* convert PRG1 to PRG0 */
+        vpatch(rom, 0x03f9e, 2,  0x37,  0x32);
+        vpatch(rom, 0x0af6c, 1,  0xef);
+    }
+    else
+    {
+        show_spells_learned(rom);
+        other_patches(rom);
+    }
     short_charlock(rom);
     do_chest_flags(rom);
-    stair_shuffle(rom);
+    if(!VANILLA_RESTORATION(rom)) stair_shuffle(rom);
     check_quest_items(rom);
-    map_generate_terrain(rom);
-    spike_rewrite(rom);
+    if(!VANILLA_RESTORATION(rom)) map_generate_terrain(rom);
+    if(!VANILLA_RESTORATION(rom)) spike_rewrite(rom);
     randomize_attack_patterns(rom);
-    randomize_zone_layout(rom);
+    if(!VANILLA_RESTORATION(rom)) randomize_zone_layout(rom);
     randomize_zones(rom);
     randomize_shops(rom);
     randomize_growth(rom);
     randomize_spells(rom);
-    update_drops(rom);
-    update_mp_reqs(rom);
-    lower_xp_reqs(rom);
-    update_enemy_hp(rom);
-    dwr_fighters_ring(rom);
+    if(!VANILLA_RESTORATION(rom))
+    {
+        update_drops(rom);
+        update_mp_reqs(rom);
+        lower_xp_reqs(rom);
+        update_enemy_hp(rom);
+        dwr_fighters_ring(rom);
+    }
     dwr_death_necklace(rom);
     dwr_menu_wrap(rom);
     randomize_flute_song(rom);
@@ -3439,20 +3452,20 @@ void apply_stuff_to_rom(dw_rom *rom)
     no_keys(rom);
     cursed_princess(rom);
     radish_finish(rom);
-    npc_shenanigans(rom);
+    if(!VANILLA_RESTORATION(rom)) npc_shenanigans(rom);
     threes_company(rom);
     scared_metal_slimes(rom);
-    support_2_byte_xp_gold(rom);
+    if(!VANILLA_RESTORATION(rom)) support_2_byte_xp_gold(rom);
     torch_in_battle(rom);
     repel_mods(rom);
     permanent_torch(rom);
     random_princess_location(rom);
     rotate_dungeons(rom);
-    treasure_guards(rom);
-    sorted_inventory(rom);
+    if(!VANILLA_RESTORATION(rom)) treasure_guards(rom);
+    if(!VANILLA_RESTORATION(rom)) sorted_inventory(rom);
     summer_sale(rom);
     modify_run_rate(rom);
-    dwr_token_dialogue(rom);
+    if(!VANILLA_RESTORATION(rom)) dwr_token_dialogue(rom);
     discardable_flute(rom);
     formidable_flute(rom);
     magic_herbs(rom);
@@ -3480,6 +3493,24 @@ void apply_stuff_to_rom(dw_rom *rom)
     unbreakable_keys(rom);
     ascetic_king(rom);
     chest_gold_amount(rom);
+
+    // Special case so we don't have to refight Golem. We don't rewrite spike stuff, so we have to hook COUNT_WIN at a different place. Terribly not elegant, sorry
+    if(VANILLA_RESTORATION(rom))
+    {
+        // vpatch(rom, 0xA4D1 - 0x8000, 2, 0x50, 0x01); Open Cantlin wall a bit
+        const uint16_t newcode = find_free_space(rom->content, 0xc82b, 17); // Starting address for new code
+        printf("The COUNT_WIN newcode is at: %04x" PRIu16 "\n", newcode);
+        vpatch(rom, 0xe96b, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into EnemyDefeated
+        vpatch(rom, newcode, 17,
+            0xa5, 0xe0, 0x0a,       // Load enemy number and double it
+            0xaa,                   // copy that to x
+            0xfe, 0xc0, 0x66,       // inc ram,x (66C0+2x) (6670 would be for encounters)
+            0xd0, 0x03,             // If we didn't wrap around 255, we're done, skip incrementing the upper byte
+            0xfe, 0xc1, 0x66,       // inc ram+1,x (66C1+2x)
+            0xa5, 0xe0, 0xc9, 0x1e, // original code overwritten by hook
+            0x60                    // rts
+        );
+    }
 }
 
 
@@ -3563,6 +3594,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
 
     skip_vanilla_credits(rom);
     setup_expansion(rom);
+
     sprite(rom, sprite_name);
     invisible_npcs(rom); // in case the custom sprite also changed NPCS.
     noir_mode(rom);

@@ -359,6 +359,8 @@ function setup_ui() {
         'The princess may be locked in a different cave.');
     ui.addOption   ('New 3',  8, 22, 6, 'Level 1 Repel',
         'If spells are randomized, makes sure the hero always knows Repel.');
+    ui.addOption   ('New 3',  9, 22, 5, 'Vanilla Restoration',
+        'Ensure most game contents (for which there is no flag) is as in the original game.');
 
     // player sprite
     let spriteBox;
