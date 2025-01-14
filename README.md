@@ -199,7 +199,32 @@ Gwaelin might not be in her usual Swamp Cave today. Look for her in [one of thes
 
 #### Vanilla Restoration ####
 
-The `Vanilla Restoration` option will force the randomizer to skip most features that aren't tied to a flag, such as the updated experience and gold values for monsters. Also, if you click `Presets` and load `Non-rando` in the *Load/Delete* list, most of the randomizer's features will be unchecked. With this flagset, you will get a completely vanilla experience, save for the post-credits stats, and whatever flag you might decide to turn on. This allows for sprite change, skipping original credits... or most things, really! Keep in mind some will have no effect as `Vanilla Restoration` will override them. Also, Erdrick's Tablet will still be changed to a Dragon's Scale.
+The `Vanilla Restoration` option will force the randomizer to skip most features that aren't tied to a flag, such as the updated experience and gold values for monsters. Also, if you click `Presets` and load `Non-rando` in the *Load/Delete* list, most of the randomizer's features will be unchecked. With this flagset, you will get a completely vanilla experience, save for the post-credits stats, and whatever flag you might decide to turn on. This allows for sprite change, skipping original credits... or most things, really! Keep in mind some flags (*Stair Shuffle, Random Map / Random Map Size, Disguised Dragonlord, Vendor Shuffle, Inn in Charlock, Treasure Guards*) will have no effect as `Vanilla Restoration` will override them. Also, Erdrick's Tablet will still be changed to a Dragon's Scale, and most gold chests will not hold the correct amount.
+
+
+#### Geographically Enclined NPCs ####
+
+In the vanilla game, some NPCs give directions that become just plain wrong when randomizing the map. This is an attempt at fixing them, making the detour to some NPCs somehow worth it.
+
+Here's a list of changed dialog:
+* NPC in Tantegel: `East of this castle is a town…` (this is a throne room guard's dialogue about Brecconary... but only before you leave it the first time!)
+* NPC in Brecconary: `Within sight of Tantegel Castle to the south is Charlock…`
+* NPC in Brecconary: `Go north to the seashore, then follow the coastline west until thou hath reached Garinham…` (the message is changed to give just one generic direction)
+* NPC in Kol: `Dreadful is the South island.` (now says `entire world`, because there's not always 2 continents, and it may be confusing to give a single direction from one to the other)
+* NPC in Kol: `Hast thou been to the southern island?` (changed to `outside of this hamlet`), for the same reason)
+* Same NPC in Kol, if you say 'No': `To the south, I believe, there is a town called Rimuldar.`
+* NPC in Kol: `East of Hauksness there is a town, ’tis said, where one may purchase weapons of extraordinary quality.`
+* NPC in Garinham: `Once there was a town called Hawksness far to the south…`
+* NPC in Garinham: `It is said that the Princess was kidnapped and taken eastward.` (for this one, I scrapped the direction: it might get confusing with 2 entrances to the cave, and with any or both of them being possibly in a town. I opted to instead give an hint about which cave she is in, in case you're playing with `Random Princess Location`.)
+* NPC in Rimuldar: `Heed my warning! Travel not to the south` (changed to `inside caves`, because I didn't want to mess with zones and enemies to find out the most difficult one. It'd be kinda pointless.)
+* NPC in Rimuldar: `Hast thou found a magic temple? (No:) Go to the south.`
+* NPC in Rimuldar: `Over the western part of this island Erdrick created a rainbow.` (again, the island thing is bad, so I opted for a more generic message without a direction)
+
+In most of the above, just the direction is changed. For instance, if you're in Kol, and Hawksness is at (50, 43) and Cantlin is at (44, 19), the NPC in the weapon shop will say: `North of Hauksness, 'tis said there is a town where one may purchase weapons of extraordinary quality.`, since Cantlin is just a bit West but a whole lot North of Hawksness.
+
+Also, the NPC in Rimuldar hinting towards the Rainbow Drop cave will give directions to Tantegel or Garinham, should that cave's entrance be there.
+
+The feature is not tied to a flag and is always on.
 
 
 ## Known Issues ##

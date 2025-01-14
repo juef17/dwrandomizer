@@ -338,6 +338,7 @@ typedef struct {
     uint16_t *weapon_price_display;
     uint8_t *music;
     uint8_t *title_text;
+    dw_map_index princess_map;
 } dw_rom;
 
 #define BYTE_TO_BINARY(byte)  \

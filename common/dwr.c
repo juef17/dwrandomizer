@@ -195,6 +195,7 @@ static BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags)
     rom->weapon_price_display = (uint16_t*)&rom->content[0x7e10];
     rom->music = &rom->content[0x31af];
     rom->title_text = &rom->content[0x3f26];
+    rom->princess_map = SWAMP_CAVE;
 
     map_decode(&rom->map);
     return TRUE;
@@ -2576,7 +2577,7 @@ static void npc_shenanigans(dw_rom *rom)
             }
             else if(NPCData[k][2] == 0x67 || NPCData[k][2] == 0x6b || NPCData[k][2] == 0x6e)
                 NPCData[k][3] = 0x00; // King, coords guy, uncurse guy
-            else if(NPCData[k][2] == 0x20)
+            else if(NPCData[k][2] == 0x20 && DISGUISED_DRAGONLORD(rom))
                 NPCData[k][2] = 0x1f; // Hijacked his dialogue for hint, control byte used to be 0x20 but is now 0x1f like the other nearby shopkeeper
             else if(NPCData[k][2] == 0x65) {
                 NPCData[k][2] = 0x24; // Control byte is usually 0x65 but that is now used for cursed princess.
@@ -2961,7 +2962,7 @@ void zoom_and_whistle(dw_rom *rom)
         0xbd, (address + code_size) & 0xff, ((address + code_size) >> 8) & 0xff, 0xaa, // LDA,X , TAX --> load the X coord and put it into X
         0xb9, (address + code_size + 6) & 0xff, ((address + code_size + 6) >> 8) & 0xff, 0xa8, // LDA,Y , TAY --> load the Y coord and put it into Y
 
-        // Put the coords in the right places. This is original code, but with new registers
+        // Put the coords in the right places. This is original code, but with different registers
         0x86, 0x3A, // LDB06:  STX CharXPos
         0x86, 0x8E, // LDB08:  STX _CharXPos
         0x86, 0x90, // LDB0A:  STX CharXPixelsLB
@@ -3192,10 +3193,14 @@ void max_keys(dw_rom *rom)
         return;
     printf("6 keys? How about something else...\n");
 
-    if(RANDOM_CHEST_LOCATIONS(rom) || STAIR_SHUFFLE(rom))
+    if(STAIR_SHUFFLE(rom) && SHORT_CHARLOCK(rom) && RANDOM_PRINCESS_LOC(rom))
+        n = mt_rand(5, 9);
+    else if(STAIR_SHUFFLE(rom) && SHORT_CHARLOCK(rom))
         n = mt_rand(4, 9);
     else if(RANDOM_PRINCESS_LOC(rom))
         n = mt_rand(3, 9);
+    else if(UNBREAKABLE_KEYS(rom))
+        n = mt_rand(1, 9);
     else
         n = mt_rand(2, 9);
 
@@ -3355,6 +3360,7 @@ void random_princess_location(dw_rom *rom)
     rom->spike_table->map[1] = locations[i][0];
     rom->spike_table->x[1] = locations[i][5];
     rom->spike_table->y[1] = locations[i][6];
+    rom->princess_map = locations[i][0];
 }
 
 /**
@@ -3414,6 +3420,32 @@ void apply_stuff_to_rom(dw_rom *rom)
 
     if(VANILLA_RESTORATION(rom))
     {
+        uint16_t newcode = find_free_space(rom->content, 0xc82b, 17); // Starting address for new code
+
+        // Special case so we don't have to refight Golem. We don't rewrite spike stuff, so we have to hook COUNT_WIN at a different place. Terribly not elegant, sorry
+        printf("The COUNT_WIN newcode is at: %04x" PRIu16 "\n", newcode);
+        vpatch(rom, 0xe96b, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into EnemyDefeated
+        vpatch(rom, newcode, 17,
+            0xa5, 0xe0, 0x0a,       // Load enemy number and double it
+            0xaa,                   // copy that to x
+            0xfe, 0xc0, 0x66,       // inc ram,x (66C0+2x) (6670 would be for encounters)
+            0xd0, 0x03,             // If we didn't wrap around 255, we're done, skip incrementing the upper byte
+            0xfe, 0xc1, 0x66,       // inc ram+1,x (66C1+2x)
+            0xa5, 0xe0, 0xc9, 0x1e, // original code overwritten by hook
+            0x60                    // rts
+        );
+
+        newcode = find_free_space(rom->content, 0xc82b, 9);
+        printf("The starting gold newcode is at: %04x" PRIu16 "\n", newcode);
+        vpatch(rom, 0xf695, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into SGZeroStats
+        vpatch(rom, newcode, 9,
+            0xa9, 0x73, // lda 115
+            0x85, 0xbc, // sta GoldLB
+            0xa9, 0x00, // lda 0
+            0x85, 0xbd, // sta GoldUB
+            0x60        // rts
+        );
+
         /* convert PRG1 to PRG0 */
         vpatch(rom, 0x03f9e, 2,  0x37,  0x32);
         vpatch(rom, 0x0af6c, 1,  0xef);
@@ -3439,10 +3471,10 @@ void apply_stuff_to_rom(dw_rom *rom)
     {
         update_drops(rom);
         update_mp_reqs(rom);
-        lower_xp_reqs(rom);
         update_enemy_hp(rom);
         dwr_fighters_ring(rom);
     }
+    lower_xp_reqs(rom);
     dwr_death_necklace(rom);
     dwr_menu_wrap(rom);
     randomize_flute_song(rom);
@@ -3460,6 +3492,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     repel_mods(rom);
     permanent_torch(rom);
     random_princess_location(rom);
+    fix_geography_talk(rom);
     rotate_dungeons(rom);
     if(!VANILLA_RESTORATION(rom)) treasure_guards(rom);
     if(!VANILLA_RESTORATION(rom)) sorted_inventory(rom);
@@ -3493,24 +3526,6 @@ void apply_stuff_to_rom(dw_rom *rom)
     unbreakable_keys(rom);
     ascetic_king(rom);
     chest_gold_amount(rom);
-
-    // Special case so we don't have to refight Golem. We don't rewrite spike stuff, so we have to hook COUNT_WIN at a different place. Terribly not elegant, sorry
-    if(VANILLA_RESTORATION(rom))
-    {
-        // vpatch(rom, 0xA4D1 - 0x8000, 2, 0x50, 0x01); Open Cantlin wall a bit
-        const uint16_t newcode = find_free_space(rom->content, 0xc82b, 17); // Starting address for new code
-        printf("The COUNT_WIN newcode is at: %04x" PRIu16 "\n", newcode);
-        vpatch(rom, 0xe96b, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into EnemyDefeated
-        vpatch(rom, newcode, 17,
-            0xa5, 0xe0, 0x0a,       // Load enemy number and double it
-            0xaa,                   // copy that to x
-            0xfe, 0xc0, 0x66,       // inc ram,x (66C0+2x) (6670 would be for encounters)
-            0xd0, 0x03,             // If we didn't wrap around 255, we're done, skip incrementing the upper byte
-            0xfe, 0xc1, 0x66,       // inc ram+1,x (66C1+2x)
-            0xa5, 0xe0, 0xc9, 0x1e, // original code overwritten by hook
-            0x60                    // rts
-        );
-    }
 }
 
 

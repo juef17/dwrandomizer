@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "mt64.h"
 #include "map.h"
@@ -1058,3 +1059,116 @@ retry_map:
         goto retry_map;
 }
 
+void fix_geography_talk(dw_rom *rom)
+{
+    enum Direction dir;
+
+    // NPC in Tantegel: "East of this castle is a town"
+    dir = find_direction(rom, WARP_TANTEGEL, WARP_BRECCONARY);
+    set_text(rom, 0xB08F, "XXXXX of this castle's a town");
+    set_direction(rom, 0xB08F, dir, TRUE);
+
+    // NPC in Brecconary: "Within sight of Tantegel Castle to the south is Charlock"
+    dir = find_direction(rom, WARP_TANTEGEL, WARP_CHARLOCK);
+    set_direction(rom, 0x9096, dir, FALSE);
+
+    // NPC in Brecconary: "Go north to the seashore, then follow the coastline west until thou hath reached Garinham."
+    dir = find_direction(rom, WARP_BRECCONARY, WARP_GARINHAM);
+    set_text(rom, 0x8F4E, "XXXXX doth lie Garinham; venture onward, and continue thy quest until thou dost arrive.   ");
+    set_direction(rom, 0x8F4E, dir, TRUE);
+
+    // NPC in Kol: "Dreadful is the South island."
+    set_text(rom, 0x91B8, "entire world");
+
+    // NPC in Kol: "Hast thou been to the southern island?"
+    set_text(rom, 0x9BE6, "outside of this hamlet");
+    // "To the south, I believe, there is a town called Rimuldar."
+    dir = find_direction(rom, WARP_KOL, WARP_RIMULDAR);
+    set_direction(rom, 0x9DC5, dir, FALSE);
+
+    // NPC in Kol: "East of Hauksness there is a town, ’tis said, where one may purchase weapons of extraordinary quality."
+    dir = find_direction(rom, WARP_HAUKSNESS, WARP_CANTLIN);
+    set_text(rom, 0x90EA, "XXXXX of Hauksness, 'tis said there is a town");
+    set_direction(rom, 0x90EA, dir, TRUE);
+
+    // NPC in Garinham: "Once there was a town called Hawksness far to the south"
+    dir = find_direction(rom, WARP_GARINHAM, WARP_HAUKSNESS);
+    set_direction(rom, 0x9385, dir, FALSE);
+
+    // NPC in Garinham: "It is said that the Princess was kidnapped and taken eastward."
+    if(rom->princess_map == SWAMP_CAVE)
+        set_text(rom, 0x9509, "'tis said that the Princess was taken to a dark and damp cave.");
+    else if(rom->princess_map == ERDRICKS_CAVE || rom->princess_map == ERDRICKS_CAVE_2)
+        set_text(rom, 0x9509, "It is said that the Princess was taken to a monsterless cave. ");
+    else if(rom->princess_map == MOUNTAIN_CAVE || rom->princess_map == MOUNTAIN_CAVE_2)
+        set_text(rom, 0x9509, "It is said that the cave where the Princess is held is rocky. ");
+    else
+        set_text(rom, 0x9509, "It is said that the Princess is being held captive in a grave.");
+
+    // NPC in Rimuldar: "Heed my warning! Travel not to the south"
+    set_text(rom, 0x9AA5, "inside caves");
+
+    // NPC in Rimuldar: "Hast thou found a magic temple? (No:) Go to the south."
+    dir = find_direction(rom, WARP_RIMULDAR, WARP_JERK_CAVE);
+    set_direction(rom, 0x9E34, dir, FALSE);
+
+    // NPC in Rimuldar: "Over the western part of this island Erdrick created a rainbow."
+    set_text(rom, 0x9886, "Erdrick once created a rainbow bridge to reach Charlock castle.");
+}
+
+enum Direction find_direction(dw_rom *rom, dw_warp_index w1, dw_warp_index w2)
+{
+    uint8_t x1;
+    uint8_t y1;
+    uint8_t x2;
+    uint8_t y2;
+    int16_t dx, dy;
+    dw_warp *warp;
+
+    if(w1 == WARP_JERK_CAVE)
+    {
+        warp = &rom->map.warps_from[WARP_JERK_CAVE];
+        if(warp->map == TANTEGEL)
+            w1 = WARP_TANTEGEL;
+        else if(warp->map == GARINHAM)
+            w1 = WARP_GARINHAM;
+    }
+    if(w2 == WARP_JERK_CAVE)
+    {
+        warp = &rom->map.warps_from[WARP_JERK_CAVE];
+        if(warp->map == TANTEGEL)
+            w2 = WARP_TANTEGEL;
+        else if(warp->map == GARINHAM)
+            w2 = WARP_GARINHAM;
+    }
+
+    x1 = rom->map.warps_from[w1].x;
+    y1 = rom->map.warps_from[w1].y;
+    x2 = rom->map.warps_from[w2].x;
+    y2 = rom->map.warps_from[w2].y;
+    dx = x2-x1;
+    dy = y2-y1;
+
+    if(ABS(dx) > ABS(dy))
+        return dx > 0 ? DIR_EAST  : DIR_WEST;
+    else
+        return dy > 0 ? DIR_SOUTH : DIR_NORTH;
+}
+
+void set_direction(dw_rom *rom, const size_t address, enum Direction dir, BOOL cap)
+{
+    char direction[6];
+    if(dir == DIR_SOUTH)
+        strcpy(direction, "south");
+    else if(dir == DIR_NORTH)
+        strcpy(direction, "north");
+    else if(dir == DIR_WEST)
+        strcpy(direction, "west ");
+    else
+        strcpy(direction, "east ");
+
+    if(cap)
+        direction[0] = toupper(direction[0]);
+
+    set_text(rom, address, direction);
+}

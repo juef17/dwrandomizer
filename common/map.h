@@ -76,6 +76,13 @@ enum {
     KEY_IN_BASEMENT = 0x10,
 };
 
+enum Direction {
+    DIR_EAST,
+    DIR_WEST,
+    DIR_SOUTH,
+    DIR_NORTH
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -94,6 +101,34 @@ void map_decode(dw_map *map);
  * @return A boolean indicating whether terrain generation was successful or not
  */
 void map_generate_terrain(dw_rom *rom);
+
+/**
+ * Changes directions in various NPC dialogs to reflect new map
+ *
+ * @param rom The rom struct
+ * @return Nothing
+ */
+void fix_geography_talk(dw_rom *rom);
+
+/**
+ * Gives "main" direction from one warp to another
+ *
+ * @param rom The rom struct
+ * @param w1, w2, two warps
+ * @return Direction (see above enum)
+ */
+enum Direction find_direction(dw_rom *rom, dw_warp_index w1, dw_warp_index w2);
+
+/**
+ * Sets given direction at specific point in the game's text
+ *
+ * @param rom The rom struct
+ * @param address
+ * @param Direction
+ * @param cap
+ * @return Nothing
+ */
+void set_direction(dw_rom *rom, const size_t address, enum Direction dir, BOOL cap);
 
 #ifdef __cplusplus
 }
