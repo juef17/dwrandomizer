@@ -3492,7 +3492,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     repel_mods(rom);
     permanent_torch(rom);
     random_princess_location(rom);
-    fix_geography_talk(rom);
+    hints(rom);
     rotate_dungeons(rom);
     if(!VANILLA_RESTORATION(rom)) treasure_guards(rom);
     if(!VANILLA_RESTORATION(rom)) sorted_inventory(rom);

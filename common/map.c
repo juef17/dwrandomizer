@@ -772,7 +772,7 @@ static BOOL need_rimuldar(dw_map *map)
  */
 static BOOL place_landmarks(dw_map *map)
 {
-    int i, largest = 0, next = 0, lm_sizes[256],
+    int i, tmp, largest = 0, next = 0, lm_sizes[256],
             rimuldar_lm1, rimuldar_lm2, brecc_lm1, brecc_lm2;
     uint8_t tantegel_lm, charlock_lm;
     BOOL swamp_placed = FALSE;
@@ -817,6 +817,16 @@ static BOOL place_landmarks(dw_map *map)
     warp->x = 19;
     warp->y = 0;
 
+    // Make sure swamp caves are placed ASAP so there's room left for them
+    for(i=3; i<8; i++)
+    {
+        if(caves[i] == WARP_SWAMP_NORTH || caves[i] == WARP_SWAMP_SOUTH)
+        {
+            tmp = caves[i-1];
+            caves[i-1] = caves[i];
+            caves[i] = tmp;
+        }
+    }
 
     /* place the remaining caves */
     for (i=2; i < 8; i++) {
@@ -1059,6 +1069,17 @@ retry_map:
         goto retry_map;
 }
 
+
+void hints(dw_rom *rom)
+{
+
+    if(!HINTS(rom))
+        return;
+    else if(HINTS(rom) == 1)
+        fix_geography_talk(rom);
+    // else if()
+}
+
 void fix_geography_talk(dw_rom *rom)
 {
     enum Direction dir;
@@ -1067,15 +1088,18 @@ void fix_geography_talk(dw_rom *rom)
     dir = find_direction(rom, WARP_TANTEGEL, WARP_BRECCONARY);
     set_text(rom, 0xB08F, "XXXXX of this castle's a town");
     set_direction(rom, 0xB08F, dir, TRUE);
+    remove_useless_spaces(rom, 0xB08F);
 
     // NPC in Brecconary: "Within sight of Tantegel Castle to the south is Charlock"
     dir = find_direction(rom, WARP_TANTEGEL, WARP_CHARLOCK);
     set_direction(rom, 0x9096, dir, FALSE);
+    remove_useless_spaces(rom, 0x9096);
 
     // NPC in Brecconary: "Go north to the seashore, then follow the coastline west until thou hath reached Garinham."
     dir = find_direction(rom, WARP_BRECCONARY, WARP_GARINHAM);
     set_text(rom, 0x8F4E, "XXXXX doth lie Garinham; venture onward, and continue thy quest until thou dost arrive.   ");
     set_direction(rom, 0x8F4E, dir, TRUE);
+    remove_useless_spaces(rom, 0x8F4E);
 
     // NPC in Kol: "Dreadful is the South island."
     set_text(rom, 0x91B8, "entire world");
@@ -1085,15 +1109,18 @@ void fix_geography_talk(dw_rom *rom)
     // "To the south, I believe, there is a town called Rimuldar."
     dir = find_direction(rom, WARP_KOL, WARP_RIMULDAR);
     set_direction(rom, 0x9DC5, dir, FALSE);
+    remove_useless_spaces(rom, 0x9DC5);
 
     // NPC in Kol: "East of Hauksness there is a town, ’tis said, where one may purchase weapons of extraordinary quality."
     dir = find_direction(rom, WARP_HAUKSNESS, WARP_CANTLIN);
     set_text(rom, 0x90EA, "XXXXX of Hauksness, 'tis said there is a town");
     set_direction(rom, 0x90EA, dir, TRUE);
+    remove_useless_spaces(rom, 0x90EA);
 
     // NPC in Garinham: "Once there was a town called Hawksness far to the south"
     dir = find_direction(rom, WARP_GARINHAM, WARP_HAUKSNESS);
     set_direction(rom, 0x9385, dir, FALSE);
+    remove_useless_spaces(rom, 0x9385);
 
     // NPC in Garinham: "It is said that the Princess was kidnapped and taken eastward."
     if(rom->princess_map == SWAMP_CAVE)
@@ -1111,6 +1138,7 @@ void fix_geography_talk(dw_rom *rom)
     // NPC in Rimuldar: "Hast thou found a magic temple? (No:) Go to the south."
     dir = find_direction(rom, WARP_RIMULDAR, WARP_JERK_CAVE);
     set_direction(rom, 0x9E34, dir, FALSE);
+    remove_useless_spaces(rom, 0x9E34);
 
     // NPC in Rimuldar: "Over the western part of this island Erdrick created a rainbow."
     set_text(rom, 0x9886, "Erdrick once created a rainbow bridge to reach Charlock castle.");
@@ -1171,4 +1199,21 @@ void set_direction(dw_rom *rom, const size_t address, enum Direction dir, BOOL c
         direction[0] = toupper(direction[0]);
 
     set_text(rom, address, direction);
+}
+
+void remove_useless_spaces(dw_rom *rom, size_t address)
+{
+    char next;
+    int i;
+    while(rom->content[address] != 0xfc)
+    {
+        next = rom->content[address+1];
+        if(rom->content[address] == 0x5f && (next == 0x5f || next == 0x52 || next == 0x48 || next == 0x4c || next == 0x47)) // __ _.' _, _! _.
+        {
+            for(i = 0; rom->content[address+i+1] != 0xfc; i++)
+                rom->content[address+i] = rom->content[address+i+1];
+            rom->content[address+i] = 0x5f; // Move space to character just before end of dialog
+        }
+        address++;
+    }
 }

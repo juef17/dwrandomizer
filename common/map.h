@@ -111,6 +111,14 @@ void map_generate_terrain(dw_rom *rom);
 void fix_geography_talk(dw_rom *rom);
 
 /**
+ * Changes NPCs dialogue to give hints to the player
+ *
+ * @param rom The rom struct
+ * @return Nothing
+ */
+void hints(dw_rom *rom);
+
+/**
  * Gives "main" direction from one warp to another
  *
  * @param rom The rom struct
@@ -129,6 +137,15 @@ enum Direction find_direction(dw_rom *rom, dw_warp_index w1, dw_warp_index w2);
  * @return Nothing
  */
 void set_direction(dw_rom *rom, const size_t address, enum Direction dir, BOOL cap);
+
+/**
+ * Remove useless spaces post hint generation.
+ *
+ * @param rom The rom struct
+ * @param address
+ * @return Nothing
+ */
+void remove_useless_spaces(dw_rom *rom, size_t address);
 
 #ifdef __cplusplus
 }

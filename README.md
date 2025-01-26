@@ -12,7 +12,7 @@ Credits go to bran, auriplane, nicetas and myself. See `./expansion/music` for a
 #### Disguised Dragonlord ####
 
 - A random NPC will have the Dragonlord dialogue;
-- The NPC at the bottom of Charlock, still with the Dragonlord sprite, will tell the player the location and disguise of the new Dragonlord.
+- The NPC at the bottom of Charlock, still with the Dragonlord sprite, will tell the player the location and disguise (or *sprite*) of the new Dragonlord.
 - Upon getting the Ball of Light, the player is teleported outside of the area the Dragonlord was fought in.
 
 Every NPC can be the Dragonlord, except for:
@@ -30,6 +30,8 @@ Additionnally, if the `Open Charlock` flag is off, it cannot be:
 Also, if the `No Keys` flag is on, it obviously cannot be a key vendor, and if the `Radish Finish` flag is on, it cannot be the radish vendor.
 
 This makes an approximate probability of 1/120 that a specific NPC is the Dragonlord.
+
+In order to make room for the hint, one of the merchants in the bottom left corner of Tantegel has had his text hijacked and will be the same as the other merchant. Therefore, if they both have the same text, the flag is active (but the Dragonlord may still be in his vanilla location with a small probability).
 
 
 #### Randomized Flute Music ####
@@ -202,9 +204,9 @@ Gwaelin might not be in her usual Swamp Cave today. Look for her in [one of thes
 The `Vanilla Restoration` option will force the randomizer to skip most features that aren't tied to a flag, such as the updated experience and gold values for monsters. Also, if you click `Presets` and load `Non-rando` in the *Load/Delete* list, most of the randomizer's features will be unchecked. With this flagset, you will get a completely vanilla experience, save for the post-credits stats, and whatever flag you might decide to turn on. This allows for sprite change, skipping original credits... or most things, really! Keep in mind some flags (*Stair Shuffle, Random Map / Random Map Size, Disguised Dragonlord, Vendor Shuffle, Inn in Charlock, Treasure Guards*) will have no effect as `Vanilla Restoration` will override them. Also, Erdrick's Tablet will still be changed to a Dragon's Scale, and most gold chests will not hold the correct amount.
 
 
-#### Geographically Enclined NPCs ####
+#### Hints ####
 
-In the vanilla game, some NPCs give directions that become just plain wrong when randomizing the map. This is an attempt at fixing them, making the detour to some NPCs somehow worth it.
+In the vanilla game, some NPCs give directions that become just plain wrong when randomizing the map. `Hints` set to `Corrected` is an attempt at fixing them, making the detour to some NPCs somehow worth it.
 
 Here's a list of changed dialog:
 * NPC in Tantegel: `East of this castle is a town…` (this is a throne room guard's dialogue about Brecconary... but only before you leave it the first time!)
@@ -223,8 +225,6 @@ Here's a list of changed dialog:
 In most of the above, just the direction is changed. For instance, if you're in Kol, and Hawksness is at (50, 43) and Cantlin is at (44, 19), the NPC in the weapon shop will say: `North of Hauksness, 'tis said there is a town where one may purchase weapons of extraordinary quality.`, since Cantlin is just a bit West but a whole lot North of Hawksness.
 
 Also, the NPC in Rimuldar hinting towards the Rainbow Drop cave will give directions to Tantegel or Garinham, should that cave's entrance be there.
-
-The feature is not tied to a flag and is always on.
 
 
 ## Known Issues ##

@@ -110,6 +110,7 @@
 #define UNGUARDED_OW_SEARCHSPOT(x)((x->flags[22] & 0x80) >> 7) // 1
 #define LEVEL_1_REPEL(x)          ((x->flags[22] & 0x40) >> 6) // 1
 #define VANILLA_RESTORATION(x)    ((x->flags[22] & 0x20) >> 5) // 1
+#define HINTS(x)                  ((x->flags[22] & 0x18) >> 3) // 2
 
 #ifdef __cplusplus
 extern "C" {
