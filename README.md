@@ -121,7 +121,7 @@ Have HP and MP refilled after leveling up.
 The maximum number of keys and herbs will be randomized.
 
 - Herbs: between 0 and 9;
-- Keys: between 2 and 9 (or 4 and 9 if Stair Shuffle or Random Chests Locations is on).
+- Keys: between 2 and 9 (or 1 and 9 if `Unbreakable Keys` is on, or between 3 and 9 if `Random Princess Location` is on, or between 4 and 9 if `Stair Shuffle` and `Short Charlock` are on, or between 5 and 9 if `Stair Shuffle`, `Short Charlock` and `Random Princess Location` are on).
 
 
 #### Flute Target ####

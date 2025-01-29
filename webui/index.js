@@ -356,7 +356,7 @@ function setup_ui() {
         '75%': 3
     });
     ui.addOption   ('New 3',  1, 22, 5, 'Vanilla Restoration',
-        'Ensure most game contents (for which there is no flag) is as in the original game. Gold chests will not have quite the correct amount.');
+        'Ensure most game contents is as in the original game. Gold chests won\'t have quite the correct amount.');
     ui.addTriOption('New 3',  3, 15, 4, 'Only Healmore',
         'Never learn any spell other than this. Like the No Hurtmore flag, only works with Randomized Spells on.');
     ui.addOption   ('New 3',  5, 18, 0, 'Level 1 Radiant',
