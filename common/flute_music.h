@@ -5,6 +5,7 @@
 #include "dwr_types.h"
 
 #define FLUTE_MUSIC_ADDRESS 0x4c9a
+#define FLUTE_SONG_SIZE 71
 
 void randomize_flute_song(dw_rom *rom);
 void speed_up_flute_song(dw_rom *rom);

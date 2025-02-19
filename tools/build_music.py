@@ -13,7 +13,7 @@ class Music:
         self.filename = name
         self.name = name[:name.rfind('.')]
         print(f'Adding music {self.name}...')
-        self.asm6 = "/home/francois/Documents/Autres/2024.1 - Hiver/Dragon Warrior Randomizer/Programming/unofficial_juef_version/tools/asm6f"#find_executable('asm6f') or find_executable('asm6')
+        self.asm6 = "/home/francois/Desktop/Perm stuff/Software/dwr_compilation/asm6f"#find_executable('asm6f') or find_executable('asm6')
         print(self.asm6)
         self.famistudio = "/home/francois/Documents/Perm stuff/Software/FamiStudio/FamiStudio.dll"#find_executable('famistudio')
         #self.famistudio = "/home/francois/Documents/Perm stuff/Software/FamiStudio413-LinuxAMD64/FamiStudio.dll"#find_executable('famistudio')
