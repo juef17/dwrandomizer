@@ -339,8 +339,8 @@ function setup_ui() {
 
     ui.addOption   ('New 3',  0, 19, 0, 'Winter Theme',
         'Sometimes, saving Alefgard cannot wait until summer.');
-    ui.addOption   ('New 3',  2, 17, 7, 'Disable Red Flashes',
-        'Prevents the screen from flashing when walking on damage tiles.');
+    ui.addOption   ('New 3',  2, 22, 5, 'Normal Flute Speed',
+        'If Speed Hacks is on, the Fairy Flute music will not be sped up.');
     ui.addTriOption('New 3',  4, 16, 4, 'Randomize Flute Music',
         'Change the Fairy Flute sound to a new random tune.');
     ui.addTriOption('New 3',  6, 18, 3, 'Discardable Flute',
@@ -355,8 +355,8 @@ function setup_ui() {
         '50%' : 0,
         '75%': 3
     });
-    ui.addOption   ('New 3',  1, 22, 5, 'Vanilla Restoration',
-        'Ensure most game contents is as in the original game. Gold chests won\'t have quite the correct amount.');
+    ui.addOption   ('New 3',  1, 17, 7, 'Disable Red Flashes',
+        'Prevents the screen from flashing when walking on damage tiles.');
     ui.addTriOption('New 3',  3, 15, 4, 'Only Healmore',
         'Never learn any spell other than this. Like the No Hurtmore flag, only works with Randomized Spells on.');
     ui.addOption   ('New 3',  5, 18, 0, 'Level 1 Radiant',

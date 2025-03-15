@@ -1931,7 +1931,8 @@ static void dwr_speed_hacks(dw_rom *rom)
     vpatch(rom, 0x471c, 1, 1);
     vpatch(rom, 0x471e, 1, 1);
     /* speed up the fairy flute */
-    speed_up_flute_song(rom);
+    if(!NORMAL_FLUTE_SPEED(rom))
+        speed_up_flute_song(rom);
     /* speed up the inn music */
     vpatch(rom, 0x46d4, 1, 1);
     vpatch(rom, 0x46d6, 1, 1);
@@ -2324,7 +2325,7 @@ void setup_expansion(dw_rom *rom)
     add_hook(rom, JSR, 0xe65a, INC_MISS_CTR);
     add_hook(rom, JSR, 0xe68a, INC_DODGE_CTR);
     add_hook(rom, DIALOGUE, 0xe89d, BLOCKED_IN_FRONT);
-    if(!VANILLA_RESTORATION(rom)) add_hook(rom, JSR, 0xe98c, COUNT_WIN);
+    add_hook(rom, JSR, 0xe98c, COUNT_WIN);
     add_hook(rom, JSR, 0xed9e, INC_ENEMY_DEATH_CTR);
     add_hook(rom, JSR, 0xeda9, INC_DEATH_CTR);
     add_hook(rom, JSR, 0xf720, INIT_SAVE_RAM);
@@ -3418,62 +3419,24 @@ void apply_stuff_to_rom(dw_rom *rom)
     memset(&rom->content[0xc7ec], 0xff, 0xc9b5 - 0xc7ec);
     memset(&rom->content[0xf232], 0xff, 0xf35b - 0xf232);
 
-    if(VANILLA_RESTORATION(rom))
-    {
-        uint16_t newcode = find_free_space(rom->content, 0xc82b, 17); // Starting address for new code
-
-        // Special case so we don't have to refight Golem. We don't rewrite spike stuff, so we have to hook COUNT_WIN at a different place. Terribly not elegant, sorry
-        printf("The COUNT_WIN newcode is at: %04x" PRIu16 "\n", newcode);
-        vpatch(rom, 0xe96b, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into EnemyDefeated
-        vpatch(rom, newcode, 17,
-            0xa5, 0xe0, 0x0a,       // Load enemy number and double it
-            0xaa,                   // copy that to x
-            0xfe, 0xc0, 0x66,       // inc ram,x (66C0+2x) (6670 would be for encounters)
-            0xd0, 0x03,             // If we didn't wrap around 255, we're done, skip incrementing the upper byte
-            0xfe, 0xc1, 0x66,       // inc ram+1,x (66C1+2x)
-            0xa5, 0xe0, 0xc9, 0x1e, // original code overwritten by hook
-            0x60                    // rts
-        );
-
-        newcode = find_free_space(rom->content, 0xc82b, 9);
-        printf("The starting gold newcode is at: %04x" PRIu16 "\n", newcode);
-        vpatch(rom, 0xf695, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into SGZeroStats
-        vpatch(rom, newcode, 9,
-            0xa9, 0x73, // lda 115
-            0x85, 0xbc, // sta GoldLB
-            0xa9, 0x00, // lda 0
-            0x85, 0xbd, // sta GoldUB
-            0x60        // rts
-        );
-
-        /* convert PRG1 to PRG0 */
-        vpatch(rom, 0x03f9e, 2,  0x37,  0x32);
-        vpatch(rom, 0x0af6c, 1,  0xef);
-    }
-    else
-    {
-        show_spells_learned(rom);
-        other_patches(rom);
-    }
+    show_spells_learned(rom);
+    other_patches(rom);
     short_charlock(rom);
     do_chest_flags(rom);
-    if(!VANILLA_RESTORATION(rom)) stair_shuffle(rom);
+    stair_shuffle(rom);
     check_quest_items(rom);
-    if(!VANILLA_RESTORATION(rom)) map_generate_terrain(rom);
-    if(!VANILLA_RESTORATION(rom)) spike_rewrite(rom);
+    map_generate_terrain(rom);
+    spike_rewrite(rom);
     randomize_attack_patterns(rom);
-    if(!VANILLA_RESTORATION(rom)) randomize_zone_layout(rom);
+    randomize_zone_layout(rom);
     randomize_zones(rom);
     randomize_shops(rom);
     randomize_growth(rom);
     randomize_spells(rom);
-    if(!VANILLA_RESTORATION(rom))
-    {
-        update_drops(rom);
-        update_mp_reqs(rom);
-        update_enemy_hp(rom);
-        dwr_fighters_ring(rom);
-    }
+    update_drops(rom);
+    update_mp_reqs(rom);
+    update_enemy_hp(rom);
+    dwr_fighters_ring(rom);
     lower_xp_reqs(rom);
     dwr_death_necklace(rom);
     dwr_menu_wrap(rom);
@@ -3484,21 +3447,21 @@ void apply_stuff_to_rom(dw_rom *rom)
     no_keys(rom);
     cursed_princess(rom);
     radish_finish(rom);
-    if(!VANILLA_RESTORATION(rom)) npc_shenanigans(rom);
+    npc_shenanigans(rom);
     threes_company(rom);
     scared_metal_slimes(rom);
-    if(!VANILLA_RESTORATION(rom)) support_2_byte_xp_gold(rom);
+    support_2_byte_xp_gold(rom);
     torch_in_battle(rom);
     repel_mods(rom);
     permanent_torch(rom);
     random_princess_location(rom);
     hints(rom);
     rotate_dungeons(rom);
-    if(!VANILLA_RESTORATION(rom)) treasure_guards(rom);
-    if(!VANILLA_RESTORATION(rom)) sorted_inventory(rom);
+    treasure_guards(rom);
+    sorted_inventory(rom);
     summer_sale(rom);
     modify_run_rate(rom);
-    if(!VANILLA_RESTORATION(rom)) dwr_token_dialogue(rom);
+    dwr_token_dialogue(rom);
     discardable_flute(rom);
     formidable_flute(rom);
     magic_herbs(rom);

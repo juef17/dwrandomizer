@@ -22,7 +22,7 @@ void randomize_flute_song(dw_rom *rom)
 
 	// The original flute song is 71 bytes (FLUTE_SONG_SIZE), of which the first 3 are unlikely to be changed.
 	// Every song below still includes those in case a future change requires them.
-    // Since there some sort of termination byte, some songs are initialized with fewer than FLUTE_SONG_SIZE bytes with no effect.
+    // Since there is some sort of termination byte, some songs are initialized with fewer than FLUTE_SONG_SIZE bytes with no effect.
 
 	// [Number of tracks][Bytes for the music]
     uint8_t songs[][FLUTE_SONG_SIZE] = {

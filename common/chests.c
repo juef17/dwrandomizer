@@ -128,9 +128,6 @@ void check_quest_items(dw_rom *rom)
  */
 static void rewrite_search_take_code(dw_rom *rom, uint8_t *items)
 {
-    if(VANILLA_RESTORATION(rom))
-        return;
-
     /* patch a few branch addresses */
     vpatch(rom, 0x0e231,    1,  0x55);
     vpatch(rom, 0x0e23b,    1,  0x55);

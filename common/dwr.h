@@ -9,7 +9,7 @@
 #include "build.h"
 #include "dwr_types.h"
 
-#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.17"
+#define DWR_VERSION "UNOFFICIAL - JUEF v3.0.3.18"
 #define VERSION DWR_VERSION
 
 #define DEFAULT_FLAGS "IVIAAVCEKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA"
@@ -109,7 +109,7 @@
 #define RANDOM_PRINCESS_LOC(x)    ((x->flags[21] & 0x03)     ) // 2
 #define UNGUARDED_OW_SEARCHSPOT(x)((x->flags[22] & 0x80) >> 7) // 1
 #define LEVEL_1_REPEL(x)          ((x->flags[22] & 0x40) >> 6) // 1
-#define VANILLA_RESTORATION(x)    ((x->flags[22] & 0x20) >> 5) // 1
+#define NORMAL_FLUTE_SPEED(x)     ((x->flags[22] & 0x20) >> 5) // 1
 #define HINTS(x)                  ((x->flags[22] & 0x18) >> 3) // 2
 
 #ifdef __cplusplus
