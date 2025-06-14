@@ -176,7 +176,7 @@ The post-credits sequence will show how many steps you've taken in your entire p
 
 #### Differences from Standard ####
 
-The `Summary` tab will now show differences between the chosen flagset and the standard flagset.
+The `Summary` tab will now show differences between the chosen flagset and the standard flagset. Active cosmetic flags will also be displayed separately there.
 
 
 #### Modifiable Tristate Summer Sale chance ####
@@ -225,6 +225,26 @@ Here's a list of changed dialog:
 In most of the above, just the direction is changed. For instance, if you're in Kol, and Hawksness is at (50, 43) and Cantlin is at (44, 19), the NPC in the weapon shop will say: `North of Hauksness, 'tis said there is a town where one may purchase weapons of extraordinary quality.`, since Cantlin is just a bit West but a whole lot North of Hawksness.
 
 Also, the NPC in Rimuldar hinting towards the Rainbow Drop cave will give directions to Tantegel or Garinham, should that cave's entrance be there.
+
+
+#### Normalized Monster XP/Gold ####
+
+XP and Gold gained from monsters will be randomized, but within pre-set, hardcoded limits. These limits have been determined by aaron2u2 with help from omegastrep. This flag will override others that modify the same values.
+
+
+#### Disable Music / Don't Mute Jingles ####
+
+While `Disable Music` exists in mcgrew's official version, it has been improved such that input from two seeds differing only by that flag will sync, and will not affect checksum anymore. It now mutes more things as well, so for some players' convenience, a new flag allows to not mute the Silver Harp, Fairy Flute and Gwaelin's music jingles.
+
+
+#### Don't let Lorik end your game ####
+
+Courtesy of mcgrew, the king doesn't ask the player if they want to continue playing when they talk to him. Unfortunate accidents have happened before!
+
+
+#### Speed Hacks & jingles ####
+
+The Silver Harp and Gwaelin jingles are now sped up by the `Speed Hacks` flag.
 
 
 ## Known Issues ##

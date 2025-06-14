@@ -118,9 +118,9 @@ class Rom extends Uint8Array {
 function setup_ui() {
     let flagsize = 25;
     if (!localStorage.flags || localStorage.flags.length < flagsize / 5 * 8)
-        localStorage.flags = 'IVIAAVCEKACAAAAAAAAAAEAUAAIBAAAAAAAAAAAA'
+        localStorage.flags = 'IVIAAVCEKACBAAAAAAAAAEAUAAQBAAAAABYCAAAA'
     if (!localStorage.retainFlags || localStorage.flags.length < flagsize / 5 * 8)
-        localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+        localStorage.retainFlags = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     ui = new Interface(flagsize);
     ui.addTab('Gamepl.');
     ui.addTab('Feat.');
@@ -128,10 +128,11 @@ function setup_ui() {
     ui.addTab('Shortc.');
     ui.addTab('Chal.');
     ui.addTab('Cosm.');
-    ui.addTab('New 1');
-    ui.addTab('New 2');
-    ui.addTab('New 3');
-    ui.addSummaryTab('S.');
+    ui.addTab('New: 1');
+    ui.addTab('2');
+    ui.addTab('3');
+    ui.addTab('4');
+    ui.addSummaryTab('Sum.');
     ui.setActiveTab('Gamepl.');
 
     ui.addTriOption('Gamepl.',  0,  0, 6, 'Shuffle Chests & Searches',
@@ -239,7 +240,7 @@ function setup_ui() {
     ui.addOption   ('Cosm.',  0, 14, 7, 'Shuffle Music',
         'Music in each area will be randomized.');
     ui.addOption   ('Cosm.',  2, 14, 6, 'Disable Music',
-        'This disables the game music in most situations.');
+        'This disables the game music in most situations.', true);
     ui.addOption   ('Cosm.',  8, 14, 5, 'Disable Spell Flashing',
         'Prevents the screen from flashing when you cast spells.', true);
     ui.addOption   ('Cosm.',   6, 14, 4, 'Show Death Counter',
@@ -249,34 +250,34 @@ function setup_ui() {
     ui.addOption   ('Cosm.',   5, 14, 2, 'Skip Original Credits',
         'Skip the original credits and go straight to stat scroll.', true);
 
-    ui.addTriOption('New 1',  0, 16, 6, 'Vendor Shuffle',
+    ui.addTriOption('New: 1',  0, 16, 6, 'Vendor Shuffle',
         'Weapon, fairy water, item, radishes and key vendors are shuffled.');
-    ui.addTriOption('New 1',  2, 16, 2, 'Disguised Dragonlord',
+    ui.addTriOption('New: 1',  2, 16, 2, 'Disguised Dragonlord',
         'The Dragonlord is now roaming Alefgard as a random NPC. The original Dragonlord location gives an hint to his whereabouts.');
-    ui.addTriOption('New 1',  4, 20, 6, 'Radish Finish',
+    ui.addTriOption('New: 1',  4, 20, 6, 'Radish Finish',
         'Feed the princess some fresh and cheap radishes to win.');
-    ui.addOption   ('New 1',  6, 19, 7, 'Return Escapes',
+    ui.addTriOption('New: 1',  6, 19, 6, 'Return Escapes',
         'Return can be used in battle for a guaranteed escape.');
-    ui.addOption   ('New 1',  8, 19, 6, 'Return to Town',
+    ui.addTriOption('New: 1',  8, 23, 6, 'Return to Town',
         'Wings and Return send you to the last place you saved or used an inn at.');
-    ui.addOption   ('New 1', 10, 19, 5, 'Warp Whistle',
+    ui.addTriOption('New: 1', 10, 19, 4, 'Warp Whistle',
         'The Fairy Flute will work as a warp whistle outside of battle, cycling between places you saved or used an inn at.');
-    ui.addOption   ('New 1',  1, 19, 4, 'Hurtmore Doors',
+    ui.addTriOption('New: 1',  1, 23, 4, 'Hurtmore Doors',
         'Blast doors open with a cast of Hurtmore.');
-    ui.addTriOption('New 1',  3, 20, 2, 'Unbreakable Keys',
+    ui.addTriOption('New: 1',  3, 20, 2, 'Unbreakable Keys',
         'Using a key outside of the throne room will not remove it from your inventory.');
-    ui.addTriOption('New 1',  5, 20, 0, 'Ascetic King',
+    ui.addTriOption('New: 1',  5, 20, 0, 'Ascetic King',
         'King Lorik will let the player keep their hard-earned gold upon dying.');
-    ui.addOption   ('New 1',  7, 19, 3, 'Levelup Refill',
+    ui.addTriOption('New: 1',  7, 19, 2, 'Levelup Refill',
         'Have HP and MP refilled after leveling up.');
-    ui.addDropDown ('New 1',  9, 21, 5, 'Run Mechanics', {
+    ui.addDropDown ('New: 1',  9, 21, 5, 'Run Mechanics', {
         'DW I' : 0,
         'Safer DW I' : 3,
         'DW II' : 1,
         'DW IV' : 2,
         'Random': 4
     });
-    ui.addDropDown ('New 1', 11, 18, 5, 'Bonk Dmg', {
+    ui.addDropDown ('New: 1', 11, 18, 5, 'Bonk Dmg', {
         'None' : 0,
         '1 HP' : 1,
         '2 HP' : 2,
@@ -287,13 +288,13 @@ function setup_ui() {
         'One of the above': 7
     });
 
-    ui.addTriOption('New 2',  0, 15, 6, 'Charlock Inn',
+    ui.addTriOption('2',  0, 15, 6, 'Charlock Inn',
         'Make the final dive easier by having a comfy bed and breakfast at the Dragonlord\'s.');
-    ui.addOption   ('New 2',  2, 19, 1, 'Random Key Carry',
+    ui.addTriOption('2',  2, 19, 0, 'Random Key Carry',
         'The maximum number of keys you can carry is randomly chosen between 2 and 9. Some flags will make 4 the minimum.');
-    ui.addOption   ('New 2',  4, 19, 2, 'Random Herb Carry',
+    ui.addTriOption('2',  4, 23, 2, 'Random Herb Carry',
         'The maximum number of herbs you can carry is randomly chosen between 0 and 9.');
-    ui.addDropDown ('New 2',  6, 17, 4, 'Crit Chance', {
+    ui.addDropDown ('2',  6, 17, 4, 'Crit Chance', {
         'Never (0%)' : 0,
         'Vanilla (1/32)' : 1,
         'Double (1/16)' : 2,
@@ -302,33 +303,33 @@ function setup_ui() {
         'AG/256' : 5,
         'One of the above': 6
     });
-    ui.addTriOption('New 2',  8, 17, 2, 'DL1 Crits',
+    ui.addTriOption('2',  8, 17, 2, 'DL1 Crits',
         'Allow excellent moves against the Dragonlord\'s 1st form.');
-    ui.addTriOption('New 2', 10, 17, 0, 'DL2 Crits',
+    ui.addTriOption('2', 10, 17, 0, 'DL2 Crits',
         'Allow excellent moves against the Dragonlord\'s 2nd form.');
-    ui.addDropDown ('New 2',  1, 15, 2, 'Inn Prices', {
+    ui.addDropDown ('2',  1, 15, 2, 'Inn Prices', {
         'Vanilla' : 0,
         'Shuffled' : 1,
         'Random 1G-255G' : 2,
         'One of the above': 3
     });
-    ui.addDropDown ('New 2',  3, 15, 0, 'Key Prices', {
+    ui.addDropDown ('2',  3, 15, 0, 'Key Prices', {
         'Vanilla' : 0,
         'Shuffled' : 1,
         'Random 1G-255G' : 2,
         'One of the above': 3
     });
-    ui.addTriOption('New 2',  5, 16, 0, 'Magic Herbs',
+    ui.addTriOption('2',  5, 16, 0, 'Magic Herbs',
         'Make herbs refill MP rather than HP.');
-    ui.addDropDown ('New 2',  7, 18, 1, 'Flute is for', {
+    ui.addDropDown ('2',  7, 18, 1, 'Flute is for', {
         'Golem' : 0,
         'All but DL2' : 1,
         'All' : 2,
         'One of the above': 3
     });
-    ui.addTriOption('New 2',  9, 21, 0, 'Random Princess Location',
+    ui.addTriOption('2',  9, 21, 0, 'Random Princess Location',
         'The princess may be locked in a different cave.');
-    ui.addDropDown ('New 2', 11, 21, 2, 'Gold Chest Contents', {
+    ui.addDropDown ('2', 11, 21, 2, 'Gold Chest Contents', {
         '5-20 G' : 1,
         '120 G' : 2,
         '500-755 G' : 0,
@@ -337,34 +338,39 @@ function setup_ui() {
         'One of the above': 5
     });
 
-    ui.addOption   ('New 3',  0, 19, 0, 'Winter Theme',
-        'Sometimes, saving Alefgard cannot wait until summer.');
-    ui.addOption   ('New 3',  2, 22, 5, 'Normal Flute Speed',
+    ui.addOption   ('3',  0, 22, 0, 'Winter Theme',
+        'Sometimes, saving Alefgard cannot wait until summer.', true);
+    ui.addOption   ('3',  2, 22, 5, 'Normal Flute Speed',
         'If Speed Hacks is on, the Fairy Flute music will not be sped up.');
-    ui.addTriOption('New 3',  4, 16, 4, 'Randomize Flute Music',
+    ui.addOption   ('3',  4, 16, 5, 'Randomize Flute Music',
         'Change the Fairy Flute sound to a new random tune.');
-    ui.addTriOption('New 3',  6, 18, 3, 'Discardable Flute',
+    ui.addTriOption('3',  6, 18, 3, 'Discardable Flute',
         'Make it possible to drop the flute on finding a new item with a full inventory.');
-    ui.addDropDown ('New 3',  8, 22, 3, 'Hints', {
+    ui.addDropDown ('3',  8, 22, 3, 'Hints', {
         'Unchanged' : 0,
         'Corrected' : 1
     });
-    ui.addDropDown ('New 3', 10, 20, 4, 'Summer Sale Tristate Chance', {
+    ui.addDropDown ('3', 10, 20, 4, 'Summer Sale Tristate Chance', {
         '12.5%' : 1,
         '25%' : 2,
         '50%' : 0,
         '75%': 3
     });
-    ui.addOption   ('New 3',  1, 17, 7, 'Disable Red Flashes',
-        'Prevents the screen from flashing when walking on damage tiles.');
-    ui.addTriOption('New 3',  3, 15, 4, 'Only Healmore',
+    ui.addOption   ('3',  1, 17, 7, 'Disable Red Flashes',
+        'Prevents the screen from flashing when walking on damage tiles.', true);
+    ui.addTriOption('3',  3, 15, 4, 'Only Healmore',
         'Never learn any spell other than this. Like the No Hurtmore flag, only works with Randomized Spells on.');
-    ui.addOption   ('New 3',  5, 18, 0, 'Level 1 Radiant',
+    ui.addOption   ('3',  5, 18, 0, 'Level 1 Radiant',
         'If spells are randomized, makes sure the hero always knows Radiant. Overrides \'Only Healmore\'.');
-    ui.addOption   ('New 3',  7, 22, 6, 'Level 1 Repel',
+    ui.addOption   ('3',  7, 22, 6, 'Level 1 Repel',
         'If spells are randomized, makes sure the hero always knows Repel. Overrides \'Only Healmore\'.');
-    ui.addOption   ('New 3', 9, 22, 7, 'Unguarded OW search spot',
+    ui.addOption   ('3', 9, 22, 7, 'Unguarded OW search spot',
         'Even with Treasure Guards on, the overworld search spot will not be guarded when this is on.');
+    ui.addTriOption('3', 11, 22, 1, 'Normalized Monster XP/Gold',
+        'XP and Gold gained from monsters will be randomized, but within pre-set limits.');
+
+    ui.addOption   ('4',  0, 16, 4, 'Don\'t Mute Jingles',
+        'The Harp, Flute and Gwaelin jingles can be heard even if the Disable Music flag is on.', true);
 
     // player sprite
     let spriteBox;
@@ -424,6 +430,13 @@ window.addEventListener('load', event => {
     setup_ui();
     Module.onRuntimeInitialized = () => {
         ui.setVersion(Module.ccall('version', 'string'));
+        if (!localStorage.version)
+            localStorage.version = (Module.ccall('version', 'string'));
+        if (localStorage.version != (Module.ccall('version', 'string')))
+        {
+            alert('This is a new version and flags may have changed: please ensure they are still to your liking.');
+            localStorage.version = (Module.ccall('version', 'string'));
+        }
         let sprite_name = Module.cwrap('sprite_name', 'string', ['number']);
         let sprites_datalist = $('datalist#sprites');
         let spriteBox = $('#sprite-box');

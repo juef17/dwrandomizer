@@ -489,18 +489,20 @@ class Interface {
         }
     }
 
+
     /**
-     * Updates the summary tab based on the current settings
+     * Returns the contents of the summary tab as mcgrew's randomizer would
      */
-    updateSummary() {
-        if (!this.summary)
-            return;
-        this.summary.innerHTML = 'Flags: ' + this.flagsEl.value +  "\n";
-        this.summary.innerHTML += 'Seed: ' + this.seedEl.value +  "\n";
+    normalSummaryText(flags, seed, SkipCosmetic = true) {
+        this.updateFlagBytes();
+        this.updateInputs();
+        let contents = 'Flags: ' + flags +  "\n";
+        contents += 'Seed: ' + seed +  "\n";
         let state;
-        let name;
         for (let i=0; i < this.inputs.length; i++) {
             let input = this.inputs[i];
+            if (SkipCosmetic && input.dataset.retain)
+                continue;
             if (input.tagName == 'INPUT') {
                 let input = this.inputs[i];
                 if (input.indeterminate) {
@@ -514,28 +516,85 @@ class Interface {
             else if (input.tagName == 'SELECT') {
                 state = input.selectedOptions[0].innerText;
             }
-            this.summary.innerHTML += input.dataset.label + ': ' + state + "\n";
+            contents += input.dataset.label + ': ' + state + "\n";
         }
         let spriteBox = $('#sprite-box')
         if (spriteBox)
-            this.summary.innerHTML += 'Player Sprite: ' + spriteBox.getValue();
+            contents += 'Player Sprite: ' + spriteBox.getValue();
+        return contents;
+    }
 
-
-        // Now add the differences from Standard (base64 encoded)
-        // Load Standard, uncheck Randomized Flute Music and Skip Credits
-        const standardLines = atob("RmxhZ3M6IElWSUFBVkNFS0FDQUFBQUFBQUFBQUVBUUFBQUJBQUFBQUFBQUFBQUEKU2VlZDogNzM2NDAwNjg0NjkzMTA3MApTaHVmZmxlIENoZXN0cyAmIFNlYXJjaGVzOiBZZXMKUmFuZG9tIENoZXN0IExvY2F0aW9uczogTm8KUmFuZG9tIEdyb3d0aDogWWVzClJhbmRvbSBNYXA6IFllcwpSYW5kb20gU3BlbGwgTGVhcm5pbmc6IFllcwpSYW5kb20gV2VhcG9uIFNob3BzOiBZZXMKUmFuZG9tIFdlYXBvbiBQcmljZXM6IE5vClJhbmRvbSBYUCBSZXF1aXJlbWVudHM6IE5vCkhlYWwvSHVydCBCZWZvcmUgIk1vcmUiOiBObwpTdGFpciBTaHVmZmxlOiBObwpFbmFibGUgTWVudSBXcmFwcGluZzogWWVzCkVuYWJsZSBEZWF0aCBOZWNrbGFjZTogWWVzCkVuYWJsZSBUb3JjaGVzIEluIEJhdHRsZTogWWVzClJlcGVsIGluIER1bmdlb25zOiBZZXMKUGVybWFuZW50IFJlcGVsOiBObwpQZXJtYW5lbnQgVG9yY2g6IFllcwpBbHRlcm5hdGUgUnVubmluZyBBbGdvcml0aG06IE5vClJhbmRvbSBNb25zdGVyIEFiaWxpdGllczogWWVzClJhbmRvbSBNb25zdGVyIFpvbmVzOiBZZXMKUmFuZG9tIE1vbnN0ZXIgU3RhdHM6IE5vClJhbmRvbSBNb25zdGVyIFhQICYgR29sZDogTm8KTWFrZSBSYW5kb20gU3RhdHMgQ29uc2lzdGVudDogTm8KU2NhcmVkIE1ldGFsIFNsaW1lczogTm8KU2NhbGVkIE1ldGFsIFNsaW1lIFhQOiBZZXMKRmFzdCBUZXh0OiBObwpTcGVlZCBIYWNrczogTm8KT3BlbiBDaGFybG9jazogTm8KU2hvcnQgQ2hhcmxvY2s6IE5vCkRvbid0IFJlcXVpcmUgTWFnaWMgS2V5czogTm8KU3VtbWVyIFNhbGU6IE5vCkN1cnNlZCBQcmluY2VzczogTm8KVGhyZWUncyBDb21wYW55OiBObwpMZXZlbGluZyBTcGVlZDogRmFzdApSYW5kb20gTWFwIFNpemU6IE5vcm1hbApObyBIdXJ0bW9yZTogTm8KTm8gTnVtYmVyczogTm8KSW52aXNpYmxlIEhlcm86IE5vCkludmlzaWJsZSBOUENzOiBObwpUcmVhc3VyZSBHdWFyZHM6IE5vCkJpZyBTd2FtcDogTm8KUmFuZG9tbHkgUm90YXRlL01pcnJvciBEdW5nZW9uczogTm8KTm8gQXJtb3IgaW4gQ2hhcmxvY2s6IE5vCkVhc3kgQ2hhcmxvY2s6IE5vCk1vZGVybiBTcGVsbCBOYW1lczogTm8KTm9pciBNb2RlOiBObwpTaHVmZmxlIE11c2ljOiBObwpEaXNhYmxlIE11c2ljOiBObwpEaXNhYmxlIFNwZWxsIEZsYXNoaW5nOiBObwpTaG93IERlYXRoIENvdW50ZXI6IFllcwpBbGxvdyBDdXN0b20gU3BlbGwgTmFtZXM6IE5vClNraXAgT3JpZ2luYWwgQ3JlZGl0czogTm8KVmVuZG9yIFNodWZmbGU6IE5vCkRpc2d1aXNlZCBEcmFnb25sb3JkOiBObwpSYWRpc2ggRmluaXNoOiBObwpSZXR1cm4gRXNjYXBlczogTm8KUmV0dXJuIHRvIFRvd246IE5vCldhcnAgV2hpc3RsZTogTm8KSHVydG1vcmUgRG9vcnM6IE5vClVuYnJlYWthYmxlIEtleXM6IE5vCkFzY2V0aWMgS2luZzogTm8KTGV2ZWx1cCBSZWZpbGw6IE5vClJ1biBNZWNoYW5pY3M6IERXIEkKQm9uayBEbWc6IE5vbmUKQ2hhcmxvY2sgSW5uOiBObwpSYW5kb20gS2V5IENhcnJ5OiBObwpSYW5kb20gSGVyYiBDYXJyeTogTm8KQ3JpdCBDaGFuY2U6IFZhbmlsbGEgKDEvMzIpCkRMMSBDcml0czogTm8KREwyIENyaXRzOiBObwpJbm4gUHJpY2VzOiBWYW5pbGxhCktleSBQcmljZXM6IFZhbmlsbGEKTWFnaWMgSGVyYnM6IE5vCkZsdXRlIGlzIGZvcjogR29sZW0KUmFuZG9tIFByaW5jZXNzIExvY2F0aW9uOiBObwpHb2xkIENoZXN0IENvbnRlbnRzOiA1MDAtNzU1IEcKV2ludGVyIFRoZW1lOiBObwpEaXNhYmxlIFJlZCBGbGFzaGVzOiBObwpSYW5kb21pemUgRmx1dGUgTXVzaWM6IE5vCkRpc2NhcmRhYmxlIEZsdXRlOiBObwpIaW50czogVW5jaGFuZ2VkClN1bW1lciBTYWxlIFRyaXN0YXRlIENoYW5jZTogNTAlCk5vcm1hbCBGbHV0ZSBTcGVlZDogTm8KT25seSBIZWFsbW9yZTogTm8KTGV2ZWwgMSBSYWRpYW50OiBObwpMZXZlbCAxIFJlcGVsOiBObwpVbmd1YXJkZWQgT1cgc2VhcmNoIHNwb3Q6IE5vClBsYXllciBTcHJpdGU6IFJhbmRvbQ==").split('\n');
-        const summaryLines = this.summary.innerHTML.split('\n');
-        let updatedContent = '----------- Differences from standard: -----------\n';
-        for (let i = 2; i < standardLines.length; i++)
+    /**
+     * Returns a string containing all lines from s1 that are different from s2
+     */
+    summaryDifferences(s1, s2) {
+        let s1Lines = s1.split('\n');
+        let s2Lines = s2.split('\n');
+        let differences = "";
+        for (let i = 2; i < s2Lines.length; i++)
         {
-            const lastColonIndexSummary = summaryLines[i].trim().lastIndexOf(':');
-            const lineEndSummary = lastColonIndexSummary !== -1 ? summaryLines[i].trim().slice(lastColonIndexSummary + 1).trim() : '';
-            const lastColonIndexStandard = standardLines[i].trim().lastIndexOf(':');
-            const lineEndStandard = lastColonIndexStandard !== -1 ? standardLines[i].trim().slice(lastColonIndexStandard + 1).trim() : '';
+            const lastColonIndexSummary = s1Lines[i].trim().lastIndexOf(':');
+            const lineEndSummary = lastColonIndexSummary !== -1 ? s1Lines[i].trim().slice(lastColonIndexSummary + 1).trim() : '';
+            const lastColonIndexStandard = s2Lines[i].trim().lastIndexOf(':');
+            const lineEndStandard = lastColonIndexStandard !== -1 ? s2Lines[i].trim().slice(lastColonIndexStandard + 1).trim() : '';
             if (lineEndSummary !== lineEndStandard)
-                updatedContent += summaryLines[i] + '\n';
+                differences += s1Lines[i] + '\n';
         }
-        updatedContent += "\n---------------- Complete summary ----------------\n" + this.summary.innerHTML;
+        return differences;
+    }
+
+    /**
+     * Returns a string containing cosmetic flags changed by the player
+     */
+    cosmeticSummary() {
+        let contents = "";
+        let state;
+
+        for (let i=0; i < this.inputs.length; i++) {
+            let input = this.inputs[i];
+            if (!input.dataset.retain)
+                continue;
+            if (input.tagName == 'INPUT') {
+                let input = this.inputs[i];
+                if (input.indeterminate) {
+                    state = 'Maybe';
+                } else if (input.checked) {
+                    state = 'Yes';
+                } else {
+                    state = 'No';
+                }
+            }
+            else if (input.tagName == 'SELECT') {
+                state = input.selectedOptions[0].innerText;
+            }
+            if(state != 'No')
+                contents += input.dataset.label + ': ' + state + '\n';
+        }
+        let spriteBox = $('#sprite-box')
+        if (spriteBox && spriteBox.getValue() != 'Random')
+            contents += 'Player Sprite: ' + spriteBox.getValue() + '\n';
+        return contents;
+    }
+
+    /**
+     * Updates the summary tab based on the current settings
+     */
+    updateSummary() {
+        if (!this.summary)
+            return;
+
+        const standardFlags = 'IVIAAVCEKACBAAAAAAAAAEAUAAQBAAAAABYCAAAA';
+        const selectedFlags = this.flagsEl.value;
+
+        this.flagsEl.value = standardFlags;
+        let standardSummary = this.normalSummaryText(standardFlags, this.seedEl.value);
+
+        this.flagsEl.value = selectedFlags;
+        let modifiedSummary = this.normalSummaryText(selectedFlags, this.seedEl.value);
+
+        let updatedContent = '----------- Differences from standard -----------\n' + this.summaryDifferences(modifiedSummary, standardSummary);
+        updatedContent +=  '\n--------------- Cosmetic settings ---------------\n' + this.cosmeticSummary();
+        updatedContent +=  '\n---------------- Complete summary ---------------\n' + this.normalSummaryText(selectedFlags, this.seedEl.value, false);
         this.summary.innerHTML = updatedContent;
     }
 

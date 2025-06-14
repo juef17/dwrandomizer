@@ -65,7 +65,7 @@ static void update_flags(dw_rom *rom)
     size_t i;
     uint8_t tmp;
 
-    /* The last 2 bytes do not contain maybe flags. */
+    /* mcgrew's last 2 bytes do not contain maybe flags. */
     for (i=0; i < 13; i++) {
         rom->flags[i] |= (rom->flags[i] >> 1) & 0x55 & mt_rand(0, 0xff);
         rom->flags[i] &= 0x55;
@@ -75,13 +75,12 @@ static void update_flags(dw_rom *rom)
         rom->flags[13] |= mt_rand(0, 2) << 6;
     }
 
-    //                                no du groupe de 5     same         bitmask  nbOptions-1   ramené au bitmask   --   toute sauf le bitmask
+    // Tristates / "One of the above"s  group of 5's #         same       bitmask  nbOptions-1  back to bitmask   --   all but bitmask
     if(INN_IN_CHARLOCK(rom) == 2)       rom->flags[15] = (rom->flags[15] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
     if(ONLY_HEALMORE(rom) == 2)         rom->flags[15] = (rom->flags[15] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
     if(SHUFFLE_INN_PRICES(rom) == 3)    rom->flags[15] = (rom->flags[15] | 0x0c) & ((mt_rand(0, 2) << 2) | 0xf3);
     if(SHUFFLE_KEY_PRICES(rom) == 3)    rom->flags[15] = (rom->flags[15] | 0x03) & ((mt_rand(0, 2)     ) | 0xfc);
     if(SHUFFLE_VENDORS(rom) == 2)       rom->flags[16] = (rom->flags[16] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
-    if(RANDOMIZE_FLUTE_MUSIC(rom) == 2) rom->flags[16] = (rom->flags[16] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
     if(DISGUISED_DRAGONLORD(rom) == 2)  rom->flags[16] = (rom->flags[16] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(MAGIC_HERBS(rom) == 2)           rom->flags[16] = (rom->flags[16] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(CRIT_DL1(rom) == 2)              rom->flags[17] = (rom->flags[17] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
@@ -90,38 +89,53 @@ static void update_flags(dw_rom *rom)
     if(DAMAGE_BONKS(rom) == 7)          rom->flags[18] = (rom->flags[18] | 0xe0) & ((mt_rand(0, 6) << 5) | 0x1f);
     if(DISCARDABLE_FLUTE(rom) == 2)     rom->flags[18] = (rom->flags[18] | 0x18) & ((mt_rand(0, 1) << 3) | 0xe7);
     if(FORMIDABLE_FLUTE(rom) == 3)      rom->flags[18] = (rom->flags[18] | 0x06) & ((mt_rand(0, 2) << 1) | 0xf9);
+    if(RETURN_ESCAPES(rom) == 2)        rom->flags[19] = (rom->flags[19] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
+    if(WARP_WHISTLE(rom) == 2)          rom->flags[19] = (rom->flags[19] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
+    if(LEVELUP_REFILL(rom) == 2)        rom->flags[19] = (rom->flags[19] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
+    if(MAX_KEYS(rom) == 2)              rom->flags[19] = (rom->flags[19] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(RADISH_FINISH(rom) == 2)         rom->flags[20] = (rom->flags[20] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
     if(UNBREAKABLE_KEYS(rom) == 2)      rom->flags[20] = (rom->flags[20] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(ASCETIC_KING(rom) == 2)          rom->flags[20] = (rom->flags[20] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(DWX_RUN_MECHANICS(rom) == 4)     rom->flags[21] = (rom->flags[21] | 0xe0) & ((mt_rand(0, 3) << 5) | 0x1f);
     if(CHEST_GOLD_AMOUNT(rom) == 5)     rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 4) << 2) | 0xe3);
     if(RANDOM_PRINCESS_LOC(rom) == 2)   rom->flags[21] = (rom->flags[21] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
+    if(NORMALIZED_XP_GOLD(rom) == 2)    rom->flags[22] = (rom->flags[22] | 0x06) & ((mt_rand(0, 1) << 1) | 0xf9);
+    if(RETURN_TO_ZOOM(rom) == 2)        rom->flags[23] = (rom->flags[23] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
+    if(HURTMORE_DOORS(rom) == 2)        rom->flags[23] = (rom->flags[23] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
+    if(MAX_HERBS(rom) == 2)             rom->flags[23] = (rom->flags[23] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
+    printf("Level 1 Radiant: %d\n", LEVEL_1_RADIANT(rom));
+    printf("No red flash: %d\n", NO_RED_FLASH(rom));
     printf("Inn in Charlock: %d\n", INN_IN_CHARLOCK(rom));
     printf("Only healmore: %d\n", ONLY_HEALMORE(rom));
     printf("Inn prices: %d\n", SHUFFLE_INN_PRICES(rom));
     printf("Key prices: %d\n", SHUFFLE_KEY_PRICES(rom));
     printf("Shuffle vendors: %d\n", SHUFFLE_VENDORS(rom));
-    printf("Flute music: %d\n", RANDOMIZE_FLUTE_MUSIC(rom));
     printf("Disguised DL: %d\n", DISGUISED_DRAGONLORD(rom));
     printf("Magic herbs: %d\n", MAGIC_HERBS(rom));
-    printf("No red flash: %d\n", NO_RED_FLASH(rom));
     printf("Crit DL1: %d\n", CRIT_DL1(rom));
     printf("Crit DL2: %d\n", CRIT_DL2(rom));
     printf("Crit chance: %d\n", CRIT_CHANCE(rom));
     printf("Damage bonks: %d\n", DAMAGE_BONKS(rom));
     printf("Discardable flute: %d\n", DISCARDABLE_FLUTE(rom));
     printf("Formidable flute: %d\n", FORMIDABLE_FLUTE(rom));
-    printf("Level 1 Radiant: %d\n", LEVEL_1_RADIANT(rom));
     printf("Return escapes: %d\n", RETURN_ESCAPES(rom));
-    printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
     printf("Warp whistle: %d\n", WARP_WHISTLE(rom));
+    printf("Levelup Refill: %d\n", LEVELUP_REFILL(rom));
+    printf("Max Keys: %d\n", MAX_KEYS(rom));
     printf("Radish finish: %d\n", RADISH_FINISH(rom));
-    printf("DWX run mechanics: %d\n", DWX_RUN_MECHANICS(rom));
     printf("Unbreakable keys: %d\n", UNBREAKABLE_KEYS(rom));
     printf("Ascetic king: %d\n", ASCETIC_KING(rom));
+    printf("DWX run mechanics: %d\n", DWX_RUN_MECHANICS(rom));
+    printf("Chest gold amount: %d\n", CHEST_GOLD_AMOUNT(rom));
+    printf("Random Princess Location: %d\n", RANDOM_PRINCESS_LOC(rom));
+    printf("Normalized XP/Gold: %d\n", NORMALIZED_XP_GOLD(rom));
+    printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
+    printf("Hurtmore Doors: %d\n", HURTMORE_DOORS(rom));
+    printf("Max Herbs: %d\n", MAX_HERBS(rom));
+    printf("----------- /NEW FLAGS -----------\n");
     */
 }
 
@@ -164,10 +178,7 @@ static BOOL dwr_init(dw_rom *rom, const char *input_file, char *flags)
     memset(rom->flags, 0, 25);
     base32_decode(rom->flags_encoded, rom->flags);
 
-    //for(int i = 15; i<20; i++) printf("Byte %d: %c%c%c%c%c%c%c%c\n", i, BYTE_TO_BINARY(rom->flags[i]));
     update_flags(rom);
-
-    //for(int i = 15; i<20; i++) printf("Byte %d: %c%c%c%c%c%c%c%c\n", i, BYTE_TO_BINARY(rom->flags[i]));
 
     rom->map.chest_access = rom->chest_access;
     /* subtract 0x9d5d from these pointers */
@@ -379,8 +390,6 @@ void dwx_run_mechanics(dw_rom *rom)
     const uint16_t tryrunsafer_hook_inc_n = 0xe8a1; // Hook into original code (overwrites jmp to enemy turn)
     uint16_t tryrunsafer_newcode_inc_n;
 
-    printf("The battle_start_newcode is at: %04x" PRIu16 "\n", battle_start_newcode);
-
     if(DWX_RUN_MECHANICS(rom) == 1) // DW2
     {
         vpatch(rom, tryrun_newcode, 5,
@@ -453,7 +462,6 @@ void dwx_run_mechanics(dw_rom *rom)
     {
         // Hook at beginning of running: check if ram_n == 3. Yes: jmp/jsr to run success. No: go back to usual code
         tryrunsafer_newcode_check_n = find_free_space(rom->content, 0xc422, 13);
-        printf("The tryrunsafer_newcode_check_n is at: %04x" PRIu16 "\n", tryrunsafer_newcode_check_n);
         vpatch(rom, tryrunsafer_hook_check_n, 3, 0x20, tryrunsafer_newcode_check_n & 0xff, (tryrunsafer_newcode_check_n >> 8) & 0xff);
         vpatch(rom, tryrunsafer_newcode_check_n, 13,
             0xad, ram_n & 0xff, (ram_n >> 8) & 0xff,   // lda ram_n
@@ -467,7 +475,6 @@ void dwx_run_mechanics(dw_rom *rom)
 
         // Hook at run fail: inc ram_n, continue to usual code
         tryrunsafer_newcode_inc_n = find_free_space(rom->content, 0xc422, 6);
-        printf("The tryrunsafer_newcode_inc_n is at: %04x" PRIu16 "\n", tryrunsafer_newcode_inc_n);
         vpatch(rom, tryrunsafer_hook_inc_n, 3, 0x4c, tryrunsafer_newcode_inc_n & 0xff, (tryrunsafer_newcode_inc_n >> 8) & 0xff);
         vpatch(rom, tryrunsafer_newcode_inc_n, 6,
             0xee, ram_n & 0xff, (ram_n >> 8) & 0xff,   // inc ram_n
@@ -588,18 +595,44 @@ static void randomize_music(dw_rom *rom)
  */
 static void disable_music(dw_rom *rom)
 {
+    uint16_t i, loc;
+    uint8_t orig;
+
     if (!DISABLE_MUSIC(rom))
         return;
 
     printf("Disabling game music...\n");
 
-    memset(rom->music, 0, 29);
-    vpatch(rom, 0xd8f7, 1, 0); // Disable town music after staying at inn.
-    vpatch(rom, 0xe4e8, 1, 0); // Disable Dragonlord battle music
-    vpatch(rom, 0xe4ec, 1, 0); // Disable normal battle music
-    vpatch(rom, 0xd0a0, 1, 0); // Disable cave music after rescuing princess gwaelin.
-    vpatch(rom, 0xd49d, 1, 0); // Disable castle music after saying you love the princess.
-    vpatch(rom, 0xdf01, 1, 0); // Disable overworld music after using rainbow drop.
+    // Set channel volume to 0
+    for(i = 0; 0x44d3 + i <= 0x5353; i++)
+    {
+        loc = 0x44d3 + i;
+        orig = rom->content[loc];
+
+        if(DONT_MUTE_JINGLES(rom) && (     (loc >= 0x4c3e && loc <= 0x4c99)
+                                        || (loc >= 0x4c9a && loc <= 0x4ce0)
+                                        || (loc >= 0x4653 && loc <= 0x46cb)
+                                     )
+        ) // Harp, Flute or Gwaelin jingles
+            continue;
+
+        if(orig == 0xfb) // Music control byte
+        {
+            if((loc >= 0x453e && loc <= 0x45a7)
+            || (loc >= 0x45eb && loc <= 0x45ee)
+            || (loc >= 0x46ac && loc <= 0x46cb)
+            || (loc >= 0x47a2 && loc <= 0x481d)
+            || (loc >= 0x4950 && loc <= 0x497e)
+            || (loc >= 0x4acf && loc <= 0x4ae3)
+            || (loc >= 0x4c1a && loc <= 0x4c1c)
+            || (loc >= 0x4c9a && loc <= 0x4ce0)
+            || (loc >= 0x4f06 && loc <= 0x4f5f)
+            || (loc >= 0x522e && loc <= 0x5353)) // Triangle channel
+                vpatch(rom, loc + 1, 1, 0x00);
+            else // Square channels
+                vpatch(rom, loc + 1, 1, orig & 0xf0);
+        }
+    }
 }
 
 /**
@@ -1554,6 +1587,9 @@ static void other_patches(dw_rom *rom)
     /* I always hated this wording */
 //     dwr_str_replace(rom, "The spell will not work", "The spell had no effect");
     set_text(rom, 0xad85,  "The spell had no effect");
+
+    /* Disable the continue thy quest? dialogue */
+    nop(rom, 0xD446, 0x19);
 }
 
 /**
@@ -2682,6 +2718,10 @@ static void npc_shenanigans(dw_rom *rom)
             // Hint is constructed below, after rebuilding the pointer tables
             NPCData[25][2] = 0x20;
         }
+
+        // TODO: update Dragonlord dialog with Mand and Archfield's
+        // #include "DL_text.h"
+        // change_dragonlord_text(chosen_NPC);
     }
 
     for(i = 0; i<sizeof(NPCData)/(6*sizeof(uint8_t)); i++)
@@ -2826,7 +2866,6 @@ static void npc_shenanigans(dw_rom *rom)
 void return_escapes(dw_rom *rom)
 {
     const uint16_t newcode = find_free_space(rom->content, 0xc422, 22);
-    printf("The return_escapes newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!RETURN_ESCAPES(rom))
         return;
@@ -2915,8 +2954,6 @@ void zoom_and_whistle(dw_rom *rom)
 
     int code_size = 0;
 
-    printf("The zoom_and_whistle newcode is at: %04x" PRIu16 "\n", newcode);
-
     if (!RETURN_TO_ZOOM(rom) && !WARP_WHISTLE(rom))
         return;
 
@@ -2938,16 +2975,15 @@ void zoom_and_whistle(dw_rom *rom)
     zoom_data[5][0] = 0x0b; // Rimuldar
     find_zoom_tile(rom, 9, zoom_data, 5);
 
-/*    zoom_data[6][0] = 0x03; // Hawksness
-    find_zoom_tile(rom, 10, zoom_data, 6);*/
+    // zoom_data[6][0] = 0x03; // Hawksness
+    // find_zoom_tile(rom, 10, zoom_data, 6);
 
     // Hooking into return casting code
     vpatch(rom, 0xdb04, 16,
 		0xad, ram_i & 0xff, (ram_i >> 8) & 0xff, // LDA absolute zoom_i
-        0x20, address & 0xff, (address >> 8) & 0xff, // JSR new code to load zoom coords
-        0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea, 0xea // NOP because we're gonna RTS later on and that stuff will have been done in the new code
-        //TODO We could use those bytes for something
+        0x20, address & 0xff, (address >> 8) & 0xff // JSR new code to load zoom coords
     );
+    nop(rom, 0xdb0a, 10); // NOP because we're gonna RTS later on and that stuff will have been done in the new code
 
 	// But wait, if we just want the warp whistle, let the Zoom index always be Tantegel's
 	if (!RETURN_TO_ZOOM(rom))
@@ -2990,8 +3026,6 @@ void zoom_and_whistle(dw_rom *rom)
     vpatch(rom, address, code_size,
         0xa6, 0x45,             // LDX zeropage map number
 		0xad, ram_v & 0xff, (ram_v >> 8) & 0xff, // LDA absolute zoom_v
-
-        // TODO: this can be inside a loop, I guess
 
         0xe0, zoom_data[1][0],  // CPX Brecconary
         0xd0, 7,                // BNE next
@@ -3044,8 +3078,6 @@ void zoom_and_whistle(dw_rom *rom)
         0x60                // RTS
     );
     address += code_size;
-
-    // TODO: Add check to see if DL is defeated, then set ram_i to Tantegel. Maybe? It could be fun as it is
 
 	if(!WARP_WHISTLE(rom))
 		return;
@@ -3108,7 +3140,6 @@ void zoom_and_whistle(dw_rom *rom)
 void hurtmore_doors(dw_rom *rom)
 {
     const uint16_t newcode = find_free_space(rom->content, 0xc422, 173);
-    printf("The hurtmore_doors newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!HURTMORE_DOORS(rom))
         return;
@@ -3139,7 +3170,6 @@ void hurtmore_doors(dw_rom *rom)
 void levelup_refill(dw_rom *rom)
 {
     const uint16_t newcode = find_free_space(rom->content, 0xc422, 24);
-    printf("The levelup_refill newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!LEVELUP_REFILL(rom))
         return;
@@ -3217,7 +3247,6 @@ void max_keys(dw_rom *rom)
 void unbreakable_keys(dw_rom *rom)
 {
     const uint16_t newcode = find_free_space(rom->content, 0xc422, 11);
-    printf("The unbreakable_keys newcode is at: %04x" PRIu16 "\n", newcode);
 
     if (!UNBREAKABLE_KEYS(rom) || NO_KEYS(rom))
         return;
@@ -3260,7 +3289,6 @@ void step_counter(dw_rom *rom)
 {
 	const uint16_t ram_s = 0x6804; // and 0x6805! Just random RAM addresses I thought might be unused
 	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 13); // Starting address for new code
-    printf("The step_counter newcode is at: %04x" PRIu16 "\n", newcode);
 
     vpatch(rom, 0x3265, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into RightSynced
     vpatch(rom, 0x335f, 4, 0x20, newcode & 0xff, (newcode >> 8) & 0xff, 0xea); // JSR newcode, NOP for opcode alignment. Hooking into LeftSynced
@@ -3381,8 +3409,6 @@ void new_flags_ram_init(dw_rom *rom)
     const uint16_t ram_s = address + 4; // Number of steps
     //             ram_s = address + 5; // Number of steps (2nd byte)
 
-    printf("The new_flags_ram_init newcode is at: %04x" PRIu16 "\n", newcode);
-
     // Hook start of the game
     vpatch(rom, 0xca1a, 3, 0x20, newcode & 0xff, (newcode >> 8) & 0xff); // JSR new code
 
@@ -3397,6 +3423,141 @@ void new_flags_ram_init(dw_rom *rom)
         0x20, 0x47, 0xcb,   // Go to vanilla subroutine
         0x60                // RTS
     );
+}
+
+/**
+ * Randomizes enemy Gold & XP drops in a "normalized" way, as per aaron2u2's preferences
+ *
+ * @param rom The rom struct
+ */
+static void normalized_enemy_drops(dw_rom *rom)
+{
+    int i;
+    dw_enemy *enemies;
+    int vals[RED_DRAGON+1][4] = { // min XP, max XP, min Gold, max Gold
+        1,2,2,4,
+        1,4,2,8,
+        2,5,4,10,
+        3,6,6,12,
+        6,11,12,22,
+        9,15,15,25,
+        11,18,17,28,
+        12,21,18,32,
+        14,24,18,30,
+        13,23,22,38,
+        15,26,19,33,
+        20,34,34,57,
+        20,34,36,61,
+        23,39,36,60,
+        30,48,45,72,
+        36,56,53,83,
+        200,300,5,7,
+        35,55,56,88,
+        40,64,62,98,
+        43,69,70,113,
+        47,75,89,142,
+        47,75,77,123,
+        56,88,88,138,
+        54,84,90,140,
+        250,380,7,11,
+        1,69,600,700,
+        65,101,125,194,
+        64,98,104,159,
+        70,110,115,181,
+        75,119,122,194,
+        97,163,115,193,
+        100,170,161,274,
+        90,140,139,216,
+        95,155,121,197,
+        140,240,117,200,
+        120,205,115,196,
+        135,230,119,203,
+        260,400,106,163
+    };
+
+    if (!NORMALIZED_XP_GOLD(rom)) {
+        return;
+    }
+
+    enemies = rom->enemies;
+    for (i=SLIME; i <= RED_DRAGON; i++) {
+        enemies[i].xp = mt_rand(vals[i][0], vals[i][1]);
+        enemies[i].gold = mt_rand(vals[i][2], vals[i][3]);
+    }
+}
+
+
+/**
+ * Applies speedup to the Silver Harp and "I'm so happy!" music.
+ *
+ * @param rom The rom struct
+ */
+void speed_up_harp_and_princess(dw_rom *rom)
+{
+    uint32_t address = 0x4c3e;
+    uint8_t tempo = 0xee;
+    uint8_t space = 0x01;
+    uint8_t length = 0x01;
+
+    printf("Happiness is short-lived\n");
+
+    // Silver Harp
+    vpatch(rom, address +  0, 1, length);
+    vpatch(rom, address +  3, 1, length);
+    vpatch(rom, address +  7, 1, tempo);
+    vpatch(rom, address +  9, 1, length);
+    vpatch(rom, address + 11, 1, length);
+    vpatch(rom, address + 13, 1, length);
+    vpatch(rom, address + 15, 1, space);
+    vpatch(rom, address + 18, 1, tempo);
+    vpatch(rom, address + 24, 1, tempo);
+    vpatch(rom, address + 30, 1, tempo);
+    vpatch(rom, address + 36, 1, tempo);
+    vpatch(rom, address + 42, 1, tempo);
+    vpatch(rom, address + 48, 1, tempo);
+    vpatch(rom, address + 54, 1, tempo);
+    vpatch(rom, address + 60, 1, tempo);
+    vpatch(rom, address + 66, 1, tempo);
+    vpatch(rom, address + 89, 1, length);
+
+    // I'm so happy!
+    address = 0x4653; // Square 1
+    tempo /= 4;
+    vpatch(rom, address +  1, 1, tempo);
+    vpatch(rom, address +  4, 1, length);
+    vpatch(rom, address +  8, 1, length);
+    vpatch(rom, address + 10, 1, length);
+    vpatch(rom, address + 12, 1, length);
+    vpatch(rom, address + 14, 1, length);
+    vpatch(rom, address + 16, 1, length);
+    vpatch(rom, address + 18, 1, length);
+    vpatch(rom, address + 20, 1, length);
+    vpatch(rom, address + 22, 1, length);
+    vpatch(rom, address + 24, 1, length);
+    vpatch(rom, address + 26, 1, length);
+    vpatch(rom, address + 28, 1, length);
+    vpatch(rom, address + 30, 1, length);
+    vpatch(rom, address + 34, 1, length);
+    vpatch(rom, address + 37, 1, length);
+    address = 0x467b; // Square 2
+    vpatch(rom, address +  2, 1, length);
+    vpatch(rom, address +  6, 1, length);
+    vpatch(rom, address +  8, 1, length);
+    vpatch(rom, address + 11, 1, length);
+    vpatch(rom, address + 15, 1, length);
+    vpatch(rom, address + 17, 1, length);
+    vpatch(rom, address + 20, 1, length);
+    vpatch(rom, address + 24, 1, length);
+    vpatch(rom, address + 26, 1, length);
+    vpatch(rom, address + 29, 1, length);
+    vpatch(rom, address + 33, 1, space);
+    vpatch(rom, address + 45, 1, length);
+    address = 0x46ac; // Triangle
+    vpatch(rom, address +  2, 1, length);
+    vpatch(rom, address +  6, 1, space);
+    vpatch(rom, address + 20, 1, space);
+    vpatch(rom, address + 28, 1, length);
+    return;
 }
 
 /**
@@ -3450,6 +3611,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     npc_shenanigans(rom);
     threes_company(rom);
     scared_metal_slimes(rom);
+    normalized_enemy_drops(rom);
     support_2_byte_xp_gold(rom);
     torch_in_battle(rom);
     repel_mods(rom);
@@ -3471,7 +3633,6 @@ void apply_stuff_to_rom(dw_rom *rom)
 
     modern_spell_names(rom);
     randomize_music(rom);
-    disable_music(rom);
 
     no_numbers(rom);
     invisible_hero(rom);
@@ -3489,6 +3650,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     unbreakable_keys(rom);
     ascetic_king(rom);
     chest_gold_amount(rom);
+    speed_up_harp_and_princess(rom);
 }
 
 
@@ -3566,6 +3728,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     update_title_screen(rom);
     no_screen_flash(rom);
     no_red_flash(rom);
+    disable_music(rom);
 
     /* reseed the RNG so the rest isn't deterministic */
     mt_init(time(NULL));
@@ -3594,20 +3757,20 @@ uint16_t find_free_space(uint8_t *content, uint16_t start, uint8_t n)
     uint16_t i;
     uint8_t j;
 
-    for (i = start; i <= 0xffff - n; i++)
+    for(i = start; i <= 0xffff - n; i++)
     {
         found = TRUE;
-        for (j = 0; j < n; j++)
+        for(j = 0; j < n; j++)
         {
-            //printf("%04x" PRIx16 ": %02x" PRIx8 "\n", i+j, content[i + j]);
+            // printf("%04x" PRIx16 ": %02x" PRIx8 "\n", i+j, content[i + j]);
+            // To help debug: printf("The battle_start_newcode is at: %04x" PRIu16 "\n", battle_start_newcode);
             if (content[i + j] != 0xff)
             {
                 found = FALSE;
                 break;
             }
         }
-
-        if (found)
+        if(found)
             return i;
     }
     return -1;
