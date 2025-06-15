@@ -2729,15 +2729,17 @@ static void npc_shenanigans(dw_rom *rom)
         // Remove key vendors if NO_KEYS is on
         if(NO_KEYS(rom) && (NPCData[i][3] & 0x04))
         {
-            // TODO
-            // If there's one less NPC in the NPC tables before rescued Gwaelin, we need to change the "Gwaelin is not saved, hide her" code.
-            // Not sure how this works in the vanilla game, so this is a hack right now as we know there can only be one less NPC and that
-            // is if NO_KEYS is on. Compared to vanilla, we just shifted the values down by 9. This causes a guard to disappear for the scene
-            // where we bring Gwaelin back but I guess that doesn't matter much for now. We check this here because of vendor shuffle.
+            // If there's one less NPC in the NPC tables before rescued Gwaelin (i.e. one less NPC in Tantegel),
+            // we need to change the "Gwaelin is not saved, hide her" code.
+            // We know there should only be one less NPC before Gwaelin in the NPC lists and that is if NO_KEYS is on.
+            // Compared to vanilla, we just shifted the values down by 9. We check this here and now because of vendor shuffle.
+            // Same thing when we return her: we subtract from to the first two NPC bytes for returning Gwaelin so she doesn't overwrite a guard.
             if(NPCData[i][4] == 0x01) {
                 vpatch(rom, 0x3029, 1, 0x6f);
                 vpatch(rom, 0x302b, 1, 0x70);
                 vpatch(rom, 0x302d, 1, 0x71);
+                vpatch(rom, 0xd402, 1, 0x6f);
+                vpatch(rom, 0xd406, 1, 0x70);
             }
 
             NPCData[i][4] = 0xff;
