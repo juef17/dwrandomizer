@@ -247,6 +247,13 @@ Courtesy of mcgrew, the king doesn't ask the player if they want to continue pla
 The Silver Harp and Gwaelin jingles are now sped up by the `Speed Hacks` flag.
 
 
+#### NPC Guillotime ####
+
+Talk to any mobile NPC to make them disappear! They will come back if you exit and reenter the area you found them in. If `Disguised Dragonlord` is on and the Dragonlord happens to be a mobile NPC:
+* If you run from the fight during the Dragonlord's first form, he will disappear and you will have to leave and reenter the area he was in to initiate the fight again.
+* If you run from the fight during the Dragonlord's second form, he (and all other NPCs from that area) will respawn in their original location immediately.
+
+
 ## Known Issues ##
 - In mcgrew's official DWR version, when a vendor is missing in Rimuldar (e.g. key vendor), the very top left tile of the town is an invisible wall. It doesn't matter then because there is no point in going there if there is no vendor. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration.
 - With the `Disguised Dragonlord` flag, there will likely be some graphical glitches in both Dragonlord fights, depending on his location. They are purely cosmetic and do not affect the ability to run away or to complete the game.

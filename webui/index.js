@@ -371,6 +371,8 @@ function setup_ui() {
 
     ui.addOption   ('4',  0, 16, 4, 'Don\'t Mute Jingles',
         'The Harp, Flute and Gwaelin jingles can be heard even if the Disable Music flag is on.', true);
+    ui.addOption   ('4',  2, 24, 7, 'NPC Guillotine',
+        'Getting blocked by NPCs? Talk to them and they\re sure to let you pass!');
 
     // player sprite
     let spriteBox;

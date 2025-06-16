@@ -1369,7 +1369,7 @@ static void radish_finish(dw_rom *rom)
     vpatch(rom, 0xd193, 3, 0x4c, newcode & 0xff, (newcode >> 8) & 0xff); // JSR newcode
 
     vpatch(rom, newcode, 33,
-        0x48,       // pha
+        0x48,       // pha (original code overwritten by hook, part 1/2)
         0xc9, 0x45, // CMP 0x45 is radish dialog control byte
         0xd0, 0x17, // BNE NEXT
         0xa5, 0xdf, // It is radish dialogue! Check if we rescued Gwaelin. lda zeropage status bits
@@ -1381,10 +1381,10 @@ static void radish_finish(dw_rom *rom)
         0x20, 0xa2, 0xa7,       // jsr that removes it from screen
         0xa9, 0x00,             // lda window type (popup)
         0x20, 0xa2, 0xa7,       // jsr that removes it from screen
-        0x4c, 0xb8, 0xcc, // jmp to ending
+        0x4c, 0xb8, 0xcc,       // jmp to ending
 
         // NEXT
-        0xa5, 0xdf,     // LDA PlayerFlags
+        0xa5, 0xdf,     // LDA PlayerFlags (original code overwritten by hook, part 2/2)
         0x4c, 0x96, 0xd1// JMP back to original code
     );
 }
@@ -3307,6 +3307,35 @@ void step_counter(dw_rom *rom)
 }
 
 /**
+ * Talk to a mobile NPC to make them disappear
+ *
+ * @param rom The rom struct
+ */
+void npc_guillotine(dw_rom *rom)
+{
+	const uint16_t newcode = find_free_space(rom->content, 0xc82b, 20); // Starting address for new code
+
+    if (!NPC_GUILLOTINE(rom))
+        return;
+
+    vpatch(rom, 0xd11f, 2, newcode & 0xff, (newcode >> 8) & 0xff); // Save original JSR to set NPC direction but point to newcode
+
+    vpatch(rom, newcode, 20,
+        0xc9, 30,           // CMP 30 — A contains NPC index at this point. Is NPC mobile?
+        0x90, 0x04,         // BCC to guillotining if yes
+        0x20, 0x4a, 0xc0, 0x60, // No → do original JSR then RTS
+        0x48,               // PHA to save NPC offset for later use by original code
+        0xaa,               // TAX to use X as offset for STA later
+        0xa9, 0x00,         // LDA 0
+        0x95, 0x51,         // STA,X 1st NPC byte to set it to zero
+        0x95, 0x52,         // STA,X 2nd NPC byte to set it to zero
+        0x95, 0x53,         // STA,X 3rd NPC byte to set it to zero
+        0x68,               // PLA to restore NPC offset for later use by original code
+        0x60                // RTS
+    );
+}
+
+/**
  * Changes the amount of gold in chests
  *
  * @param rom The rom struct
@@ -3603,6 +3632,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     lower_xp_reqs(rom);
     dwr_death_necklace(rom);
     dwr_menu_wrap(rom);
+    npc_guillotine(rom);
     randomize_flute_song(rom);
     dwr_speed_hacks(rom);
     open_charlock(rom);

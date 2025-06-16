@@ -117,7 +117,10 @@
 
 #define RETURN_TO_ZOOM(x)         ((x->flags[23] & 0xc0) >> 6) // 2
 #define HURTMORE_DOORS(x)         ((x->flags[23] & 0x30) >> 4) // 2
-#define MAX_HERBS(x)              ((x->flags[23] & 0x0c) >> 2) // 2 <--------------------
+#define MAX_HERBS(x)              ((x->flags[23] & 0x0c) >> 2) // 2
+// ---------------- 1 bit left here ------------------------------------
+
+#define NPC_GUILLOTINE(x)         ((x->flags[24] & 0x80) >> 7) // 1
 
 
 
