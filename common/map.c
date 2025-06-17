@@ -989,6 +989,7 @@ void map_generate_terrain(dw_rom *rom)
         printf("Generating a normal size map\n");
         rom->map.size = 120;
     }
+    //rom->map.size /= 3;
 
 retry_map:
     if (!RANDOM_MAP(rom)) {

@@ -103,6 +103,7 @@ static void update_flags(dw_rom *rom)
     if(RETURN_TO_ZOOM(rom) == 2)        rom->flags[23] = (rom->flags[23] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
     if(HURTMORE_DOORS(rom) == 2)        rom->flags[23] = (rom->flags[23] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
     if(MAX_HERBS(rom) == 2)             rom->flags[23] = (rom->flags[23] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
+    if(MASK_OW_LOCATIONS(rom) == 2)     rom->flags[24] = (rom->flags[24] | 0x60) & ((mt_rand(0, 1) << 5) | 0x9f);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -1358,8 +1359,6 @@ static void radish_finish(dw_rom *rom)
 {
     uint16_t newcode = find_free_space(rom->content, 0xc422, 33);
 
-    printf("The radish finish newcode is at: %04x" PRIu16 "\n", newcode);
-
     if (!RADISH_FINISH(rom))
         return;
 
@@ -2392,6 +2391,7 @@ static BOOL dwr_write(dw_rom *rom, const char *output_file)
         fprintf(stderr, "Unable to open file '%s' for writing", output_file);
         return FALSE;
     }
+
     fwrite(rom->header, 1, 0x10, output);
     fwrite(rom->content, 1, 0xc000, output);
     fwrite(rom->expansion, 1, 0x10000, output);
@@ -2850,9 +2850,8 @@ static void npc_shenanigans(dw_rom *rom)
         // If Gwaelin was the Dragonlord...
         if(chosen_NPC == 24)
         {
-            // Let's not have her come down the stairs at the end by NOPing that section
-            for(i = 0; i<142; i++)
-                vpatch(rom, 0xcc2a + i, 1, 0xea);
+            // Let's not have her come down the stairs at the end
+            nop(rom, 0xcc2a, 142);
 
             // Make the king react a bit differently
             set_text(rom, 0xb8c8, "`Well, that was unfortunate...'");
@@ -3336,6 +3335,23 @@ void npc_guillotine(dw_rom *rom)
 }
 
 /**
+ * Make towns and caves share the same overworld graphic
+ *
+ * @param rom The rom struct
+ */
+void mask_ow_locations(dw_rom *rom)
+{
+    if (!MASK_OW_LOCATIONS(rom))
+        return;
+
+    vpatch(rom, 0xf5d8, 10,
+        0x86, 0x83, 0x88, 0x85, 0x00, // Towns tiles & palette
+        0x86, 0x83, 0x88, 0x85, 0x00  // Caves tiles & palette
+    );
+    vpatch(rom, 0x11860, 14, 0x00, 0x00, 0x07, 0x18, 0x20, 0x20, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00); // Make the cave background black instead of blue (using the town palette)
+}
+
+/**
  * Changes the amount of gold in chests
  *
  * @param rom The rom struct
@@ -3662,6 +3678,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     shuffle_inn_prices(rom);
     shuffle_key_prices(rom);
     step_counter(rom);
+    mask_ow_locations(rom);
 
     modern_spell_names(rom);
     randomize_music(rom);

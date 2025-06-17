@@ -247,11 +247,16 @@ Courtesy of mcgrew, the king doesn't ask the player if they want to continue pla
 The Silver Harp and Gwaelin jingles are now sped up by the `Speed Hacks` flag.
 
 
-#### NPC Guillotime ####
+#### NPC Guillotine ####
 
 Talk to any mobile NPC to make them disappear! They will come back if you exit and reenter the area you found them in. If `Disguised Dragonlord` is on and the Dragonlord happens to be a mobile NPC:
 * If you run from the fight during the Dragonlord's first form, he will disappear and you will have to leave and reenter the area he was in to initiate the fight again.
 * If you run from the fight during the Dragonlord's second form, he (and all other NPCs from that area) will respawn in their original location immediately.
+
+
+#### Masked Overworld Locations ####
+
+Towns and caves share the same sprite, so you'll have to enter them to know which of the two they are.
 
 
 ## Known Issues ##

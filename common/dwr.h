@@ -121,6 +121,7 @@
 // ---------------- 1 bit left here ------------------------------------
 
 #define NPC_GUILLOTINE(x)         ((x->flags[24] & 0x80) >> 7) // 1
+#define MASK_OW_LOCATIONS(x)      ((x->flags[24] & 0x60) >> 5) // 2
 
 
 

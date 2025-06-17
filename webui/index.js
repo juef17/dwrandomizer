@@ -373,6 +373,8 @@ function setup_ui() {
         'The Harp, Flute and Gwaelin jingles can be heard even if the Disable Music flag is on.', true);
     ui.addOption   ('4',  2, 24, 7, 'NPC Guillotine',
         'Getting blocked by NPCs? Talk to them and they\re sure to let you pass!');
+    ui.addTriOption('4',  4, 24, 5, 'Masked Overworld Locations',
+        'Is it a cave, or is it a town? Enter to find out!');
 
     // player sprite
     let spriteBox;
