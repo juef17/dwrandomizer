@@ -3269,7 +3269,7 @@ void unbreakable_keys(dw_rom *rom)
 
 
 /**
- * Add's Crump's Brother forfeit trigger
+ * Adds Crump's Brother forfeit trigger
  *
  * @param rom The rom struct
  */
