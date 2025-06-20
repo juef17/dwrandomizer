@@ -288,3 +288,4 @@ Another huge piece of work from Crump's Brother!
 - With the `Disguised Dragonlord` flag, there will likely be some graphical glitches in both Dragonlord fights, depending on his location. They are purely cosmetic and do not affect the ability to run away or to complete the game.
 - The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, death necklace use, …).
 - The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only.
+- If too many flags that require ROM space are active at the same time, it might not be possible to generate a seed. Biggest offenders are `Build Options`, `Hurtmore Doors` and `Warp Whistle`, so turn one of those off if you run into that problem.
