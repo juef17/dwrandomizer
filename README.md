@@ -237,9 +237,9 @@ XP and Gold gained from monsters will be randomized, but within pre-set, hardcod
 While `Disable Music` exists in mcgrew's official version, it has been improved such that input from two seeds differing only by that flag will sync, and will not affect checksum anymore. It now mutes more things as well, so for some players' convenience, a new flag allows to not mute the Silver Harp, Fairy Flute and Gwaelin's music jingles.
 
 
-#### Don't let Lorik end your game ####
+#### Don't let Lorik or the Dragonlord end your game ####
 
-Courtesy of mcgrew, the king doesn't ask the player if they want to continue playing when they talk to him. Unfortunate accidents have happened before!
+Unfortunate accidents have happened before! Courtesy of mcgrew, the king doesn't ask the player if they want to continue playing when they talk to him. Also, accepting the Dragonlord offer is not possible anymore unless `Three's Company` is on and you're carrying the princess.
 
 
 #### Speed Hacks & jingles ####
@@ -259,9 +259,28 @@ Talk to any mobile NPC to make them disappear! They will come back if you exit a
 Towns and caves share the same sprite, so you'll have to enter them to know which of the two they are.
 
 
+#### Random Spell Costs ####
+
+Spells cost a random amount of MP between 1 and 8.
+
+
+#### Random Town Entrances ####
+
+The player's location upon entering a town will be randomized. Note: Garinham has no entrance that is behind the door.
+
+
 #### Forfeit Trigger ####
 
 When on your status screen, hold Start and Select to warp to the end of the game. Huge thanks to Crump's Brother for this one!
+
+
+#### Build Options ####
+
+Another huge piece of work from Crump's Brother!
+* `Unchanged`: just what you're used to.
+* `Vanilla`: decouples the player's name from the stats build. Instead of choosing a text speed (which will automatically be set to `Fast`), the player chooses one of the normal stats build (and therefore can use whatever name they like).
+* `All Builds`: same as above, but adds two builds that have stats combination usually not possible in the vanilla game (HP-Agility and Strength-MP).
+* `No Builds`: the player gets the good long-term growth for all stats, and early game bonuses for all stats.
 
 
 ## Known Issues ##

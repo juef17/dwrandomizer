@@ -118,10 +118,15 @@
 #define RETURN_TO_ZOOM(x)         ((x->flags[23] & 0xc0) >> 6) // 2
 #define HURTMORE_DOORS(x)         ((x->flags[23] & 0x30) >> 4) // 2
 #define MAX_HERBS(x)              ((x->flags[23] & 0x0c) >> 2) // 2
-// ---------------- 1 bit left here ------------------------------------
+#define RANDOM_SPELL_COSTS(x)     ((x->flags[23] & 0x03)     ) // 2
 
 #define NPC_GUILLOTINE(x)         ((x->flags[24] & 0x80) >> 7) // 1
 #define MASK_OW_LOCATIONS(x)      ((x->flags[24] & 0x60) >> 5) // 2
+#define BUILD_OPTIONS(x)          ((x->flags[24] & 0x1c) >> 2) // 3
+#define VANILLA_BUILDS(x)         (BUILD_OPTIONS(x) == 1) // 0 is "Unchanged"
+#define NO_BUILDS(x)              (BUILD_OPTIONS(x) == 2) // 4 is "One of the above"
+#define ALL_BUILDS(x)             (BUILD_OPTIONS(x) == 3)
+#define RANDOM_TOWN_ENTRANCES(x)  ((x->flags[24] & 0x03)     ) // 2
 
 
 
@@ -143,6 +148,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
         const char *sprite_name, const char* output_dir);
 uint16_t set_text(dw_rom *rom, const size_t address, char *text);
 uint16_t find_free_space(uint8_t *content, uint16_t start, uint8_t n);
+void check_free_space(uint8_t *content, uint16_t start);
 
 #ifdef __cplusplus
 }

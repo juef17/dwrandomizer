@@ -103,7 +103,10 @@ static void update_flags(dw_rom *rom)
     if(RETURN_TO_ZOOM(rom) == 2)        rom->flags[23] = (rom->flags[23] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
     if(HURTMORE_DOORS(rom) == 2)        rom->flags[23] = (rom->flags[23] | 0x30) & ((mt_rand(0, 1) << 4) | 0xcf);
     if(MAX_HERBS(rom) == 2)             rom->flags[23] = (rom->flags[23] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
+    if(RANDOM_SPELL_COSTS(rom) == 2)    rom->flags[23] = (rom->flags[23] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(MASK_OW_LOCATIONS(rom) == 2)     rom->flags[24] = (rom->flags[24] | 0x60) & ((mt_rand(0, 1) << 5) | 0x9f);
+    if(BUILD_OPTIONS(rom) == 4)         rom->flags[24] = (rom->flags[24] | 0x1c) & ((mt_rand(0, 3) << 2) | 0xe3);
+    if(RANDOM_TOWN_ENTRANCES(rom) == 2) rom->flags[24] = (rom->flags[24] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
 
     /*
     printf("----------- NEW FLAGS -----------\n");
@@ -136,6 +139,9 @@ static void update_flags(dw_rom *rom)
     printf("Return to zoom: %d\n", RETURN_TO_ZOOM(rom));
     printf("Hurtmore Doors: %d\n", HURTMORE_DOORS(rom));
     printf("Max Herbs: %d\n", MAX_HERBS(rom));
+    printf("Masked Overworld Locations: %d\n", MASK_OW_LOCATIONS(rom));
+    printf("Random Spell Costs: %d\n", RANDOM_SPELL_COSTS(rom));
+    printf("Build Options: %d\n", BUILD_OPTIONS(rom));
     printf("----------- /NEW FLAGS -----------\n");
     */
 }
@@ -842,6 +848,13 @@ static void randomize_growth(dw_rom *rom)
             stats->hp = MAX(rom->stats[i-1].hp, stats->hp);
         }
     }
+
+    if (NO_BUILDS(rom)) {
+        for (i=0; i < 30; i++) {
+            stats = &rom->stats[i];
+            stats->str = MAX(stats->str, 6);
+        }
+    }
 }
 
 /**
@@ -898,10 +911,265 @@ static void randomize_spells(dw_rom *rom)
                 stats->spells |= 1 << (j + 8) % 16;
             }
         }
-        if (stats->spells) {
-            stats->mp = MAX(stats->mp, 6);
+        if (NO_BUILDS(rom)) {
+            if (stats->spells) {
+                stats->mp = MAX(stats->mp, 8);
+            }
+        } else {
+            if (stats->spells) {
+                stats->mp = MAX(stats->mp, 6);
+            }
         }
     }
+}
+
+static void text_scroller_extras(dw_rom *rom)
+{
+    /* Hard code fast message speed for text scroller */
+    vpatch(rom, 0x7a31, 2, 0xa2, 0x00);
+
+    /* Xarnax42, "I can't wait til we get Crump's feature that separates name from build and I can be ."
+       Well, we can't have that now can we? I'm affectionately calling this the Xarnax42 patch.
+       It makes sure a 0 length name still prints 1 character in the dialog box. */
+    vpatch(rom, 0x7881, 19,
+    0xa5, 0xb5,        // lda 0xb5
+    0xc9, 0x60,        // cmp 0x60
+    0xd0, 0x02,        // bne ##
+    0xa9, 0x49,        // lda 0x49
+    0x99, 0x54, 0x65,  // sta 6554
+    0xc8,              // iny
+    0xc0, 0x08,        // cmp 08
+    0xd0, 0xf8,        // bne -8
+    0xe8, 0xe8, 0xe8   // inx inx inx (this is the only way I know to eat up space in a benign way)
+    );
+
+    /* Tells the text scroller to only ever print the first letter of the character name. */
+    vpatch(rom, 0x7895, 1, 0x01);
+
+    /* Defaults stat menu selection to the 0 option.*/
+    vpatch(rom, 0xf8d5, 1, 0x00);
+
+}
+
+static void build_extras(dw_rom *rom, uint16_t new_window_data)
+{
+    uint16_t newcode_exp_check = find_free_space(rom->content, 0xc422, 25);
+    uint16_t newcode_stats_calc;
+    int stat_modifier = 3;
+
+    /* Lock the stat build modifier at the selected value */
+    /* This could be a user selectable and/or a random value and piped in during rando option selections */
+    vpatch(rom, 0xf131, 2, 0x69, stat_modifier);
+
+    //replaces the "msg speed window" window data address
+    vpatch(rom, 0x6f84, 2, new_window_data & 0xff, (new_window_data >> 8) & 0xff);
+
+    /* jmp to experience check for saved game stats change*/
+    vpatch(rom, 0xf909, 3,
+    0x4c, newcode_exp_check & 0xff, (newcode_exp_check >> 8) & 0xff);  // jmp
+
+    /* Checks if the selected save slot exp is 0 and saves the new stat build if it is. */
+    vpatch(rom, newcode_exp_check, 25, // -> 0xc8ff
+    0x08,                  /*   php          */
+    0x48,                  /*   pha          */
+    0xa5, 0xbb,            /*   lda $bb      */
+    0xd0, 0x0f,            /*   bne 0f       */
+
+    0xa5, 0xba,            /*   lda $ba      */
+    0xd0, 0x0b,            /*   bne 0b       */
+
+    0x68,                  /*   pla          */
+    0x28,                  /*   plp          */
+    0x85, 0xe5,            /*   sta $e5      */
+    0x20, 0xdf, 0xf9,      /*   jsr $f9df    */
+    0x4c, 0x6a, 0xf9,      /*   jmp $f96a    */
+
+    0x68,                  /*   pla          */
+    0x28,                  /*   plp          */
+    0x4c, 0x6a, 0xf9);     /*   jmp $f96a    */
+
+    //Alters main menu
+    set_text(rom, 0x7224, " CHG BUILD IF EXP 0  ");
+    set_text(rom, 0x7262, " CHG BUILD IF EXP 0  ");
+
+    newcode_stats_calc = find_free_space(rom->content, 0xc422, 129);
+
+    //head over to our new stats calcuations for all builds
+    vpatch(rom, 0xf09e, 3,
+    0x4c, newcode_stats_calc & 0xff, (newcode_stats_calc >> 8) & 0xff); // jmp
+
+    //New logic for determing stats with vanilla and all build options.
+    vpatch(rom, newcode_stats_calc, 129,
+    //19
+    0xa6, 0xe5,        //ldx 0xe5
+    0xf0, 0x0f,        //beq hp-mp, 15
+    0xca,              //dex
+    0xf0, 0x1d,        //beq str-hp, 29
+    0xca,              //dex
+    0xf0, 0x2d,        //beq agi-mp, 45
+    0xca,              //dex
+    0xf0, 0x3b,        //beq str-agi, 59
+    0xca,              //dex
+    0xf0, 0x4b,        //beq str-mp, 75
+    0xca,              //dex
+    0xf0, 0x59,        //beq agi-hp, 89
+
+    //hp-mp, 17
+    0xa5, 0xc8,        //LDA str
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xc8,        //STA str
+    0xa5, 0xc9,        //LDA agi
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xc9,        //STA agi
+    0x4c, 0xcd, 0xf0,  //jmp 0xf0cd
+
+    //str-hp, 19
+    0xa5, 0xc9,        //LDA agi
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xc9,        //STA agi
+    0xa5, 0xcb,        //LDA mp
+    0xf0, 0x05,        //beq skip if mp is 0
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xcb,        //STA mp
+    0x4c, 0xcd, 0xf0,  //jmp 0xf0cd
+
+    //agi-mp, 17
+    0xa5, 0xc8,        //LDA str
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xc8,        //STA str
+    0xa5, 0xca,        //LDA hp
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xca,        //STA hp
+    0x4c, 0xcd, 0xf0,  //jmp 0xf0cd
+
+    //str-agi, 19
+    0xa5, 0xca,        //LDA hp
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xca,        //STA hp
+    0xa5, 0xcb,        //LDA mp
+    0xf0, 0x05,        //beq skip if mp is 0
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xcb,        //STA mp
+    0x4c, 0xcd, 0xf0,  //jmp 0xf0cd
+
+    //str-mp, 17
+    0xa5, 0xc9,        //LDA agi
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xc9,        //STA agi
+    0xa5, 0xca,        //LDA hp
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xca,        //STA hp
+    0x4c, 0xcd, 0xf0,  //jmp 0xf0cd
+
+    //agi-hp, 19
+    0xa5, 0xc8,        //LDA str
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xc8,        //STA str
+    0xa5, 0xcb,        //LDA mp
+    0xf0, 0x05,        //beq skip if mp is 0
+    0x20, 0x0c, 0xf1,  //JSR F10C  //JSR ReduceStat
+    0x85, 0xcb,        //STA mp
+    0x4c, 0xcd, 0xf0   //jmp 0xf0cd
+    );
+
+    text_scroller_extras(rom);
+}
+
+
+static void no_builds(dw_rom *rom)
+{
+    //Window Data for the no build options.
+    vpatch(rom, 0x7194, 64,
+    0xa1, //Window Options.  Selection window.
+    0x05, //Window Height.   5 blocks.
+    0x18, //Window Width.    24 tiles.
+    0x73, //Window Position. Y = 7 blocks, X = 3 blocks.
+    0x00, //Window columns.  1 column.
+    0x66, //Cursor home.     Y = 6 tiles, X = 6 tiles.
+    0x88, //Horizontal border, remainder of row.
+
+    0x81, 0x3c, 0x18, 0x1e, 0x81, 0x11, 0x0a, 0x1f, 0x0e, 0x81, 0x1e, 0x17, 0x15, 0x18, 0x0c, 0x14, 0x0e, 0x0d, 0x80, 0x80,             /* You have unlocked    */ //20
+    0x81, 0x22, 0x18, 0x1e, 0x1b, 0x81, 0x1d, 0x1b, 0x1e, 0x0e, 0x81, 0x19, 0x18, 0x1d, 0x0e, 0x17, 0x1d, 0x12, 0x0a, 0x15, 0x47, 0x80, /* your true potential. */ //22
+    0x80, 0x80,                                                                                                                         /*                      */ //2
+    0x86, 0x2f, 0x28, 0x37, 0x40, 0x36, 0x81, 0x2a, 0x32, 0x4c, 0x80,                                                                   /*      LET'S GO!       */ //11
+    0x80, 0x80);                                                                                                                        /*                      */ //2
+
+    /* Sets a new cursor bottom row. Lets the cursor cycle 0 positions instead of the original 3. */
+    vpatch(rom, 0x6a19, 1, 0x00);
+
+    //skips stat penalty checks
+    vpatch(rom, 0xf09e, 3,
+    0x4c, 0xcd, 0xf0);     // jmp $f0cd
+
+    text_scroller_extras(rom);
+}
+
+
+
+static void vanilla_builds(dw_rom *rom)
+{
+    uint16_t newcode = find_free_space(rom->content, 0xc422, 63);
+
+    //Window Data for the new build options.
+    vpatch(rom, newcode, 63,
+    0xa1, //Window Options.  Selection window.
+    0x07, //Window Height.   7 blocks.
+    0x12, //Window Width.    18 tiles.
+    0x74, //Window Position. Y = 7 blocks, X = 4 blocks.
+    0x00, //Window columns.  1 column.
+    0x46, //Cursor home.     Y = 4 tiles, X = 6 tiles.
+    0x88, //Horizontal border, remainder of row.
+
+    0x81, 0x33, 0x12, 0x0C, 0x14, 0x81, 0x24, 0x81, 0x25, 0x1E, 0x12, 0x15, 0x0D, 0x80, 0x80, 0x80,         /* Pick A Build   */ //16
+    0x86, 0x2B, 0x33, 0x49, 0x30, 0x33, 0x80, 0x80,                                                         /*      HP-MP     */ //8
+    0x86, 0x36, 0x1D, 0x1B, 0x49, 0x2B, 0x33, 0x80, 0x80,                                                   /*      Str-HP    */ //9
+    0x86, 0x24, 0x10, 0x12, 0x49, 0x30, 0x33, 0x80, 0x80,                                                   /*      Agi-MP    */ //9
+    0x86, 0x36, 0x1D, 0x1B, 0x49, 0x24, 0x10, 0x12, 0x80, 0x80,                                             /*      Str-Agi   */ //10
+    0x80, 0x80);                                                                                            /*                */ //2
+
+    /* Sets a new cursor bottom row. Lets the cursor cycle 4 positions instead of the original 3. */
+    vpatch(rom, 0x6a19, 1, 0x03);
+
+    build_extras(rom, newcode);
+}
+
+
+static void all_builds(dw_rom *rom)
+{
+    uint16_t newcode = find_free_space(rom->content, 0xc422, 77);
+
+    //Window Data for the new build options.
+    vpatch(rom, newcode, 77,
+    0xa1, //Window Options.  Selection window.
+    0x08, //Window Height.   8 blocks.
+    0x12, //Window Width.    18 tiles.
+    0x54, //Window Position. Y = 5 blocks, X = 4 blocks.
+    0x00, //Window columns.  1 column.
+    0x46, //Cursor home.     Y = 4 tiles, X = 6 tiles.
+    0x88, //Horizontal border, remainder of row.
+
+    0x81, 0x33, 0x12, 0x0C, 0x14, 0x81, 0x24, 0x81, 0x25, 0x1E, 0x12, 0x15, 0x0D, 0x80, 0x80, 0x80,         /* Pick A Build   */ //16
+    0x86, 0x2B, 0x33, 0x49, 0x30, 0x33, 0x80, 0x80,                                                         /*      HP-MP     */ //8
+    0x86, 0x36, 0x1D, 0x1B, 0x49, 0x2B, 0x33, 0x80, 0x80,                                                   /*      Str-HP    */ //9
+    0x86, 0x24, 0x10, 0x12, 0x49, 0x30, 0x33, 0x80, 0x80,                                                   /*      Agi-MP    */ //9
+    0x86, 0x36, 0x1D, 0x1B, 0x49, 0x24, 0x10, 0x12, 0x80, 0x80,                                             /*      Str-Agi   */ //10
+    0x86, 0x36, 0x1D, 0x1B, 0x49, 0x30, 0x33, 0x80, 0x80,                                                   /*      Str-MP    */ //9
+    0x86, 0x24, 0x10, 0x12, 0x49, 0x2B, 0x33, 0x80, 0x80);                                                  /*      Agi-HP    */ //9
+
+    /* Sets a new cursor bottom row. Lets the cursor cycle 6 positions instead of the original 3. */
+    vpatch(rom, 0x6a19, 1, 0x05);
+
+    build_extras(rom, newcode);
+}
+
+static void stat_build_choices(dw_rom *rom)
+{
+    if (NO_BUILDS(rom))
+        no_builds(rom);
+    else if (ALL_BUILDS(rom))
+        all_builds(rom);
+    else if (VANILLA_BUILDS(rom))
+        vanilla_builds(rom);
 }
 
 /**
@@ -1010,7 +1278,10 @@ static void update_mp_reqs(dw_rom *rom)
 
     printf("Changing MP requirements for spells...\n");
     for (i=0; i < 10; i++) {
-        rom->mp_reqs[i] = mp_reqs[i];
+        if(RANDOM_SPELL_COSTS(rom))
+            rom->mp_reqs[i] = mt_rand(1, 8);
+        else
+            rom->mp_reqs[i] = mp_reqs[i];
     }
 }
 
@@ -1351,6 +1622,27 @@ static void threes_company(dw_rom *rom)
 }
 
 /**
+ * Dragonlord learned from the best and will But Thou Must you
+ *
+ * @param rom The rom struct
+ */
+static void not_sharing_the_world(dw_rom *rom)
+{
+    if (THREES_COMPANY(rom))
+    {
+        vpatch(rom, 0xd4e7, 16,
+            0xa5, 0xdf, // LDA PlayerFlags
+            0x4a,       // LSR
+            0xb0, 0x03, // BCS: → carry was set, so rightmost bit was set, so we're carrying Gwaelin, skip the following JMP
+            0x4c, 0xbd, 0xd4, // JMP Really? Not carrying the princess so we're looping
+            0x20, 0xcb, 0xc7, 0xca, 0x20, 0xcb, 0xc7, 0xc2 // Two original dialogs
+        );
+    }
+    else
+        vpatch(rom, 0xd4e7, 3, 0x4c, 0xbd, 0xd4); // JMP Really? Not carrying the princess so we're looping
+}
+
+/**
  * Adds a new goal to bring the princess the radish vendor to finish the game
  *
  * @param rom The rom struct
@@ -1581,7 +1873,8 @@ static void other_patches(dw_rom *rom)
     vpatch(rom, 0x93c,  1, 0x6f); /* quit ignoring the customers */
     //vpatch(rom, 0x17a2, 3, 0, 0, 0); /* delete roaming throne room guard */
 
-    vpatch(rom, 0xf131, 2, 0x69, 0x03); /* Lock the stat build modifier at 3 */
+    if (!BUILD_OPTIONS(rom))
+        vpatch(rom, 0xf131, 2, 0x69, 0x03); /* Lock the stat build modifier at 3 */
 
     /* I always hated this wording */
 //     dwr_str_replace(rom, "The spell will not work", "The spell had no effect");
@@ -2750,15 +3043,16 @@ static void npc_shenanigans(dw_rom *rom)
             NPCsCountTables[NPCData[i][4]/2][NPCData[i][4]%2]++;
     }
 
-    // The top-left (0,0) tile in Rimuldar becomes an invisible block (NPC bytes 0,0,0) when there's fewer than 20 NPCs in the town.
-    // So let's at least make it a visible block (of water). Another viable solution would be to add a hook when we're in this
+    // The top-left (0,0) tile in Rimuldar and Cantlin becomes an invisible block (NPC bytes 0,0,0) when there's fewer than 20 NPCs in
+    // the town. So let's at least make it a visible block (of water). Another viable solution would be to add a hook when we're in this
     // situation to loop through fewer NPCs when in Rim and checking for NPC collisions, but I don't think it's worth it at the moment.
-    if(NPCsCountTables[7][0] + NPCsCountTables[7][1] < 20)
+    if(NPCsCountTables[7][0] + NPCsCountTables[7][1] < 20) // Rimuldar
         vpatch(rom, 0x0b62, 1, 0x20);
+    if(NPCsCountTables[6][0] + NPCsCountTables[6][1] < 20) // Cantlin
+        vpatch(rom, 0x08d8, 1, 0x46);
 
 	// After this sort, NPCData indexes are worthless references, so we use the last element of each row, which stores the original id
     qsort(NPCData, sizeof(NPCData)/(6*sizeof(uint8_t)), 6*sizeof(uint8_t), &compareLocation);
-
 
     // For every area
     for(i = 0; i<12; i++) {
@@ -3267,7 +3561,6 @@ void unbreakable_keys(dw_rom *rom)
     );
 }
 
-
 /**
  * Adds Crump's Brother forfeit trigger
  *
@@ -3653,6 +3946,81 @@ void speed_up_harp_and_princess(dw_rom *rom)
 }
 
 /**
+ * Changes the player's starting location and the direction they're facing when entering a town.
+ */
+static void random_town_entrances(dw_rom *rom)
+{
+    uint8_t town_index[] = {0, 2, 3, 9, 10, 11}; // Garinham, Kol, Brecconary, Rimuldar, Hauksness, Cantlin. Index in the direction & entrance position tables
+    uint16_t direction = 0x9914 - 0x8000; // Bank 0
+    uint16_t position = 0xf461; // Bank 3
+    uint8_t i;
+
+    uint8_t new_data[][4] = { // Town (using index above), direction, entrance x, entrance y
+        0,  DIR_RIGHT,  0, 14, // Garinham vanilla
+        0,  DIR_UP,    13, 19, // Garinham between weapons & inn
+        0,  DIR_LEFT,  19, 12, // Garinham right
+        2,  DIR_UP,    19, 23, // Kol vanilla
+        2,  DIR_DOWN,   3,  0, // Kol left of bath
+        2,  DIR_DOWN,  13,  0, // Kol right of bath
+        2,  DIR_LEFT,  23,  8, // Kol between weapons & inn
+        2,  DIR_LEFT,  23, 16, // Kol below weapons
+        2,  DIR_UP,     2, 23, // Kol bottom left
+        2,  DIR_RIGHT,  0,  9, // Kol below swamp
+        3,  DIR_RIGHT,  0, 15, // Brecconary vanilla
+        3,  DIR_DOWN,  14,  0, // Brecconary top
+        3,  DIR_LEFT,  29, 14, // Brecconary right
+        9,  DIR_LEFT,  29, 14, // Rimuldar vanilla
+        9,  DIR_RIGHT,  0,  3, // Rimuldar top left
+        9,  DIR_LEFT,  29,  0, // Rimuldar top right
+        9,  DIR_UP,    29, 29, // Rimuldar bottom right
+        9,  DIR_RIGHT,  0, 29, // Rimuldar bottom left
+        10, DIR_RIGHT,  0, 10, // Hauksness vanilla
+        10, DIR_RIGHT,  0,  7, // Hauksness, going clockwise
+        10, DIR_RIGHT,  0,  3,
+        10, DIR_DOWN,   3,  0,
+        10, DIR_DOWN,   7,  0,
+        10, DIR_DOWN,  15,  0,
+        10, DIR_DOWN,  18,  0,
+        10, DIR_LEFT,  19,  3,
+        10, DIR_LEFT,  19,  6,
+        10, DIR_LEFT,  19,  9,
+        10, DIR_LEFT,  19, 11,
+        10, DIR_LEFT,  19, 16,
+        10, DIR_LEFT,  19, 18,
+        10, DIR_UP,    16, 19,
+        10, DIR_UP,    12, 19,
+        10, DIR_UP,     9, 19,
+        10, DIR_UP,     7, 19,
+        10, DIR_UP,     2, 19,
+        10, DIR_UP,     1, 19,
+        10, DIR_RIGHT,  0, 19,
+        10, DIR_RIGHT,  0, 17,
+        11, DIR_DOWN,  15,  0, // Cantlin vanilla
+        11, DIR_DOWN,  25,  0, // Cantlin, going clockwise
+        11, DIR_LEFT,  29,  4,
+        11, DIR_LEFT,  29, 15,
+        11, DIR_LEFT,  29, 21,
+        11, DIR_UP,    20, 29,
+        11, DIR_UP,     9, 29,
+        11, DIR_RIGHT,  0, 19,
+        11, DIR_RIGHT,  0,  9,
+        11, DIR_RIGHT,  0,  4
+    };
+
+    if(!RANDOM_TOWN_ENTRANCES(rom))
+        return;
+
+    mt_shuffle(new_data, sizeof(new_data) / sizeof(new_data[0]), sizeof(new_data[0]));
+
+    // Yes, this does more writes than necessary. But I'm lazy
+    for(i=0; i<sizeof(new_data)/sizeof(new_data[0]); i++)
+    {
+        vpatch(rom, direction + new_data[i][0], 1, new_data[i][1]);
+        vpatch(rom, position  + 3*new_data[i][0] + 1, 2, new_data[i][2], new_data[i][3]);
+    }
+}
+
+/**
  * Does most of the randomization. Put in a new function since it's now reused
  *
  * @param rom The rom struct
@@ -3724,6 +4092,7 @@ void apply_stuff_to_rom(dw_rom *rom)
     shuffle_key_prices(rom);
     step_counter(rom);
     mask_ow_locations(rom);
+    random_town_entrances(rom);
 
     modern_spell_names(rom);
     randomize_music(rom);
@@ -3746,6 +4115,8 @@ void apply_stuff_to_rom(dw_rom *rom)
     chest_gold_amount(rom);
     speed_up_harp_and_princess(rom);
     forfeit_trigger(rom);
+    stat_build_choices(rom);
+    not_sharing_the_world(rom);
 }
 
 
@@ -3845,20 +4216,18 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
     return crc;
 }
 
-// Looks through the ROM for free space
+// Looks through the ROM for at least n bytes of free space
 uint16_t find_free_space(uint8_t *content, uint16_t start, uint8_t n)
 {
     BOOL found;
-    uint16_t i;
-    uint8_t j;
+    uint32_t i, j;
 
-    for(i = start; i <= 0xffff - n; i++)
+    for(i = start; i < 0xffff - n; i++)
     {
         found = TRUE;
         for(j = 0; j < n; j++)
         {
             // printf("%04x" PRIx16 ": %02x" PRIx8 "\n", i+j, content[i + j]);
-            // To help debug: printf("The battle_start_newcode is at: %04x" PRIu16 "\n", battle_start_newcode);
             if (content[i + j] != 0xff)
             {
                 found = FALSE;
@@ -3868,5 +4237,26 @@ uint16_t find_free_space(uint8_t *content, uint16_t start, uint8_t n)
         if(found)
             return i;
     }
-    return -1;
+    printf("Not enough space left for these %d bytes!\n", n);
+    abort();
+}
+
+// Looks through the ROM for free space and prints it
+void check_free_space(uint8_t *content, uint16_t start)
+{
+    uint32_t i, j;
+    for(i = start; i < 0xffff; i++)
+    {
+        for(j = 0; j < 0xffff - i; j++)
+        {
+            if (content[i + j] != 0xff)
+            {
+                i += j;
+                break;
+            }
+        }
+        if(j >= 10)
+            printf("%04x" PRIx16 ": %d bytes \n", i-j, j);
+    }
+    return;
 }

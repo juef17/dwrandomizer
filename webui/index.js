@@ -375,6 +375,17 @@ function setup_ui() {
         'Getting blocked by NPCs? Talk to them and they\re sure to let you pass!');
     ui.addTriOption('4',  4, 24, 5, 'Masked Overworld Locations',
         'Is it a cave, or is it a town? Enter to find out!');
+    ui.addDropDown ('4',  6, 24, 2, 'Build Options', {
+        'Unchanged' : 0,
+        'Vanilla' : 1,
+        'No builds' : 2,
+        'All builds': 3,
+        'One of the above': 4
+    });
+    ui.addTriOption('4',  8, 23, 0, 'Random Spell Costs',
+        'All spells have a random MP cost between 1 and 8.');
+    ui.addTriOption('4', 10, 24, 0, 'Random Town Entrances',
+        'The player\'s location upon entering a town will be changed.');
 
     // player sprite
     let spriteBox;

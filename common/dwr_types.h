@@ -341,5 +341,12 @@ typedef struct {
     dw_map_index princess_map;
 } dw_rom;
 
+typedef enum {
+    DIR_UP    = 0,
+    DIR_RIGHT = 1,
+    DIR_DOWN  = 2,
+    DIR_LEFT  = 3
+} DIRECTION;
+
 #endif
 

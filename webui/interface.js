@@ -348,7 +348,12 @@ class Interface {
             let sprite = localStorage.sprite || 'Random';
             if (!localStorage.getItem('rom_name') || localStorage.getItem('rom_name') == 'Click here to load your uncompressed ROM.')
                 alert("Please load an uncompressed Dragon Warrior ROM first.");
-            let checksum = rom.randomize(seed, flags, sprite);
+            try
+            {
+                var checksum = rom.randomize(seed, flags, sprite);
+            } catch (error) {
+                alert("Seed generation error 😢 Try turning off some \"big\" flags: Hurtmore Doors, Warp Whistle, Build Options, …");
+            }
             let paddedChecksum = String("0000000000000000" + checksum.toString(16)).slice(-16)
             this.showChecksum(true, paddedChecksum);
             this.checksumHolder.value = paddedChecksum;
