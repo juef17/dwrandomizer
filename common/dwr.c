@@ -3884,6 +3884,9 @@ void speed_up_harp_and_princess(dw_rom *rom)
     uint8_t space = 0x01;
     uint8_t length = 0x01;
 
+    if(!SPEED_HACKS(rom))
+        return;
+
     printf("Happiness is short-lived\n");
 
     // Silver Harp
