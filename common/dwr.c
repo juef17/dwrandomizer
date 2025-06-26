@@ -3717,13 +3717,13 @@ void chest_gold_amount(dw_rom *rom)
     }
     else if(CHEST_GOLD_AMOUNT(rom) == 3)
     {
-        base = mt_rand(1, 1745);
-        random = mt_rand(0, 255);
+        random = (1 << mt_rand(0, 8)) - 1; // 0, 1, 3, 7, 15, 31, 63, 127, 255
+        base = mt_rand(1, 2000 - random);
     }
     else if(CHEST_GOLD_AMOUNT(rom) == 4)
     {
-        base = 560;
-        random = 195;
+        random = 127;
+        base = 560 + mt_rand(0, 68); // Total of up to 560+68+127 = 755, minimum total of 560+0+0 = 560
     }
     vpatch(rom, random_address, 1, random);
     vpatch(rom, base_ub_address, 1, (base >> 8) & 0xff);
