@@ -3722,8 +3722,8 @@ void chest_gold_amount(dw_rom *rom)
     }
     else if(CHEST_GOLD_AMOUNT(rom) == 4)
     {
-        random = 127;
-        base = 560 + mt_rand(0, 68); // Total of up to 560+68+127 = 755, minimum total of 560+0+0 = 560
+        base = 560;
+        random = 255;
     }
     vpatch(rom, random_address, 1, random);
     vpatch(rom, base_ub_address, 1, (base >> 8) & 0xff);
