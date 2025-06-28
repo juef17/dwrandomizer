@@ -1639,7 +1639,7 @@ static void not_sharing_the_world(dw_rom *rom)
         );
     }
     else
-        vpatch(rom, 0xd4e7, 3, 0x4c, 0xbd, 0xd4); // JMP Really? Not carrying the princess so we're looping
+        vpatch(rom, 0xd4e7, 3, 0x4c, 0xbd, 0xd4); // JMP Really?
 }
 
 /**
