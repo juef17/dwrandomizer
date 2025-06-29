@@ -280,7 +280,7 @@ Another huge piece of work from Crump's Brother!
 * `Unchanged`: just what you're used to.
 * `Vanilla`: decouples the player's name from the stats build. Instead of choosing a text speed (which will automatically be set to `Fast`), the player chooses one of the normal stats build (and therefore can use whatever name they like).
 * `All Builds`: same as above, but adds two builds that have stats combination usually not possible in the vanilla game (HP-Agility and Strength-MP).
-* `No Builds`: the player gets the good long-term growth for all stats, and early game bonuses for all stats.
+* `No Builds`: the player gets the good long-term growth for all stats, and early game bonuses for strength and MP.
 
 
 ## Known Issues ##
