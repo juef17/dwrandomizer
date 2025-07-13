@@ -588,7 +588,7 @@ class Interface {
         if (!this.summary)
             return;
 
-        const standardFlags = 'IVIAAVCEKACBAAAAAAAAAEAUAAQBAAAAABYCAAAA';
+        const standardFlags = 'IVIAAVCEKACAAAAAAAAAAEAUAAQBAAAAABYCAAAA';
         const selectedFlags = this.flagsEl.value;
 
         this.flagsEl.value = standardFlags;

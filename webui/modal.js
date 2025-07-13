@@ -98,9 +98,9 @@ class FlagsModal extends Modal {
     constructor() {
         super(400, 300, 'Presets', null, 'Cancel');
         let builtinPresets = {
-            'Standard': 'IVIAAVCEKACBAAAAAAAAAEAUAAQBAAAAABYCAAAA',
+            'Standard': 'IVIAAVCEKACAAAAAAAAAAEAUAAQBAAAAABYCAAAA',
             'Fast Standard': 'IVIAAVCEKACFAAAAAAAAAIAUAAQBAAAAABYCAAAA',
-            'Easy Standard': 'IVIAAVCFKACBCQAAKAAAAZAUAAQBAAAAABYCAAAA',
+            'Easy Standard': 'IVIAAVCFKACACQAAKAAAAZAUAAQBAAAAABYCAAAA',
             'Tiebreaker': 'IVKQAVCFKEAFKRIAKAAAAYAUAAQBAAAAABYCAAAA',
             'Pre-2025 Standard': 'IVIAAVCEKACAAAAAAAAAAEAUAAABAAAAAAAAAAAA',
         }
