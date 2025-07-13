@@ -2565,18 +2565,18 @@ static void winter_theme(dw_rom *rom)
  */
 static void begin_quest_checksum(dw_rom *rom, uint64_t crc)
 {
-
     char crc_text[] = " CRC: XXXXXX";
+    const uint16_t newcode = find_free_space(rom->content, 0xc422, 40);
 
     // This grabs the checksum
     snprintf(crc_text+6, 7, "%016"PRIX64, crc);
 
     //replaces the "begin new quest" window data address
     //the old address was 0x72a8. the new address is 0xc7ec.
-    vpatch(rom, 0x6f8e, 2, 0xec, 0xc7);
+    vpatch(rom, 0x6f8e, 2, newcode & 0xff, (newcode >> 8) & 0xff);
 
     //our brand new "begin new quest" window
-    vpatch(rom, 0xc7ec, 7,
+    vpatch(rom, newcode, 7,
         0x81, //Window Options.  Selection window.
         0x02, //Window Height.   2 blocks.
         0x18, //Window Width.    24 tiles.
@@ -2587,10 +2587,10 @@ static void begin_quest_checksum(dw_rom *rom, uint64_t crc)
     );
 
     //Continues from above and fills out the checksum in the window
-    set_text(rom, 0xc7f3, crc_text);
+    set_text(rom, newcode+7, crc_text);
 
     //Continues after the checksum and fills in the remainder of window data.
-    vpatch(rom, 0xc800, 21,
+    vpatch(rom, newcode+19, 21,
         0x88, //Horizontal border, remainder of row. (still checksum row)
         // " BEGIN A NEW QUEST"
         0x81, 0x25, 0x28, 0x2A, 0x2C, 0x31, 0x81, 0x24,
@@ -4262,4 +4262,17 @@ void check_free_space(uint8_t *content, uint16_t start)
             printf("%04x" PRIx16 ": %d bytes \n", i-j, j);
     }
     return;
+}
+
+// Prints n bytes from the ROM at given starting address
+void print_rom_data(uint8_t *content, uint16_t start, uint8_t n)
+{
+    uint32_t i, j;
+    for(i = start; i < start+n; i+=16)
+    {
+        printf("%04x" PRIx16 ": ", i);
+        for(j = 0; j < 16 && i+j < 0xffff && i-start+j<n; j++)
+            printf("%02x" PRIx8 ", ", content[i + j]);
+        printf("\n");
+    }
 }

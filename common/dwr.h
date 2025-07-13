@@ -149,6 +149,7 @@ uint64_t dwr_randomize(const char* input_file, uint64_t seed, char *flags,
 uint16_t set_text(dw_rom *rom, const size_t address, char *text);
 uint16_t find_free_space(uint8_t *content, uint16_t start, uint8_t n);
 void check_free_space(uint8_t *content, uint16_t start);
+void print_rom_data(uint8_t *content, uint16_t start, uint8_t n);
 
 #ifdef __cplusplus
 }
