@@ -216,13 +216,13 @@ Here's a list of changed dialog:
 * NPC in Kol: `Hast thou been to the southern island?` (changed to `outside of this hamlet`), for the same reason)
 * Same NPC in Kol, if you say 'No': `To the south, I believe, there is a town called Rimuldar.`
 * NPC in Kol: `East of Hauksness there is a town, ’tis said, where one may purchase weapons of extraordinary quality.`
-* NPC in Garinham: `Once there was a town called Hawksness far to the south…`
+* NPC in Garinham: `Once there was a town called Hauksness far to the south…`
 * NPC in Garinham: `It is said that the Princess was kidnapped and taken eastward.` (for this one, I scrapped the direction: it might get confusing with 2 entrances to the cave, and with any or both of them being possibly in a town. I opted to instead give an hint about which cave she is in, in case you're playing with `Random Princess Location`.)
 * NPC in Rimuldar: `Heed my warning! Travel not to the south` (changed to `inside caves`, because I didn't want to mess with zones and enemies to find out the most difficult one. It'd be kinda pointless.)
 * NPC in Rimuldar: `Hast thou found a magic temple? (No:) Go to the south.`
 * NPC in Rimuldar: `Over the western part of this island Erdrick created a rainbow.` (again, the island thing is bad, so I opted for a more generic message without a direction)
 
-In most of the above, just the direction is changed. For instance, if you're in Kol, and Hawksness is at (50, 43) and Cantlin is at (44, 19), the NPC in the weapon shop will say: `North of Hauksness, 'tis said there is a town where one may purchase weapons of extraordinary quality.`, since Cantlin is just a bit West but a whole lot North of Hawksness.
+In most of the above, just the direction is changed. For instance, if you're in Kol, and Hauksness is at (50, 43) and Cantlin is at (44, 19), the NPC in the weapon shop will say: `North of Hauksness, 'tis said there is a town where one may purchase weapons of extraordinary quality.`, since Cantlin is just a bit West but a whole lot North of Hauksness.
 
 Also, the NPC in Rimuldar hinting towards the Rainbow Drop cave will give directions to Tantegel or Garinham, should that cave's entrance be there.
 
@@ -285,6 +285,7 @@ Another huge piece of work from Crump's Brother!
 
 ## Known Issues ##
 - In mcgrew's official DWR version, when a vendor is missing in Rimuldar (e.g. key vendor), the very top left tile of the town is an invisible wall. It doesn't matter then because there is no point in going there if there is no vendor. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration. Something similar happens with Cantlin.
+- `NPC Guillotine` can also trigger the above problem, but if that happens, the block won't be replaced with a water tile. That's the penalty for murder.
 - With the `Disguised Dragonlord` flag, there will likely be some graphical glitches in both Dragonlord fights, depending on his location. They are purely cosmetic and do not affect the ability to run away or to complete the game.
 - The village music plays after spending the night at the `Inn In Charlock`, but it fixes itself as the music changes to something else (e.g. enemy encounter, death necklace use, …).
 - The list of visited inns for the `Warp Whistle` flag is not saved in SRAM, meaning that turning off the game will reset your warpable location list to Tantegel only.

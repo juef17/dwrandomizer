@@ -3108,7 +3108,7 @@ static void npc_shenanigans(dw_rom *rom)
                         0f = Swamp cave north
                         15 = Swamp cave south
                         18 = Mountain cave
-                        1e = Hawksness
+                        1e = Hauksness
                         27 = Tablet cave
                         39 = Grave
                     */
@@ -3270,7 +3270,7 @@ void zoom_and_whistle(dw_rom *rom)
     zoom_data[5][0] = 0x0b; // Rimuldar
     find_zoom_tile(rom, 9, zoom_data, 5);
 
-    // zoom_data[6][0] = 0x03; // Hawksness
+    // zoom_data[6][0] = 0x03; // Hauksness
     // find_zoom_tile(rom, 10, zoom_data, 6);
 
     // Hooking into return casting code

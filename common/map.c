@@ -1118,7 +1118,7 @@ void fix_geography_talk(dw_rom *rom)
     set_direction(rom, 0x90EA, dir, TRUE);
     remove_useless_spaces(rom, 0x90EA);
 
-    // NPC in Garinham: "Once there was a town called Hawksness far to the south"
+    // NPC in Garinham: "Once there was a town called Hauksness far to the south"
     dir = find_direction(rom, WARP_GARINHAM, WARP_HAUKSNESS);
     set_direction(rom, 0x9385, dir, FALSE);
     remove_useless_spaces(rom, 0x9385);
