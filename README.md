@@ -149,12 +149,14 @@ Thanks to Cyberdark86, Angel_FM and friends, you can now save a very wintery-loo
 A new way to win the game: talk to the radish vendor while carrying Gwaelin so you can share those sweet, sweet radishes with her.
 
 
-#### Safer DWI, DWII & DWIV Running Mechanics ####
+#### New Running Mechanics ####
 
 Make the game use alternate mechanics for running away from an enemy from another game in the series. For Safer Dragon Warrior I, mechanics are untouched but a 4th run attempt will always be successful. For Dragon Warrior II, it's a flat 2/3 chance everytime. For Dragon Warrior IV, it goes like this:
 - On your first and second run attempt in a battle, you have a 50% chance to get away.
 - On your third run attempt in a battle, you have a 75% chance to get away.
 - On your fourth run attempt, or if the enemy's asleep, you're guaranteed to get away.
+
+For `Costs XP`, you are guaranteed to run away if your XP is ≥ the enemy's XP drop: in that case, that amount is deduced from your XP. Yes, this means you can lose levels! Running from either form of the Dragonlord will cost you 512 XP.
 
 This flag overrides both `Easy Charlock` and `Alternate Running Algorithm`.
 
@@ -286,7 +288,7 @@ Another huge piece of work from Crump's Brother!
 #### Insta-print Player Name ####
 
 Text boxes will now display the player's name instantly, rather than character by character. Notes:
-* Feature is ignored if the `Fast Text` flag is on (it shouldn't matter then anyway).
+* Feature is ignored if the `Fast Text` flag is on (it shouldn't matter then anyway) or a `Build Option` is selected (because Crump's Brother's code does something similar then).
 * Normal or Slow text speeds are converted to Fast. They could be handled but it would cost some bytes and pain, and nobody uses them anyway!
 * While the name prints instantly regardless of its length, having a long name might require more lines for some texts to be displayed, and that does take a little more time. To some extent, that is even true with mcgrew's official DWR when the `Fast Text` flag is on. But there really isn't anything to be done about that I think.
 

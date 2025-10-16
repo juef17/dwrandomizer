@@ -96,7 +96,7 @@ static void update_flags(dw_rom *rom)
     if(RADISH_FINISH(rom) == 2)         rom->flags[20] = (rom->flags[20] | 0xc0) & ((mt_rand(0, 1) << 6) | 0x3f);
     if(UNBREAKABLE_KEYS(rom) == 2)      rom->flags[20] = (rom->flags[20] | 0x0c) & ((mt_rand(0, 1) << 2) | 0xf3);
     if(ASCETIC_KING(rom) == 2)          rom->flags[20] = (rom->flags[20] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
-    if(DWX_RUN_MECHANICS(rom) == 4)     rom->flags[21] = (rom->flags[21] | 0xe0) & ((mt_rand(0, 3) << 5) | 0x1f);
+    if(DWX_RUN_MECHANICS(rom) == 7)     rom->flags[21] = (rom->flags[21] | 0xe0) & ((mt_rand(0, 4) << 5) | 0x1f);
     if(CHEST_GOLD_AMOUNT(rom) == 5)     rom->flags[21] = (rom->flags[21] | 0x1c) & ((mt_rand(0, 4) << 2) | 0xe3);
     if(RANDOM_PRINCESS_LOC(rom) == 2)   rom->flags[21] = (rom->flags[21] | 0x03) & ((mt_rand(0, 1)     ) | 0xfc);
     if(NORMALIZED_XP_GOLD(rom) == 2)    rom->flags[22] = (rom->flags[22] | 0x06) & ((mt_rand(0, 1) << 1) | 0xf9);
@@ -396,6 +396,10 @@ void dwx_run_mechanics(dw_rom *rom)
     uint16_t tryrunsafer_newcode_check_n;
     const uint16_t tryrunsafer_hook_inc_n = 0xe8a1; // Hook into original code (overwrites jmp to enemy turn)
     uint16_t tryrunsafer_newcode_inc_n;
+    const uint8_t xp_player_lo = 0xba;
+    const uint8_t xp_player_hi = 0xbb;
+    const uint16_t xp_enemy_lo = 0x0106;
+    const uint16_t xp_enemy_hi = 0x0107;
 
     if(DWX_RUN_MECHANICS(rom) == 1) // DW2
     {
@@ -403,6 +407,37 @@ void dwx_run_mechanics(dw_rom *rom)
             0xa5, 0x95,			// lda $95 (random)
             0xc9, 0x55,			// cmp #$55 (1/3 of 0xff)
             0x60	  			// rts
+        );
+        return;
+    }
+    else if(DWX_RUN_MECHANICS(rom) == 4) // Costs XP
+    {
+        vpatch(rom, tryrun_newcode, 37,
+            // Check if we're fighting the Dragonlord
+            0xad, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,  // lda xp_enemy_lo
+            0x0d, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // ora xp_enemy_hi
+            0xd0, 0x05,         // BNE to next part — no, we're not fighting the Dragonlord
+            0xa9, 0x02,         // LDA 2 — let's make the Dragonlord cost 512 XP
+            0x8d, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // STA xp_enemy_hi
+            
+            // Check if player's XP is sufficient, and store subtraction result while at it
+            0x38,               // SEC
+            0xa5, xp_player_lo, // LDA xp_player_lo
+            0xed, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,  // SBC xp_enemy_lo
+            0x48,               // PHA — store low byte subtraction result
+            0xa5, xp_player_hi, // LDA xp_player_hi
+            0xed, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // SBC xp_enemy_hi
+            0x90, 0x07,         // BCC to next part — oops, player doesn't have enough XP
+            0x85, xp_player_hi, // STA xp_player_hi
+            0x68,               // PLA — get result from low byte subtraction
+            0x85, xp_player_lo, // STA xp_player_lo
+            0x38,               // SEC
+            0x60,               // RTS — we're done, run success!
+            
+            // Player doesn't have enough XP
+            0x68,               // PLA — discard result from low byte subtraction
+            0x18,	  			// CLC : nope, we didn't run away. Clear carry
+            0x60                // RTS — we're done, run fail!
         );
         return;
     }
@@ -925,6 +960,27 @@ static void randomize_spells(dw_rom *rom)
 
 static void text_scroller_extras(dw_rom *rom)
 {
+    /* Hard code fast message speed for text scroller */
+    vpatch(rom, 0x7a31, 2, 0xa2, 0x00);
+
+    /* Xarnax42, "I can't wait til we get Crump's feature that separates name from build and I can be ."
+       Well, we can't have that now can we? I'm affectionately calling this the Xarnax42 patch.
+       It makes sure a 0 length name still prints 1 character in the dialog box. */
+    vpatch(rom, 0x7881, 19,
+    0xa5, 0xb5,        // lda 0xb5
+    0xc9, 0x60,        // cmp 0x60
+    0xd0, 0x02,        // bne ##
+    0xa9, 0x49,        // lda 0x49
+    0x99, 0x54, 0x65,  // sta 6554
+    0xc8,              // iny
+    0xc0, 0x08,        // cmp 08
+    0xd0, 0xf8,        // bne -8
+    0xe8, 0xe8, 0xe8   // inx inx inx (this is the only way I know to eat up space in a benign way)
+    );
+
+    /* Tells the text scroller to only ever print the first letter of the character name. */
+    vpatch(rom, 0x7895, 1, 0x01);
+
     /* Defaults stat menu selection to the 0 option.*/
     vpatch(rom, 0xf8d5, 1, 0x00);
 }
@@ -4010,8 +4066,9 @@ static void random_town_entrances(dw_rom *rom)
 void instant_name_print(dw_rom *rom)
 {
 	uint16_t newcodeSetSpeed, newcodeFindNameLength;
-
-    if (FAST_TEXT(rom))
+    
+    // Crump's Brother's code always prints exactly 1 character of the player's name, and uses MessageSpeed for storing the selected build. Either his code or the following could be adjusted to share that zeropage address (0xe5), but… unless it really bothers someone, I'm not messing with that for the little it changes.
+    if (FAST_TEXT(rom) || BUILD_OPTIONS(rom))
         return;
     
     vpatch(rom, 0x79f4, 1, 0x46 + 12); // That nasty BEQ to the next RTS eluded me for a while
@@ -4021,7 +4078,7 @@ void instant_name_print(dw_rom *rom)
         0xe0, 0x00,         // CPX 0 — Is MessageSpeed == 0?
         0xd0, 0x03,         // BNE 3 — No, branch over NMI
         0x20, 0x74, 0xff,   // JSR WaitForNMI
-        0xa6, 0xe5,         // LDX MessageSpeed (apparently WaitForNMI messes with X?)
+        0xa6, 0xe5,         // LDX MessageSpeed
         0xe0, 0x00,         // CPX 0 — Is MessageSpeed == 0?
         0xf0, 0x02,         // BEQ 2 — No, branch over DEC
         0xc6, 0xe5,         // DEC MessageSpeed
@@ -4056,7 +4113,6 @@ void instant_name_print(dw_rom *rom)
         0x68,               // PLA
         0x4c, 0xf9, 0xb7    // Original JMP
     );
-
 }
 
 /**

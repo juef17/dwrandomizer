@@ -352,7 +352,7 @@ class Interface {
             {
                 var checksum = rom.randomize(seed, flags, sprite);
             } catch (error) {
-                alert("Seed generation error 😢 Try turning off some \"big\" flags: Hurtmore Doors, Warp Whistle, Build Options, …");
+                alert("Seed generation error 😢 Reload the page and make sure the version number shows under the logo before you hit 'Randomize!' (which can take a few seconds because of my slow host). If the problem persists, try turning off some \"big\" flags: Hurtmore Doors, Warp Whistle, Build Options, …");
             }
             let paddedChecksum = String("0000000000000000" + checksum.toString(16)).slice(-16)
             this.showChecksum(true, paddedChecksum);

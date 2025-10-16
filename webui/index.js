@@ -275,7 +275,8 @@ function setup_ui() {
         'Safer DW I' : 3,
         'DW II' : 1,
         'DW IV' : 2,
-        'Random': 4
+        'Costs XP' : 4,
+        'Random': 7
     });
     ui.addDropDown ('New: 1', 11, 18, 5, 'Bonk Dmg', {
         'None' : 0,
