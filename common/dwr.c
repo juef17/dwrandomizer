@@ -925,30 +925,8 @@ static void randomize_spells(dw_rom *rom)
 
 static void text_scroller_extras(dw_rom *rom)
 {
-    /* Hard code fast message speed for text scroller */
-    vpatch(rom, 0x7a31, 2, 0xa2, 0x00);
-
-    /* Xarnax42, "I can't wait til we get Crump's feature that separates name from build and I can be ."
-       Well, we can't have that now can we? I'm affectionately calling this the Xarnax42 patch.
-       It makes sure a 0 length name still prints 1 character in the dialog box. */
-    vpatch(rom, 0x7881, 19,
-    0xa5, 0xb5,        // lda 0xb5
-    0xc9, 0x60,        // cmp 0x60
-    0xd0, 0x02,        // bne ##
-    0xa9, 0x49,        // lda 0x49
-    0x99, 0x54, 0x65,  // sta 6554
-    0xc8,              // iny
-    0xc0, 0x08,        // cmp 08
-    0xd0, 0xf8,        // bne -8
-    0xe8, 0xe8, 0xe8   // inx inx inx (this is the only way I know to eat up space in a benign way)
-    );
-
-    /* Tells the text scroller to only ever print the first letter of the character name. */
-    vpatch(rom, 0x7895, 1, 0x01);
-
     /* Defaults stat menu selection to the 0 option.*/
     vpatch(rom, 0xf8d5, 1, 0x00);
-
 }
 
 static void build_extras(dw_rom *rom, uint16_t new_window_data)
@@ -4024,6 +4002,64 @@ static void random_town_entrances(dw_rom *rom)
 }
 
 /**
+ * Makes the hero name print instantly, regardless of its length or the message speed.
+ * This resets message speed to Fast, so if you're using normal or slow, too bad.
+ *
+ * @param rom The rom struct
+ */
+void instant_name_print(dw_rom *rom)
+{
+	uint16_t newcodeSetSpeed, newcodeFindNameLength;
+
+    if (FAST_TEXT(rom))
+        return;
+    
+    vpatch(rom, 0x79f4, 1, 0x46 + 12); // That nasty BEQ to the next RTS eluded me for a while
+   
+    // If MessageSpeed ≠ 0, we're printing the name, so skip the WaitForNMI and decrement MessageSpeed so we know we printed 1 character
+    vpatch(rom, 0x7a33, 21,
+        0xe0, 0x00,         // CPX 0 — Is MessageSpeed == 0?
+        0xd0, 0x03,         // BNE 3 — No, branch over NMI
+        0x20, 0x74, 0xff,   // JSR WaitForNMI
+        0xa6, 0xe5,         // LDX MessageSpeed (apparently WaitForNMI messes with X?)
+        0xe0, 0x00,         // CPX 0 — Is MessageSpeed == 0?
+        0xf0, 0x02,         // BEQ 2 — No, branch over DEC
+        0xc6, 0xe5,         // DEC MessageSpeed
+        0xa2, 0x00,         // LDX 0x00
+        0xca,               // DEX
+        0xe6, 0xd2,         // INC Caracter position or something
+        0x60                // RTS
+    );
+
+    // When finding name length, we know the buffer contains the player name if we set MessageSpeed to 0xff: replace it with the name length
+    newcodeFindNameLength = find_free_space(rom->content, 0xc82b, 15);
+    vpatch(rom, 0x7897, 2, newcodeFindNameLength & 0xff, (newcodeFindNameLength >> 8) & 0xff); // Hook in NameToNameBuf at JSR FindNameEnd
+    vpatch(rom, newcodeFindNameLength, 15,
+        0x20, 0xd9, 0xb8,   // JSR FindNameEnd (original code)
+        0x48,               // PHA
+        0xa5, 0xe5,         // LDA MessageSpeed
+        0xc9, 0xff,         // CMP #FF — Are we printing the name?
+        0x90, 0x03,         // BCC: no, skip to PLA+RTS
+        0x98,               // TYA — A now contains name length
+        0x85, 0xe5,         // STA MessageSpeed
+        0x68,               // PLA
+        0x60                // RTS
+    );
+
+    // Set MessageSpeed = ff when we know we're about to print the name.
+    newcodeSetSpeed = find_free_space(rom->content, 0xc82b, 9);
+    vpatch(rom, 0x76b6, 2, newcodeSetSpeed & 0xff, (newcodeSetSpeed >> 8) & 0xff); // Hook over JMP DoNAME
+    vpatch(rom, newcodeSetSpeed, 9,
+        0x48,               // PHA
+        0xa9, 0xff,         // LDA #FF
+        0x85, 0xe5,         // STA MessageSpeed
+        0x68,               // PLA
+        0x4c, 0xf9, 0xb7    // Original JMP
+    );
+
+}
+
+/**
  * Does most of the randomization. Put in a new function since it's now reused
  *
  * @param rom The rom struct
@@ -4038,11 +4074,13 @@ void apply_stuff_to_rom(dw_rom *rom)
     memset(&rom->content[0x6181], 0xff, 0x6194 - 0x6181);
     memset(&rom->content[0x6bc0], 0xff, 0x6bc4 - 0x6bc0);
 #endif
+    memset(&rom->content[0x7a3c], 0xff, 0x7a59 - 0x7a3c); // Might be partially used by code that is just before that (making hero name print instantly)
     memset(&rom->content[0xc288], 0xff, 0xc529 - 0xc288);
     memset(&rom->content[0xc6c9], 0xff, 0xc6f0 - 0xc6c9);
     memset(&rom->content[0xc7ec], 0xff, 0xc9b5 - 0xc7ec);
     memset(&rom->content[0xf232], 0xff, 0xf35b - 0xf232);
 
+    instant_name_print(rom);
     show_spells_learned(rom);
     other_patches(rom);
     short_charlock(rom);

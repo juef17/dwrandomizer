@@ -283,6 +283,14 @@ Another huge piece of work from Crump's Brother!
 * `No Builds`: the player gets the good long-term growth for all stats, and early game bonuses for strength and MP.
 
 
+#### Insta-print Player Name ####
+
+Text boxes will now display the player's name instantly, rather than character by character. Notes:
+* Feature is ignored if the `Fast Text` flag is on (it shouldn't matter then anyway).
+* Normal or Slow text speeds are converted to Fast. They could be handled but it would cost some bytes and pain, and nobody uses them anyway!
+* While the name prints instantly regardless of its length, having a long name might require more lines for some texts to be displayed, and that does take a little more time. To some extent, that is even true with mcgrew's official DWR when the `Fast Text` flag is on. But there really isn't anything to be done about that I think.
+
+
 ## Known Issues ##
 - In mcgrew's official DWR version, when a vendor is missing in Rimuldar (e.g. key vendor), the very top left tile of the town is an invisible wall. It doesn't matter then because there is no point in going there if there is no vendor. But since vendors can now be shuffled, it can be a valid check, and notably, coupling this with Damage Bonks could ruin a player's day. The block has been replaced with a water tile to avoid player frustration. Something similar happens with Cantlin.
 - `NPC Guillotine` can also trigger the above problem, but if that happens, the block won't be replaced with a water tile. That's the penalty for murder.
