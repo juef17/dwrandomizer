@@ -391,6 +391,7 @@ void dwx_run_mechanics(dw_rom *rom)
 	const uint16_t ram_blocks = 0x663c;
     const uint16_t battle_start_hook = 0xe4f0;
     const uint16_t battle_start_newcode = find_free_space(rom->content, 0xc422, 8);
+    const uint16_t costs_xp_newcode = find_free_space(rom->content, 0xc422, 14);
     const uint16_t tryrun_newcode = 0xee94; // Overwrites original code post rng call
     const uint16_t tryrunsafer_hook_check_n = 0xe898; // Hook into original code (overwrites jsr to TryRun)
     uint16_t tryrunsafer_newcode_check_n;
@@ -410,15 +411,24 @@ void dwx_run_mechanics(dw_rom *rom)
         );
         return;
     }
-    else if(DWX_RUN_MECHANICS(rom) == 4) // Costs XP
+    else if(DWX_RUN_MECHANICS(rom) == 4) // Costs XP.
     {
-        vpatch(rom, tryrun_newcode, 37,
-            // Check if we're fighting the Dragonlord
-            0xad, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,  // lda xp_enemy_lo
-            0x0d, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // ora xp_enemy_hi
-            0xd0, 0x05,         // BNE to next part — no, we're not fighting the Dragonlord
-            0xa9, 0x02,         // LDA 2 — let's make the Dragonlord cost 512 XP
-            0x8d, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // STA xp_enemy_hi
+        vpatch(rom, costs_xp_newcode, 14,
+            0x4e, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,   // LSR xp_enemy_hi
+            0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
+            0x4e, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,   // LSR xp_enemy_hi
+            0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
+            0x18,	  			// CLC : the rest of xp_enemy_hi were zeroes anyway, let's just make sure the following ROR is okay
+            0x60                // RTS
+        );
+        vpatch(rom, tryrun_newcode, 14+23+10,
+            // Enemy XP /= 8
+            0xad, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // LDA xp_enemy_hi
+            0x48,               // save xp_enemy_hi
+            0xad, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,  // LDA xp_enemy_lo
+            0x48,               // save xp_enemy_lo
+            0x20, costs_xp_newcode & 0xff, (costs_xp_newcode >> 8) & 0xff,  // JSR subroutine to save bytes here
+            0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
             
             // Check if player's XP is sufficient, and store subtraction result while at it
             0x38,               // SEC
@@ -427,16 +437,21 @@ void dwx_run_mechanics(dw_rom *rom)
             0x48,               // PHA — store low byte subtraction result
             0xa5, xp_player_hi, // LDA xp_player_hi
             0xed, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // SBC xp_enemy_hi
-            0x90, 0x07,         // BCC to next part — oops, player doesn't have enough XP
+            0x90, 0x09,         // BCC to next part — oops, player doesn't have enough XP
             0x85, xp_player_hi, // STA xp_player_hi
             0x68,               // PLA — get result from low byte subtraction
             0x85, xp_player_lo, // STA xp_player_lo
+            0x68,               // PLA — discard original xp_enemy_lo
+            0x68,               // PLA — discard original xp_enemy_hi
             0x38,               // SEC
             0x60,               // RTS — we're done, run success!
             
-            // Player doesn't have enough XP
+            // Player doesn't have enough XP, restore original enemy XP and return with fail
             0x68,               // PLA — discard result from low byte subtraction
-            0x18,	  			// CLC : nope, we didn't run away. Clear carry
+            0x68,               // PLA — restore xp_enemy_lo
+            0x8d, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // STA xp_enemy_lo
+            0x68,               // PLA — restore xp_enemy_hi
+            0x8d, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,   // STA xp_enemy_hi
             0x60                // RTS — we're done, run fail!
         );
         return;
