@@ -413,22 +413,22 @@ void dwx_run_mechanics(dw_rom *rom)
     }
     else if(DWX_RUN_MECHANICS(rom) == 4) // Costs XP.
     {
-        vpatch(rom, costs_xp_newcode, 14,
+        vpatch(rom, costs_xp_newcode, 17,
             0x4e, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,   // LSR xp_enemy_hi
             0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
             0x4e, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,   // LSR xp_enemy_hi
             0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
             0x18,	  			// CLC : the rest of xp_enemy_hi were zeroes anyway, let's just make sure the following ROR is okay
+            0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
             0x60                // RTS
         );
-        vpatch(rom, tryrun_newcode, 14+23+10,
+        vpatch(rom, tryrun_newcode, 11+23+10,
             // Enemy XP /= 8
             0xad, xp_enemy_hi & 0xff, (xp_enemy_hi >> 8) & 0xff,  // LDA xp_enemy_hi
             0x48,               // save xp_enemy_hi
             0xad, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,  // LDA xp_enemy_lo
             0x48,               // save xp_enemy_lo
             0x20, costs_xp_newcode & 0xff, (costs_xp_newcode >> 8) & 0xff,  // JSR subroutine to save bytes here
-            0x6e, xp_enemy_lo & 0xff, (xp_enemy_lo >> 8) & 0xff,   // ROR xp_enemy_lo
             
             // Check if player's XP is sufficient, and store subtraction result while at it
             0x38,               // SEC
