@@ -1,0 +1,124 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #888;
+    margin: 0;
+    font-size: 16px;
+    /* prevent chrome mobile from being stupid */
+    -webkit-text-size-adjust: none;
+}
+
+#application {
+    background-color: #fff;
+    max-width: 800px;
+    padding: 1em;
+    margin: auto;
+    user-select: none;
+}
+
+#application > img {
+   filter: drop-shadow(2px 2px 1px #aaa);
+}
+
+h1, h3 {
+    text-align: center;
+}
+
+tabbar {
+    display: block;
+}
+
+tab {
+    display: inline-block;
+    border: 1px solid black;
+    border-bottom-width: 0;
+    padding: 0.5em 1em;
+    margin: 0;
+    background-color: #ddd;
+    border-radius: 4px 4px 0 0;
+    font-weight: bold;
+}
+
+tab.active {
+    padding: calc(0.5em + 2px) 1em 0.5em 1em;
+    position: relative;
+    top: 1px;
+}
+
+tab:hover, tab.active {
+    background-color: #fff;
+}
+
+tabcontent {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 50px 50px 50px 50px 50px 50px;
+    border: 1px solid black;
+    border-radius: 0 0 4px 4px;
+    padding: 3em;
+}
+
+/* Hide the "spinner" in number fields */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.modal {
+    background-color: #fff;
+}
+
+.invalid {
+    border-color: red;
+}
+
+div.description {
+    color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #111;
+        color: #ccc;
+    }
+
+    #application {
+        background-color: #333;
+    }
+
+    tab {
+        background-color: #222;
+    }
+
+    tab:hover, tab.active {
+        background-color: #333;
+    }
+
+    button, select {
+        background-color: #333;
+        color: #ccc;
+        border-color: #3a3a3a;
+    }
+    input {
+        background-color: #111;
+        color: #ccc;
+        border-color: #333;
+    }
+    #application > img {
+       filter: drop-shadow(2px 2px 1px #000);
+    }
+    div.description {
+        color: #888;
+    }
+
+    .modal {
+        background-color: #333;
+    }
+
+}
