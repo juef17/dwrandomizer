@@ -1,6 +1,6 @@
 # Dragon Warrior Randomizer - juef edition #
 
-This is a fork of [mcgrew's official Dragon Warrior Randomizer](https://dwrandomizer.com/), which you should use if you're looking for a fine, balanced and tuned experience! This unofficial version is merely a playground for me 🙂 Seed numbers and flags are incompatible with the official version. A prebuilt web app of this fork can be found [here](https://juef17.github.io/dwrandomizer/), with <b>most of the new features in the 'New 1', 'New 2' and 'New 3' tabs</b>.
+This is a fork of [mcgrew's official Dragon Warrior Randomizer](https://dwrandomizer.com/), which you should use if you're looking for a fine, balanced and tuned experience! This unofficial version is merely a playground for me 🙂 Seed numbers and flags are incompatible with the official version. A prebuilt web app of this fork can be found [here](https://juef17.github.io/dwrandomizer/), with <b>most of the new features in the rightmost tabs</b>.
 
 ## New features ##
 
