@@ -1,6 +1,6 @@
 # Dragon Warrior Randomizer - juef edition #
 
-This is a fork of [mcgrew's official Dragon Warrior Randomizer](https://dwrandomizer.com/), which you should use if you're looking for a fine, balanced and tuned experience! This unofficial version is merely a playground for me 🙂 Seed numbers and flags are incompatible with the official version. A prebuilt web app of this fork can be found [here](https://snestop.jerther.com/misc/dwr/unofficial_juef/), with <b>most of the new features in the 'New 1', 'New 2' and 'New 3' tabs</b>.
+This is a fork of [mcgrew's official Dragon Warrior Randomizer](https://dwrandomizer.com/), which you should use if you're looking for a fine, balanced and tuned experience! This unofficial version is merely a playground for me 🙂 Seed numbers and flags are incompatible with the official version. A prebuilt web app of this fork can be found [here](https://juef17.github.io/dwrandomizer/), with <b>most of the new features in the 'New 1', 'New 2' and 'New 3' tabs</b>.
 
 ## New features ##
 
@@ -198,7 +198,7 @@ The amount of gold that gold chests hold can now be modified.
 
 #### Random Princess Location ####
 
-Gwaelin might not be in her usual Swamp Cave today. Look for her in [one of these](https://snestop.jerther.com/misc/dwr/random_princess_location/) locations (or in her vanilla spot). **Beware:** if `Stair Shuffle` is on, the randomizer will ***not*** check if the princess is accessible without going through Charlock. If you do turn both flags on, it is strongly recommended to also have `Open Charlock` on.
+Gwaelin might not be in her usual Swamp Cave today. Look for her in [one of these](https://juef.free.nf/dwr/random_princess_location/) locations (or in her vanilla spot). **Beware:** if `Stair Shuffle` is on, the randomizer will ***not*** check if the princess is accessible without going through Charlock. If you do turn both flags on, it is strongly recommended to also have `Open Charlock` on.
 
 
 #### Normal Flute Speed ####
@@ -231,7 +231,7 @@ Also, the NPC in Rimuldar hinting towards the Rainbow Drop cave will give direct
 
 #### Normalized Monster XP/Gold ####
 
-XP and Gold gained from monsters will be randomized, but within pre-set, hardcoded limits. These limits have been determined by aaron2u2 with help from omegastrep. This flag will override others that modify the same values.
+XP and Gold gained from monsters will be randomized, but within [pre-set, hardcoded limits](https://juef.free.nf/dwr/Normalized_XP_Gold.html). These limits have been determined by aaron2u2 with help from omegastrep. This flag will override others that modify the same values.
 
 
 #### Disable Music / Don't Mute Jingles ####
@@ -268,7 +268,7 @@ Spells cost a random amount of MP between 1 and 8.
 
 #### Random Town Entrances ####
 
-The player's location upon entering a town will be randomized. Note: Garinham has no entrance that is behind the door.
+The player's location upon entering a town will be randomized. Note: Garinham has no entrance that is behind the door. All possible entrances are listed [here](https://juef.free.nf/dwr/random_town_entrances/).
 
 
 #### Forfeit Trigger ####
