@@ -156,7 +156,7 @@ Make the game use alternate mechanics for running away from an enemy from anothe
 - On your third run attempt in a battle, you have a 75% chance to get away.
 - On your fourth run attempt, or if the enemy's asleep, you're guaranteed to get away.
 
-For `Costs XP`, you are guaranteed to run away if your XP is ≥ 1/8th of the enemy's XP drop: in that case, that amount is deduced from your XP. Yes, this means you can lose levels!
+For `Costs XP`, you are guaranteed to run away if your XP is ≥ 1/8th of the enemy's XP drop: in that case, that amount is deduced from your XP. Yes, this means you can lose levels! Also, note that running from sleeping enemies won't cost you XP, nor will running from either Dragonlord form (as they don't give experience).
 
 This flag overrides both `Easy Charlock` and `Alternate Running Algorithm`.
 
